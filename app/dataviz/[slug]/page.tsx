@@ -28,10 +28,10 @@ export async function generateMetadata({
     path: `/dataviz/${slug}`,
     title: `${project.title} — Données en cause`,
     description: project.description,
-    image: project.slug === "feux-de-foret" ? "/og-feux-de-foret.png" : undefined,
+    image: project.slug === "feux-de-foret" ? "/og-feux-de-foret-2026.png" : undefined,
     imageAlt:
       project.slug === "feux-de-foret"
-        ? "Quand la France prend feu — carte des incendies en France de 2006 à 2024"
+        ? "Quand la France prend feu — carte des incendies en France de 2006 à 2026"
         : undefined,
   });
 }

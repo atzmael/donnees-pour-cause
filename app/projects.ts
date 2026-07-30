@@ -22,7 +22,7 @@ export const projects: Project[] = [
     year: "2026",
     tags: ["Feux de forêt", "Climat", "Données publiques"],
     visual: "map",
-    stat: "19 ans",
+    stat: "21 ans",
     statLabel: "d’évolution à explorer",
   },
 ];

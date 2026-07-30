@@ -37,6 +37,8 @@ const NATIONAL_DATA: NationalYear[] = [
   {year: 2022, fireCount: 7420, burnedArea: 66200, temperature: 2.3},
   {year: 2023, fireCount: 5480, burnedArea: 22400, temperature: 2.1},
   {year: 2024, fireCount: 4310, burnedArea: 14200, temperature: 2},
+  {year: 2025, fireCount: 4860, burnedArea: 18700, temperature: 2.2},
+  {year: 2026, fireCount: 3180, burnedArea: 12600, temperature: 1.8},
 ];
 
 const METRICS: Record<Metric, {label: string; unit: string}> = {
@@ -135,7 +137,7 @@ function MiniTimeline({metric, selectedYear, onSelect}: {
         <strong>{METRICS[metric].label}</strong>
         <span>{formatValue(selected[metric], metric)}</span>
       </div>
-      <svg viewBox={`0 0 ${width} ${height}`} role="img" aria-label={`${METRICS[metric].label}, de 2006 à 2024`}>
+      <svg viewBox={`0 0 ${width} ${height}`} role="img" aria-label={`${METRICS[metric].label}, de 2006 à 2026`}>
         <line x1="16" x2="902" y1="71" y2="71" />
         <polyline points={points} />
         {NATIONAL_DATA.map((item, index) => (
@@ -155,14 +157,14 @@ function MiniTimeline({metric, selectedYear, onSelect}: {
           />
         ))}
         <text x="16" y="87">2006</text>
-        <text x="902" y="87" textAnchor="end">2024</text>
+        <text x="902" y="87" textAnchor="end">2026</text>
       </svg>
     </div>
   );
 }
 
 export function ForestFiresDataviz() {
-  const [year, setYear] = useState(2022);
+  const [year, setYear] = useState(2026);
   const [metric, setMetric] = useState<Metric>("burnedArea");
   const [features, setFeatures] = useState<DepartmentFeature[]>([]);
   const [selectedCode, setSelectedCode] = useState("33");
@@ -208,15 +210,16 @@ export function ForestFiresDataviz() {
       </header>
 
       <section className="fire-hero">
-        <p className="kicker">FEUX DE FORÊT · FRANCE MÉTROPOLITAINE · 2006—2024</p>
+        <p className="kicker">FEUX DE FORÊT · FRANCE MÉTROPOLITAINE · 2006—2026</p>
         <h1>Quand la France<br /><em>prend feu</em></h1>
         <p className="fire-deck">
-          Dix-neuf années d’incendies mises en regard des températures pour comprendre
+          Vingt et une années d’incendies mises en regard des températures pour comprendre
           où les feux se concentrent — et pourquoi certaines saisons laissent une trace hors norme.
         </p>
         <div className="fire-demo-note">
           <span>Premier jet</span>
-          Les valeurs sont des données de démonstration destinées à tester la narration et les interactions.
+          Les valeurs sont des données de démonstration. L’année 2026 est provisoire
+          et devra toujours être accompagnée de sa date d’arrêté.
         </div>
         <a href="#chronologie" className="fire-scroll-link">Explorer les années ↓</a>
       </section>
@@ -246,7 +249,7 @@ export function ForestFiresDataviz() {
           <div className="fire-year-control">
             <button type="button" onClick={() => setYear(Math.max(2006, year - 1))} disabled={year === 2006} aria-label="Année précédente">←</button>
             <strong>{year}</strong>
-            <button type="button" onClick={() => setYear(Math.min(2024, year + 1))} disabled={year === 2024} aria-label="Année suivante">→</button>
+            <button type="button" onClick={() => setYear(Math.min(2026, year + 1))} disabled={year === 2026} aria-label="Année suivante">→</button>
           </div>
         </div>
 
@@ -292,6 +295,7 @@ export function ForestFiresDataviz() {
 
           <aside className="fire-map-aside" aria-live="polite">
             <p className="kicker">FRANCE · {year}</p>
+            {year === 2026 && <span className="fire-provisional">Année en cours · données provisoires</span>}
             <strong className="fire-national-value">{formatValue(selectedNational[metric], metric)}</strong>
             <span className="fire-national-label">{METRICS[metric].label} au niveau national</span>
 

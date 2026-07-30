@@ -452,6 +452,18 @@ em { color: var(--color-primary); font-style: normal; }
 .fire-map-aside { padding: 34px 0 0 40px; }
 .fire-national-value { display: block; margin-top: 23px; font-size: clamp(36px, 4vw, 57px); letter-spacing: -2px; }
 .fire-national-label { display: block; margin-top: 5px; color: color-mix(in srgb, var(--fire-ink) 58%, transparent); font-size: 12px; }
+.fire-provisional {
+  display: inline-block;
+  margin-top: 14px;
+  padding: 6px 9px;
+  border: 1px solid color-mix(in srgb, var(--fire-burn) 45%, transparent);
+  border-radius: 999px;
+  color: var(--fire-burn);
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: .7px;
+  text-transform: uppercase;
+}
 .fire-department-focus { margin-top: 55px; padding: 27px 0; border-top: 1px solid var(--fire-ink); border-bottom: 1px solid color-mix(in srgb, var(--fire-ink) 17%, transparent); }
 .fire-department-focus > span,
 .fire-ranking > span { font-size: 9px; font-weight: 800; letter-spacing: 1.2px; text-transform: uppercase; }
