@@ -6,11 +6,9 @@ import {join} from "node:path";
 const START_YEAR = 2006;
 const currentYear = new Date().getFullYear();
 const lastConsolidatedYear = currentYear - 1;
-const HEATWAVE_DAYS = {
-  2006: 21, 2007: 0, 2008: 0, 2009: 6, 2010: 5, 2011: 7, 2012: 5,
-  2013: 11, 2014: 0, 2015: 16, 2016: 8, 2017: 16, 2018: 16, 2019: 12,
-  2020: 11, 2021: 0, 2022: 33, 2023: 8, 2024: 13, 2025: 27, 2026: 30,
-};
+const heatwaveDataset = JSON.parse(
+  readFileSync(new URL("../public/data/heatwave-days.json", import.meta.url), "utf8"),
+);
 const workspace = mkdtempSync(join(tmpdir(), "forest-fire-data-"));
 const outputPath = new URL("../public/data/forest-fires.json", import.meta.url);
 const departmentsPath = new URL("../public/data/departements-detail.geojson", import.meta.url);
@@ -56,6 +54,12 @@ function normalizeName(value) {
     .replace(/\p{Diacritic}/gu, "")
     .replace(/[^a-z0-9]/gi, "")
     .toLowerCase();
+}
+
+function normalizeEffisDate(value) {
+  if (!value) return null;
+  const parsed = new Date(`${value.replace(" ", "T")}Z`);
+  return Number.isNaN(parsed.getTime()) ? value : parsed.toISOString();
 }
 
 function parseDbf(path) {
@@ -172,8 +176,13 @@ execFileSync("unzip", ["-o", effisZipPath, "-d", effisDirectory], {stdio: "ignor
 
 const currentData = emptyYear("EFFIS", "provisional");
 const unmatchedProvinces = new Set();
+let effisCutoffAt = null;
 for (const record of parseDbf(join(effisDirectory, "modis.ba.poly.dbf"))) {
   if (record.COUNTRY !== "FR" || !record.FIREDATE.startsWith(String(currentYear))) continue;
+  const recordCutoff = record.LASTUPDATE || record.FINALDATE || record.FIREDATE;
+  if (recordCutoff && (!effisCutoffAt || recordCutoff > effisCutoffAt)) {
+    effisCutoffAt = recordCutoff;
+  }
   const code = codeByName.get(normalizeName(record.PROVINCE));
   if (!code) {
     unmatchedProvinces.add(record.PROVINCE);
@@ -214,16 +223,18 @@ for (const yearData of Object.values(years)) {
   }
 }
 
-for (const [year, days] of Object.entries(HEATWAVE_DAYS)) {
+for (const [year, days] of Object.entries(heatwaveDataset.values)) {
   if (years[year]) years[year].heatwaveDays = days;
 }
 
 writeFileSync(outputPath, `${JSON.stringify({
   updatedAt: new Date().toISOString(),
+  effisCutoffAt: normalizeEffisDate(effisCutoffAt),
   earliestYear: START_YEAR,
   latestConsolidatedYear: lastConsolidatedYear,
   currentYear,
   heatwaveSource: "Météo-France — indicateur thermique national",
+  heatwaveProvenance: "/data/heatwave-days.json",
   years,
 }, null, 2)}\n`);
 

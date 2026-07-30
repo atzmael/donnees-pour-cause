@@ -33,6 +33,7 @@ type FireYearData = {
 };
 type FireDataset = {
   updatedAt: string;
+  effisCutoffAt: string | null;
   earliestYear: number;
   latestConsolidatedYear: number;
   currentYear: number;
@@ -115,6 +116,7 @@ export function ForestFiresDataviz() {
   const [dataset, setDataset] = useState<FireDataset | null>(null);
   const [selectedCode, setSelectedCode] = useState<string | null>(null);
   const [hoveredCode, setHoveredCode] = useState<string | null>(null);
+  const [hoveredEvolutionYear, setHoveredEvolutionYear] = useState<number | null>(null);
   const overviewRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -208,6 +210,8 @@ export function ForestFiresDataviz() {
       .sort((first, second) => first.year - second.year)
     : [];
   const evolutionMetrics: Metric[] = ["burnedArea", "fireCount", "heatwaveDays"];
+  const comparisonYear = hoveredEvolutionYear ?? year;
+  const comparisonData = dataset?.years[String(comparisonYear)];
   const evolutionPoints = (key: Metric) => {
     const availableYears = timelineYears.filter(
       (item) => !(key === "fireCount" && item.source === "EFFIS"),
@@ -227,6 +231,25 @@ export function ForestFiresDataviz() {
     }
     setSelectedCode(null);
     setHoveredCode(null);
+  };
+  const evolutionYearAtPointer = (
+    event: React.MouseEvent<SVGSVGElement> | React.PointerEvent<SVGSVGElement>,
+  ) => {
+    const bounds = event.currentTarget.getBoundingClientRect();
+    const relativeX = Math.max(0, Math.min(1, (event.clientX - bounds.left) / bounds.width));
+    const nearestYear = Math.round(
+      earliestAvailableYear + relativeX * (currentYear - earliestAvailableYear),
+    );
+    return Math.max(earliestAvailableYear, Math.min(currentYear, nearestYear));
+  };
+  const handleEvolutionPointer = (event: React.PointerEvent<SVGSVGElement>) => {
+    setHoveredEvolutionYear(evolutionYearAtPointer(event));
+  };
+  const formatEffisCutoff = (value: string) => {
+    const parsed = new Date(value);
+    return Number.isNaN(parsed.getTime())
+      ? value
+      : parsed.toLocaleDateString("fr-FR", {dateStyle: "long"});
   };
 
   return (
@@ -301,13 +324,17 @@ export function ForestFiresDataviz() {
             : selectedNational
               ? `${selectedNational.source} · ${selectedNational.status === "provisional" ? "données provisoires" : "données consolidées"}`
               : "Données indisponibles"}
-          {dataset && ` · mise à jour le ${new Date(dataset.updatedAt).toLocaleString("fr-FR", {dateStyle: "long", timeStyle: "short"})}`}
+          {selectedNational?.source === "EFFIS" && dataset?.effisCutoffAt
+            ? ` · données arrêtées au ${formatEffisCutoff(dataset.effisCutoffAt)}`
+            : dataset && ` · import du ${new Date(dataset.updatedAt).toLocaleString("fr-FR", {dateStyle: "long", timeStyle: "short"})}`}
         </p>
 
         <div className="fire-view-tabs" role="tablist" aria-label="Vue de la dataviz">
           <button
+            id="fire-tab-map"
             type="button"
             role="tab"
+            aria-controls="fire-panel-map"
             aria-selected={view === "map"}
             className={view === "map" ? "is-selected" : ""}
             onClick={() => {
@@ -318,8 +345,10 @@ export function ForestFiresDataviz() {
             Carte
           </button>
           <button
+            id="fire-tab-evolution"
             type="button"
             role="tab"
+            aria-controls="fire-panel-evolution"
             aria-selected={view === "evolution"}
             className={view === "evolution" ? "is-selected" : ""}
             onClick={() => setView("evolution")}
@@ -329,7 +358,7 @@ export function ForestFiresDataviz() {
         </div>
 
         {view === "map" ? (
-          <div className="fire-map-layout" role="tabpanel">
+          <div className="fire-map-layout" id="fire-panel-map" role="tabpanel" aria-labelledby="fire-tab-map">
           <div className="fire-map-wrap">
             {!hasDataForYear ? (
               <div className="fire-year-unavailable" role="status">
@@ -351,16 +380,8 @@ export function ForestFiresDataviz() {
                       onClick={() => setSelectedCode(feature.properties.code)}
                       onMouseEnter={() => setHoveredCode(feature.properties.code)}
                       onMouseLeave={() => setHoveredCode(null)}
-                      onFocus={() => setHoveredCode(feature.properties.code)}
-                      onBlur={() => setHoveredCode(null)}
-                      onKeyDown={(event) => {
-                        if (event.key === "Enter" || event.key === " ") {
-                          event.preventDefault();
-                          setSelectedCode(feature.properties.code);
-                        }
-                      }}
-                      role="button" tabIndex={0}
-                      aria-label={`${feature.properties.nom} : ${formatValue(value, metric)}`}>
+                      aria-hidden="true"
+                      tabIndex={-1}>
                       <title>{feature.properties.nom} — {formatValue(value, metric)}</title>
                     </path>
                   );
@@ -388,9 +409,26 @@ export function ForestFiresDataviz() {
             {hasDataForYear && <div className="fire-legend"><span>Moins</span><i /><span>Plus</span></div>}
           </div>
 
-          <aside className="fire-map-aside" aria-live="polite">
+          <aside className="fire-map-aside">
+            <label className="fire-department-picker" htmlFor="fire-department-select">
+              <span>Choisir un département</span>
+              <select
+                id="fire-department-select"
+                value={selectedCode ?? ""}
+                onChange={(event) => setSelectedCode(event.target.value || null)}
+              >
+                <option value="">Sélectionner…</option>
+                {[...features]
+                  .sort((first, second) => first.properties.nom.localeCompare(second.properties.nom, "fr"))
+                  .map((feature) => (
+                    <option key={feature.properties.code} value={feature.properties.code}>
+                      {feature.properties.nom}
+                    </option>
+                  ))}
+              </select>
+            </label>
             {selectedDepartment ? (
-              <div className="fire-department-focus">
+              <div className="fire-department-focus" aria-live="polite">
                 <span>Département sélectionné</span>
                 <h3>{selectedDepartment.name}</h3>
                 <strong>{formatValue(selectedDepartment.value, metric)}</strong>
@@ -425,21 +463,58 @@ export function ForestFiresDataviz() {
           </aside>
           </div>
         ) : (
-          <div className="fire-evolution" role="tabpanel">
+          <div className="fire-evolution" id="fire-panel-evolution" role="tabpanel" aria-labelledby="fire-tab-evolution">
             <div className="fire-evolution-head">
               <div>
                 <span>Évolution nationale</span>
                 <strong>{earliestAvailableYear}—{currentYear}</strong>
               </div>
-              <p>
-                Chaque courbe utilise sa propre échelle. Sélectionnez un point pour
-                reporter l’année dans la carte et les indicateurs.
-              </p>
+              <div>
+                <p>
+                  Chaque courbe utilise sa propre échelle. Survolez-les pour comparer
+                  une même année, ou utilisez le curseur au clavier et sur mobile.
+                </p>
+                <label className="fire-evolution-scrubber" htmlFor="fire-evolution-year">
+                  <span>Année comparée</span>
+                  <input
+                    id="fire-evolution-year"
+                    type="range"
+                    min={earliestAvailableYear}
+                    max={currentYear}
+                    step="1"
+                    value={comparisonYear}
+                    onChange={(event) => selectYear(Number(event.target.value))}
+                  />
+                  <strong>{comparisonYear}</strong>
+                </label>
+              </div>
             </div>
-            <div className="fire-evolution-charts">
+            <div className="fire-evolution-comparison" aria-live="polite">
+              <span>Lecture synchronisée · {comparisonYear}</span>
+              {evolutionMetrics.map((key) => (
+                <strong key={key}>
+                  {METRICS[key].label}{" "}
+                  <em>
+                    {key === "fireCount" && comparisonData?.source === "EFFIS"
+                      ? "Pas de données"
+                      : comparisonData
+                        ? formatValue(comparisonData[key], key)
+                        : "Pas de données"}
+                  </em>
+                </strong>
+              ))}
+            </div>
+            <div
+              className="fire-evolution-charts"
+              onPointerLeave={() => setHoveredEvolutionYear(null)}
+            >
               {evolutionMetrics.map((key) => {
                 const points = evolutionPoints(key);
-                const selectedPoint = points.find((point) => point.year === year);
+                const selectedPoint = points.find((point) => point.year === comparisonYear);
+                const guideX = 30 + (
+                  (comparisonYear - earliestAvailableYear)
+                  / Math.max(1, currentYear - earliestAvailableYear)
+                ) * 920;
                 return (
                   <article key={key} className={`fire-evolution-row ${metric === key ? "is-selected" : ""}`}>
                     <button type="button" onClick={() => setMetric(key)}>
@@ -448,26 +523,22 @@ export function ForestFiresDataviz() {
                         {selectedPoint ? formatValue(selectedPoint[key], key) : "Pas de données"}
                       </strong>
                     </button>
-                    <svg viewBox="0 0 980 155" role="img" aria-label={`Évolution de ${METRICS[key].label.toLowerCase()}`}>
+                    <svg
+                      viewBox="0 0 980 155"
+                      aria-hidden="true"
+                      onPointerMove={handleEvolutionPointer}
+                      onClick={(event) => selectYear(evolutionYearAtPointer(event))}
+                    >
                       <line x1="30" y1="128" x2="950" y2="128" />
                       <polyline points={points.map((point) => `${point.x},${point.y}`).join(" ")} />
+                      <line className="fire-evolution-guide" x1={guideX} y1="18" x2={guideX} y2="128" />
                       {points.map((point) => (
                         <circle
                           key={point.year}
-                          className={point.year === year ? "is-selected" : ""}
+                          className={point.year === comparisonYear ? "is-selected" : ""}
                           cx={point.x}
                           cy={point.y}
-                          r={point.year === year ? 6 : 3.5}
-                          tabIndex={0}
-                          role="button"
-                          aria-label={`${point.year} : ${formatValue(point[key], key)}`}
-                          onClick={() => selectYear(point.year)}
-                          onKeyDown={(event) => {
-                            if (event.key === "Enter" || event.key === " ") {
-                              event.preventDefault();
-                              selectYear(point.year);
-                            }
-                          }}
+                          r={point.year === comparisonYear ? 6 : 3.5}
                         >
                           <title>{point.year} — {formatValue(point[key], key)}</title>
                         </circle>
@@ -515,6 +586,11 @@ export function ForestFiresDataviz() {
             <li>
               <a href="https://education.meteofrance.fr/le-changement-climatique/quel-climat-futur/changement-climatique-quel-impact-sur-les-vagues-de" target="_blank" rel="noreferrer">
                 Météo-France — recensement des vagues de chaleur 2020–2026 ↗
+              </a>
+            </li>
+            <li>
+              <a href="/data/heatwave-days.json" target="_blank" rel="noreferrer">
+                Série utilisée — valeurs et liens officiels année par année ↗
               </a>
             </li>
             <li>

@@ -1,9 +1,11 @@
 {
-  "updatedAt": "2026-07-30T22:53:35.538Z",
+  "updatedAt": "2026-07-30T23:08:27.478Z",
+  "effisCutoffAt": "2026-07-30T06:37:54.907Z",
   "earliestYear": 2006,
   "latestConsolidatedYear": 2025,
   "currentYear": 2026,
   "heatwaveSource": "Météo-France — indicateur thermique national",
+  "heatwaveProvenance": "/data/heatwave-days.json",
   "years": {
     "2006": {
       "source": "BDIFF",
