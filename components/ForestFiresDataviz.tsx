@@ -197,9 +197,6 @@ export function ForestFiresDataviz() {
     [features, metric, year],
   );
   const metricValues = departmentRows.map((row) => row.value);
-  const heroValues = features.map((feature) =>
-    departmentValue(feature.properties.code, 2026, "burnedArea"),
-  );
   const selectedDepartment =
     departmentRows.find((row) => row.code === selectedCode) ?? departmentRows[0];
   const selectedRank = departmentRows.findIndex((row) => row.code === selectedDepartment?.code) + 1;
@@ -212,61 +209,36 @@ export function ForestFiresDataviz() {
         <span>Dataviz · Cartographie · Prototype</span>
       </header>
 
-      <section className="fire-hero">
-        <div className="fire-hero-copy">
+      <section className="fire-opening" id="carte" aria-labelledby="fire-title">
+        <div className="fire-opening-copy">
           <p className="kicker">FEUX DE FORÊT · FRANCE MÉTROPOLITAINE · 2006—2026</p>
-          <h1>Quand<br />la France<br /><em>prend feu</em></h1>
+          <h1 id="fire-title">Quand la France <em>prend feu</em></h1>
           <p className="fire-deck">
             Vingt et une années d’incendies mises en regard des températures pour comprendre
             où les feux se concentrent — et pourquoi certaines saisons laissent une trace hors norme.
           </p>
-          <div className="fire-demo-note">
-            <span>Premier jet</span>
-            Les valeurs sont des données de démonstration. L’année 2026 est provisoire
-            et devra toujours être accompagnée de sa date d’arrêté.
-          </div>
-        </div>
-        <div className="fire-hero-map" aria-hidden="true">
-          <div className="fire-hero-rings" />
-          {features.length ? (
-            <svg viewBox="0 0 650 620">
-              {features.map((feature) => {
-                const value = departmentValue(feature.properties.code, 2026, "burnedArea");
-                return (
-                  <path
-                    key={feature.properties.code}
-                    d={featurePath(feature)}
-                    fill={colorFor(value, heroValues, "burnedArea")}
-                  />
-                );
-              })}
-            </svg>
-          ) : (
-            <div className="fire-map-loading">Chargement de la carte…</div>
-          )}
-          <p><strong>2026</strong><span>Surface brûlée · données provisoires</span></p>
-        </div>
-        <a href="#carte" className="fire-scroll-link">Explorer la carte ↓</a>
-      </section>
-
-      <section className="fire-explorer" id="carte" aria-labelledby="fire-map-title">
-        <div className="fire-explorer-head">
-          <div>
-            <p className="kicker">01 · LE TERRITOIRE</p>
-            <h2 id="fire-map-title">La géographie des feux</h2>
-          </div>
-          <div className="fire-year-control">
-            <button type="button" onClick={() => setYear(Math.max(2006, year - 1))} disabled={year === 2006} aria-label="Année précédente">←</button>
-            <strong>{year}</strong>
-            <button type="button" onClick={() => setYear(Math.min(2026, year + 1))} disabled={year === 2026} aria-label="Année suivante">→</button>
-          </div>
         </div>
 
-        <div className="fire-metric-tabs" aria-label="Indicateur cartographique">
+        <div className="fire-overview" aria-label={`Données nationales pour ${year}`}>
+          <div className="fire-overview-year">
+            <span>Année observée</span>
+            <div className="fire-year-control">
+              <button type="button" onClick={() => setYear(Math.max(2006, year - 1))} disabled={year === 2006} aria-label="Année précédente">←</button>
+              <strong>{year}</strong>
+              <button type="button" onClick={() => setYear(Math.min(2026, year + 1))} disabled={year === 2026} aria-label="Année suivante">→</button>
+            </div>
+            {year === 2026 && <small>Provisoire</small>}
+          </div>
           {(Object.keys(METRICS) as Metric[]).map((key) => (
-            <button key={key} type="button" className={metric === key ? "is-selected" : ""}
-              aria-pressed={metric === key} onClick={() => setMetric(key)}>
-              {METRICS[key].label}
+            <button
+              key={key}
+              type="button"
+              className={`fire-overview-stat ${metric === key ? "is-selected" : ""}`}
+              aria-pressed={metric === key}
+              onClick={() => setMetric(key)}
+            >
+              <span>{METRICS[key].label}</span>
+              <strong>{formatValue(selectedNational[key], key)}</strong>
             </button>
           ))}
         </div>
@@ -303,10 +275,8 @@ export function ForestFiresDataviz() {
           </div>
 
           <aside className="fire-map-aside" aria-live="polite">
-            <p className="kicker">FRANCE · {year}</p>
-            {year === 2026 && <span className="fire-provisional">Année en cours · données provisoires</span>}
-            <strong className="fire-national-value">{formatValue(selectedNational[metric], metric)}</strong>
-            <span className="fire-national-label">{METRICS[metric].label} au niveau national</span>
+            <p className="kicker">{METRICS[metric].label.toUpperCase()} · {year}</p>
+            <p className="fire-aside-intro">Sélectionnez un département pour suivre sa position dans le classement national.</p>
 
             {selectedDepartment && (
               <div className="fire-department-focus">
@@ -329,6 +299,10 @@ export function ForestFiresDataviz() {
                   </li>
                 ))}
               </ol>
+            </div>
+            <div className="fire-demo-note">
+              <span>Premier jet</span>
+              Valeurs de démonstration. Les données 2026 devront être accompagnées de leur date d’arrêté.
             </div>
           </aside>
         </div>
