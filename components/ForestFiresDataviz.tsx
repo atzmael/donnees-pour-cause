@@ -197,6 +197,9 @@ export function ForestFiresDataviz() {
     [features, metric, year],
   );
   const metricValues = departmentRows.map((row) => row.value);
+  const heroValues = features.map((feature) =>
+    departmentValue(feature.properties.code, 2026, "burnedArea"),
+  );
   const selectedDepartment =
     departmentRows.find((row) => row.code === selectedCode) ?? departmentRows[0];
   const selectedRank = departmentRows.findIndex((row) => row.code === selectedDepartment?.code) + 1;
@@ -210,40 +213,46 @@ export function ForestFiresDataviz() {
       </header>
 
       <section className="fire-hero">
-        <p className="kicker">FEUX DE FORÊT · FRANCE MÉTROPOLITAINE · 2006—2026</p>
-        <h1>Quand la France<br /><em>prend feu</em></h1>
-        <p className="fire-deck">
-          Vingt et une années d’incendies mises en regard des températures pour comprendre
-          où les feux se concentrent — et pourquoi certaines saisons laissent une trace hors norme.
-        </p>
-        <div className="fire-demo-note">
-          <span>Premier jet</span>
-          Les valeurs sont des données de démonstration. L’année 2026 est provisoire
-          et devra toujours être accompagnée de sa date d’arrêté.
-        </div>
-        <a href="#chronologie" className="fire-scroll-link">Explorer les années ↓</a>
-      </section>
-
-      <section className="fire-national" id="chronologie">
-        <div className="fire-section-heading">
-          <p className="kicker">01 · LE TEMPS</p>
-          <h2>Une saison ne ressemble<br />jamais tout à fait à une autre.</h2>
-          <p>
-            Les surfaces brûlées varient beaucoup plus brutalement que le nombre de départs.
-            Sélectionnez une année pour la situer dans l’ensemble de la période.
+        <div className="fire-hero-copy">
+          <p className="kicker">FEUX DE FORÊT · FRANCE MÉTROPOLITAINE · 2006—2026</p>
+          <h1>Quand<br />la France<br /><em>prend feu</em></h1>
+          <p className="fire-deck">
+            Vingt et une années d’incendies mises en regard des températures pour comprendre
+            où les feux se concentrent — et pourquoi certaines saisons laissent une trace hors norme.
           </p>
+          <div className="fire-demo-note">
+            <span>Premier jet</span>
+            Les valeurs sont des données de démonstration. L’année 2026 est provisoire
+            et devra toujours être accompagnée de sa date d’arrêté.
+          </div>
         </div>
-        <div className="fire-timelines">
-          <MiniTimeline metric="fireCount" selectedYear={year} onSelect={setYear} />
-          <MiniTimeline metric="burnedArea" selectedYear={year} onSelect={setYear} />
-          <MiniTimeline metric="temperature" selectedYear={year} onSelect={setYear} />
+        <div className="fire-hero-map" aria-hidden="true">
+          <div className="fire-hero-rings" />
+          {features.length ? (
+            <svg viewBox="0 0 650 620">
+              {features.map((feature) => {
+                const value = departmentValue(feature.properties.code, 2026, "burnedArea");
+                return (
+                  <path
+                    key={feature.properties.code}
+                    d={featurePath(feature)}
+                    fill={colorFor(value, heroValues, "burnedArea")}
+                  />
+                );
+              })}
+            </svg>
+          ) : (
+            <div className="fire-map-loading">Chargement de la carte…</div>
+          )}
+          <p><strong>2026</strong><span>Surface brûlée · données provisoires</span></p>
         </div>
+        <a href="#carte" className="fire-scroll-link">Explorer la carte ↓</a>
       </section>
 
-      <section className="fire-explorer" aria-labelledby="fire-map-title">
+      <section className="fire-explorer" id="carte" aria-labelledby="fire-map-title">
         <div className="fire-explorer-head">
           <div>
-            <p className="kicker">02 · LE TERRITOIRE</p>
+            <p className="kicker">01 · LE TERRITOIRE</p>
             <h2 id="fire-map-title">La géographie des feux</h2>
           </div>
           <div className="fire-year-control">
@@ -322,6 +331,22 @@ export function ForestFiresDataviz() {
               </ol>
             </div>
           </aside>
+        </div>
+      </section>
+
+      <section className="fire-national" id="chronologie">
+        <div className="fire-section-heading">
+          <p className="kicker">02 · LE TEMPS</p>
+          <h2>Une saison ne ressemble<br />jamais tout à fait à une autre.</h2>
+          <p>
+            Les surfaces brûlées varient beaucoup plus brutalement que le nombre de départs.
+            Sélectionnez une année pour la situer dans l’ensemble de la période.
+          </p>
+        </div>
+        <div className="fire-timelines">
+          <MiniTimeline metric="fireCount" selectedYear={year} onSelect={setYear} />
+          <MiniTimeline metric="burnedArea" selectedYear={year} onSelect={setYear} />
+          <MiniTimeline metric="temperature" selectedYear={year} onSelect={setYear} />
         </div>
       </section>
 
