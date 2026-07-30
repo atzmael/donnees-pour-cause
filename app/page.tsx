@@ -114,7 +114,6 @@ export default function Home() {
         </p>
         <div className="manifesto-details">
           <p>Canvas · WebGL · Three.js · D3.js · Mapbox · APIs</p>
-          <p>Conçu et développé à Paris.</p>
         </div>
       </section>
 
