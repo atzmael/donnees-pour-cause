@@ -5,7 +5,7 @@ import {useEffect, useMemo, useRef, useState} from "react";
 import {Brand} from "@/components/Brand";
 import {SiteFooter} from "@/components/SiteFooter";
 
-type Metric = "burnedArea" | "fireCount" | "forestShare";
+type Metric = "burnedArea" | "fireCount";
 type ViewMode = "map" | "evolution";
 type Position = [number, number];
 type DepartmentFeature = {
@@ -51,11 +51,6 @@ const METRICS: Record<Metric, {label: string; unit: string; description: string}
     unit: "feux",
     description: "Nombre total d’incendies recensés pendant l’année, quelle que soit leur surface.",
   },
-  forestShare: {
-    label: "Part forestière",
-    unit: "%",
-    description: "Part de la surface brûlée correspondant à des forêts ou autres peuplements ligneux.",
-  },
 };
 
 const METROPOLITAN_CODES = new Set([
@@ -71,9 +66,6 @@ function departmentValue(yearData: FireYearData | undefined, code: string, metri
 }
 
 function formatValue(value: number, metric: Metric) {
-  if (metric === "forestShare") {
-    return `${value.toLocaleString("fr-FR", {maximumFractionDigits: 1})} %`;
-  }
   return `${Math.round(value).toLocaleString("fr-FR")} ${METRICS[metric].unit}`;
 }
 
@@ -208,7 +200,7 @@ export function ForestFiresDataviz() {
       .map(([yearKey, value]) => ({year: Number(yearKey), ...value}))
       .sort((first, second) => first.year - second.year)
     : [];
-  const evolutionMetrics: Metric[] = ["burnedArea", "fireCount", "forestShare"];
+  const evolutionMetrics: Metric[] = ["burnedArea", "fireCount"];
   const evolutionPoints = (key: Metric) => {
     const availableYears = timelineYears.filter(
       (item) => !(key === "fireCount" && item.source === "EFFIS"),

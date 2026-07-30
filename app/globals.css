@@ -310,8 +310,8 @@ em { color: var(--color-primary); font-style: normal; }
 }
 .fire-overview-year,
 .fire-overview-stat {
-  min-height: 112px;
-  padding: 17px 22px;
+  min-height: 88px;
+  padding: 12px 20px;
   border-right: 1px solid color-mix(in srgb, var(--fire-ink) 20%, transparent);
 }
 .fire-overview-year > span,
@@ -349,8 +349,8 @@ em { color: var(--color-primary); font-style: normal; }
 .fire-overview-stat:disabled { cursor: not-allowed; opacity: .48; }
 .fire-overview-stat strong {
   display: block;
-  margin-top: 17px;
-  font-size: clamp(25px, 2.7vw, 40px);
+  margin-top: 10px;
+  font-size: clamp(23px, 2.3vw, 34px);
   letter-spacing: -1.5px;
 }
 .fire-overview-stat .fire-metric-label {
@@ -394,7 +394,7 @@ em { color: var(--color-primary); font-style: normal; }
   opacity: 1;
   transform: translateY(0);
 }
-.fire-overview .fire-year-control { margin-top: 13px; gap: 9px; }
+.fire-overview .fire-year-control { margin-top: 8px; gap: 9px; }
 .fire-overview .fire-year-control button { width: auto; height: auto; }
 .fire-overview .fire-year-control strong { min-width: 76px; font-size: 30px; }
 .fire-freshness {
@@ -807,7 +807,7 @@ em { color: var(--color-primary); font-style: normal; }
   .fire-opening h1 { margin-top: 18px; font-size: 51px; letter-spacing: -3px; }
   .fire-deck { margin-top: 24px; font-size: 18px; }
   .fire-overview { grid-template-columns: 1fr 1fr; margin-top: 40px; }
-  .fire-overview-year, .fire-overview-stat { min-height: 130px; border-bottom: 1px solid color-mix(in srgb, var(--fire-ink) 20%, transparent); }
+  .fire-overview-year, .fire-overview-stat { min-height: 104px; border-bottom: 1px solid color-mix(in srgb, var(--fire-ink) 20%, transparent); }
   .fire-overview-stat:nth-child(2) { border-right: 0; }
   .fire-overview-stat strong { margin-top: 21px; font-size: 28px; }
   .fire-national, .fire-local, .fire-method { padding-left: 20px; padding-right: 20px; }
