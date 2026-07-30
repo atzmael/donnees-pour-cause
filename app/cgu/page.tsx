@@ -14,10 +14,10 @@ export default function CguPage() {
       <section>
         <h2>1. Objet</h2>
         <p>
-          Données en cause est un répertoire éditorial de visualisations destiné
-          à éclairer des enjeux contemporains à partir de données documentées. Le
-          site ne constitue ni une plateforme de création de graphiques, ni un
-          service marchand.
+          Données en cause est un répertoire éditorial d’outils et de
+          visualisations destiné à éclairer des enjeux contemporains à partir de
+          données documentées. Le site ne constitue ni une plateforme de création
+          de graphiques, ni un service marchand.
         </p>
       </section>
 
@@ -41,8 +41,8 @@ export default function CguPage() {
       <section>
         <h2>4. Portée éditoriale</h2>
         <p>
-          Les visualisations sont proposées à des fins d’information, de
-          compréhension et de débat. Elles reposent sur les sources disponibles
+          Les outils et visualisations sont proposés à des fins d’information,
+          de compréhension et de débat. Ils reposent sur les sources disponibles
           à leur date de publication et peuvent comporter des limites,
           approximations ou choix méthodologiques explicités sur chaque page.
         </p>
@@ -66,11 +66,11 @@ export default function CguPage() {
       <section>
         <h2>6. Licence et attribution</h2>
         <p>
-          Sauf mention contraire, les contenus éditoriaux et visualisations
-          originales sont disponibles sous licence Creative Commons Attribution
-          4.0 International. Toute réutilisation doit mentionner « Données en
-          cause — Maël Maltete », la source, la licence et les modifications
-          réalisées.
+          Sauf mention contraire, les contenus éditoriaux, outils et
+          visualisations originales sont disponibles sous licence Creative
+          Commons Attribution 4.0 International. Toute réutilisation doit
+          mentionner « Données en cause — Maël Maltete », la source, la licence
+          et les modifications réalisées.
         </p>
         <p>
           Les contenus, marques et données de tiers restent soumis à leurs

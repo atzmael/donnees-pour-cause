@@ -41,7 +41,7 @@ export default function ConfidentialitePage() {
       </section>
 
       <section>
-        <h2>Mesure d’audience et de performance</h2>
+        <h2>Mesure d’audience</h2>
         <p>
           Le site utilise Vercel Web Analytics, une solution de mesure d’audience
           sans cookie qui transmet à Vercel des données agrégées relatives aux
@@ -56,8 +56,8 @@ export default function ConfidentialitePage() {
           individuelle entre plusieurs sites.
         </p>
         <dl>
-          <div><dt>Finalité</dt><dd>Mesurer l’audience et améliorer les performances du site.</dd></div>
-          <div><dt>Base juridique</dt><dd>Intérêt légitime à mesurer et améliorer la fréquentation du site.</dd></div>
+          <div><dt>Finalité</dt><dd>Comprendre la fréquentation et les contenus consultés afin d’améliorer le site.</dd></div>
+          <div><dt>Base juridique</dt><dd>Intérêt légitime de l’éditeur à mesurer la fréquentation de son site.</dd></div>
           <div><dt>Destinataire</dt><dd>Maël Maltete et Vercel Inc., prestataire technique.</dd></div>
           <div><dt>Traceur</dt><dd>Vercel Web Analytics n’utilise pas de cookie.</dd></div>
         </dl>
@@ -101,7 +101,8 @@ export default function ConfidentialitePage() {
         <p>
           Dans les limites prévues par le RGPD, toute personne peut demander
           l’accès, la rectification, l’effacement ou la limitation de ses données,
-          ainsi que s’opposer à un traitement. Les demandes sont adressées à{" "}
+          ainsi que s’opposer à un traitement, notamment à la mesure d’audience.
+          Les demandes sont adressées à{" "}
           <a href="mailto:creadiv.tech+dpc@gmail.com">creadiv.tech+dpc@gmail.com</a>.
         </p>
         <p>

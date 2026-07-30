@@ -51,8 +51,9 @@ export default function MentionsLegalesPage() {
       <section>
         <h2>Propriété intellectuelle et licence</h2>
         <p>
-          Sauf indication contraire, les textes, analyses et visualisations
-          originales publiés sur Données en cause sont proposés sous licence{" "}
+          Sauf indication contraire, les textes, analyses, outils et
+          visualisations originales publiés sur Données en cause sont proposés
+          sous licence{" "}
           <a
             href="https://creativecommons.org/licenses/by/4.0/deed.fr"
             target="_blank"
@@ -77,9 +78,9 @@ export default function MentionsLegalesPage() {
       <section>
         <h2>Sources et crédits</h2>
         <p>
-          Les sources propres à chaque visualisation sont indiquées sur sa page.
-          Les droits et conditions de réutilisation des producteurs de données
-          demeurent applicables.
+          Les sources propres à chaque outil ou visualisation sont indiquées sur
+          sa page. Les droits et conditions de réutilisation des producteurs de
+          données demeurent applicables.
         </p>
         <p>
           Conception et développement :{" "}
