@@ -269,7 +269,7 @@ export function ForestFiresDataviz() {
               </span>
               <strong data-animate-number>
                 {key === "fireCount" && selectedNational?.source === "EFFIS"
-                  ? "Non comparable"
+                  ? "Pas de données"
                   : selectedNational
                     ? formatValue(selectedNational[key], key)
                     : "—"}
@@ -430,7 +430,7 @@ export function ForestFiresDataviz() {
                     <button type="button" onClick={() => setMetric(key)}>
                       <span>{METRICS[key].label}</span>
                       <strong>
-                        {selectedPoint ? formatValue(selectedPoint[key], key) : "Non comparable"}
+                        {selectedPoint ? formatValue(selectedPoint[key], key) : "Pas de données"}
                       </strong>
                     </button>
                     <svg viewBox="0 0 980 155" role="img" aria-label={`Évolution de ${METRICS[key].label.toLowerCase()}`}>
