@@ -39,8 +39,8 @@ html { scroll-behavior: smooth; }
 body { margin: 0; background: var(--color-background); color: var(--color-text); font-family: var(--font-roboto), Arial, Helvetica, sans-serif; }
 a { color: inherit; }
 button, a { font: inherit; }
-button:focus-visible, a:focus-visible { outline: 2px solid var(--color-secondary); outline-offset: 4px; }
-.kicker { font-size: 9px; font-weight: 800; letter-spacing: 2.2px; }
+button:focus-visible, a:focus-visible { outline: 3px solid var(--color-secondary); outline-offset: 4px; }
+.kicker { font-size: 11px; font-weight: 800; letter-spacing: 1.7px; line-height: 1.4; }
 
 /* Minimal UI primitives */
 .ui-button {
@@ -58,8 +58,8 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--color-secondary
 }
 .ui-button:hover { transform: translateY(-1px); }
 .ui-button:active { transform: translateY(0); }
-.ui-button-sm { min-height: 31px; padding: var(--space-control-y) var(--space-control-x); font-size: 10px; }
-.ui-button-md { min-height: 40px; padding: 11px 18px; font-size: 11px; }
+.ui-button-sm { min-height: 38px; padding: 10px 16px; font-size: 12px; }
+.ui-button-md { min-height: 44px; padding: 12px 20px; font-size: 14px; }
 .ui-button-primary, .ui-button.is-selected {
   color: var(--color-on-ink);
   background: var(--color-primary);
@@ -86,13 +86,15 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--color-secondary
 
 .site-header, .story-header {
   height: 76px; padding: 0 clamp(22px, 5vw, 74px); display: flex; align-items: center;
-  justify-content: space-between; border-bottom: 1px solid var(--line); font-size: 11px;
+  justify-content: space-between; border-bottom: 1px solid var(--line); font-size: 14px;
 }
 .wordmark { display: flex; align-items: center; text-decoration: none; font-size: 19px; font-weight: 800; letter-spacing: -1px; }
 .wordmark span:not(.wordmark-dot) { color: var(--color-primary); }
 .wordmark-dot { width: 11px; height: 11px; border-radius: 50%; background: var(--color-accent); margin-right: 8px; }
-.site-header nav { display: flex; gap: 32px; }.site-header nav a { text-decoration: none; font-weight: 700; }
-.issue { color: var(--color-text-muted); text-transform: uppercase; letter-spacing: 1.3px; }
+.site-header nav { display: flex; gap: 32px; }
+.site-header nav a { position: relative; padding: 10px 0; text-decoration: none; font-weight: 700; }
+.site-header nav a::after { content: ""; position: absolute; right: 0; bottom: 4px; left: 0; height: 2px; background: var(--color-primary); transform: scaleX(0); transform-origin: right; transition: transform var(--transition-ui); }
+.site-header nav a:hover::after, .site-header nav a:focus-visible::after { transform: scaleX(1); transform-origin: left; }
 
 .intro { min-height: 650px; position: relative; overflow: hidden; padding: 90px clamp(24px, 8vw, 120px); }
 .intro-number { position: absolute; top: 95px; left: 5vw; font: 500 11px var(--font-roboto), sans-serif; transform: rotate(-90deg); }
@@ -105,7 +107,7 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--color-secondary
 }
 em { color: var(--color-primary); font-style: normal; }
 .intro-note { position: absolute; z-index: 2; right: 8vw; bottom: 75px; width: 300px; }
-.intro-note p { font: 400 17px/1.55 var(--font-roboto), sans-serif; }.intro-note span { display: block; margin-top: 22px; font-size: 9px; font-weight: 800; letter-spacing: 1.3px; }
+.intro-note p { font: 400 18px/1.6 var(--font-roboto), sans-serif; }.intro-note span { display: block; margin-top: 22px; font-size: 11px; font-weight: 800; letter-spacing: 1.2px; }
 .intro-art { position: absolute; width: 500px; height: 500px; right: 3vw; top: 45px; }
 .sun { position: absolute; width: 260px; height: 260px; right: 75px; top: 70px; border-radius: 50%; background: radial-gradient(circle at 34% 30%, var(--color-primary-light), var(--color-accent) 48%, var(--color-primary)); box-shadow: inset -20px -20px 50px color-mix(in srgb, var(--color-primary-hover) 25%, transparent); }
 .mesh { position: absolute; width: 420px; height: 170px; border: 1px solid color-mix(in srgb, var(--color-secondary) 35%, transparent); border-radius: 50%; }
@@ -121,7 +123,7 @@ em { color: var(--color-primary); font-style: normal; }
   font: 700 clamp(36px, 4.2vw, 54px)/1.1 var(--font-roboto), sans-serif;
   letter-spacing: -.8px;
 }
-.collection-head > p { font-size: 10px; text-transform: uppercase; letter-spacing: 1.5px; }
+.collection-head > p { font-size: 12px; text-transform: uppercase; letter-spacing: 1.2px; }
 .filters { display: flex; gap: 6px; margin: 35px 0 28px; border-bottom: 1px solid var(--line); padding-bottom: 18px; overflow-x: auto; }
 .project-list { border-top: 1px solid var(--color-text); }
 .project-row {
@@ -131,17 +133,20 @@ em { color: var(--color-primary); font-style: normal; }
 .project-row:hover { padding-left: 12px; padding-right: 12px; background: var(--color-primary-light); }
 .project-index { font: 500 12px var(--font-roboto), sans-serif; align-self: start; padding-top: 8px; }
 .project-preview { height: 185px; overflow: hidden; position: relative; background: var(--mint); }
-.project-copy { max-width: 520px; }.project-meta { display: flex; gap: 16px; font-size: 8px; font-weight: 800; letter-spacing: 1.4px; text-transform: uppercase; }
+.project-copy { max-width: 520px; }.project-meta { display: flex; gap: 16px; font-size: 10px; font-weight: 800; letter-spacing: 1.2px; text-transform: uppercase; }
 .project-modules { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 10px; }
-.project-modules span { border: 1px solid currentColor; border-radius: 999px; padding: 4px 8px 3px; font-size: 8px; font-weight: 800; letter-spacing: 1.1px; line-height: 1; text-transform: uppercase; }
+.project-modules span { border: 1px solid currentColor; border-radius: 999px; padding: 5px 9px 4px; font-size: 10px; font-weight: 800; letter-spacing: 1px; line-height: 1; text-transform: uppercase; }
 .project-copy h3 {
   margin: 14px 0 12px;
   font: 700 clamp(25px, 2.6vw, 36px)/1.16 var(--font-roboto), sans-serif;
   letter-spacing: -.35px;
 }
 .project-copy > p { margin: 0; color: var(--color-text-muted); font: 400 16px/1.55 var(--font-roboto), sans-serif; }
-.project-tags { display: flex; gap: 8px; margin-top: 19px; }.project-tags span { border: 1px solid var(--line); padding: 5px 8px; font-size: 8px; text-transform: uppercase; }
+.project-tags { display: flex; gap: 8px; margin-top: 19px; }.project-tags span { border: 1px solid var(--line); padding: 6px 9px; font-size: 10px; text-transform: uppercase; }
 .project-arrow { justify-self: end; font-size: 22px; color: var(--color-primary); }
+.empty-projects { min-height: 280px; display: grid; place-content: center; justify-items: center; padding: 55px 24px; text-align: center; border-bottom: 1px solid var(--line); }
+.empty-projects h3 { margin: 14px 0 10px; font-size: clamp(24px, 3vw, 34px); line-height: 1.2; }
+.empty-projects > p:last-child { max-width: 480px; margin: 0; color: var(--color-text-muted); font-size: 16px; line-height: 1.6; }
 .preview-content { position: absolute; inset: 17px; }
 .preview-map { background: var(--color-primary-light); }.preview-map .preview-content { transform: rotate(-6deg); }
 .preview-map i { position: absolute; background: var(--color-accent); border: 1px solid var(--color-secondary); border-radius: 43% 58%; }
@@ -161,8 +166,8 @@ em { color: var(--color-primary); font-style: normal; }
   font: 700 clamp(32px, 4.2vw, 52px)/1.18 var(--font-roboto), sans-serif;
   letter-spacing: -.7px;
 }
-.manifesto-details { display: flex; justify-content: space-between; border-top: 1px solid var(--line); padding-top: 20px; font-size: 10px; font-weight: 700; letter-spacing: 1px; }
-.site-footer { padding: 0 clamp(22px, 5vw, 74px); background: var(--color-primary-hover); color: var(--color-on-ink); font-size: 10px; }
+.manifesto-details { display: flex; justify-content: space-between; border-top: 1px solid var(--line); padding-top: 20px; font-size: 12px; font-weight: 700; letter-spacing: .8px; }
+.site-footer { padding: 0 clamp(22px, 5vw, 74px); background: var(--color-primary-hover); color: var(--color-on-ink); font-size: 12px; }
 .footer-main { min-height: 115px; display: grid; grid-template-columns: 1fr 1fr 1fr; align-items: center; }
 .creadiv-credit { justify-self: center; text-decoration: none; letter-spacing: .6px; opacity: .65; transition: opacity var(--transition-ui); }
 .creadiv-credit:hover { opacity: 1; }

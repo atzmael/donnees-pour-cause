@@ -26,7 +26,6 @@ export default function Home() {
           <a href="#projets">Projets</a>
           <a href="#a-propos">À propos</a>
         </nav>
-        <div className="issue">Paris · 2026</div>
       </header>
 
       <section className="intro">
@@ -73,6 +72,15 @@ export default function Home() {
         </div>
 
         <div className="project-list">
+          {visibleProjects.length === 0 && (
+            <div className="empty-projects" role="status">
+              <p className="kicker">COLLECTION EN COURS</p>
+              <h3>Les premiers projets arrivent bientôt.</h3>
+              <p>
+                Outils et visualisations seront publiés ici au fil de leur création.
+              </p>
+            </div>
+          )}
           {visibleProjects.map((project, index) => (
             <Card className="project-row" href={`/dataviz/${project.slug}`} interactive key={project.slug}>
               <span className="project-index">{String(index + 1).padStart(2, "0")}</span>
