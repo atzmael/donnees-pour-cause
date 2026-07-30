@@ -1,9 +1,20 @@
 import type { Metadata } from "next";
 import { LegalPage } from "@/components/legal/LegalPage";
+import {getUserLocale} from "@/i18n/locale";
+import {buildMetadata} from "@/lib/metadata";
 
-export const metadata: Metadata = {
-  title: "Conditions générales d’utilisation — Données en cause",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await getUserLocale();
+  return buildMetadata({
+    locale,
+    path: "/cgu",
+    title: locale === "fr" ? "Conditions générales d’utilisation — Données en cause" : "Terms of use — Données en cause",
+    description:
+      locale === "fr"
+        ? "Conditions encadrant l’accès et l’utilisation du site éditorial Données en cause."
+        : "Terms governing access to and use of the Données en cause editorial website.",
+  });
+}
 
 export default function CguPage() {
   return (

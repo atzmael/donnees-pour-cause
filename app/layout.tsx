@@ -1,8 +1,9 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Roboto } from "next/font/google";
 import {NextIntlClientProvider} from "next-intl";
 import {Analytics} from "@vercel/analytics/next";
 import {getUserLocale} from "@/i18n/locale";
+import {buildMetadata} from "@/lib/metadata";
 import "./globals.css";
 
 const roboto = Roboto({
@@ -12,34 +13,13 @@ const roboto = Roboto({
   display: "swap",
 });
 
-const title = "index/data — Collection de datavisualisations";
-const description =
-  "Une collection vivante de datavisualisations en Canvas, 3D, charts et cartographie.";
+export async function generateMetadata(): Promise<Metadata> {
+  return buildMetadata({locale: await getUserLocale()});
+}
 
-export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"),
-  title,
-  description,
-  icons: {
-    icon: [
-      {url: "/favicon.ico"},
-      {url: "/favicon-32x32.png", sizes: "32x32", type: "image/png"},
-      {url: "/favicon-16x16.png", sizes: "16x16", type: "image/png"},
-    ],
-    shortcut: "/favicon.ico",
-    apple: [{url: "/apple-touch-icon.png", sizes: "180x180"}],
-  },
-  manifest: "/site.webmanifest",
-  openGraph: {
-    title,
-    description,
-    type: "website",
-  },
-  twitter: {
-    card: "summary",
-    title,
-    description,
-  },
+export const viewport: Viewport = {
+  themeColor: "#2F6B3F",
+  colorScheme: "light",
 };
 
 export default async function RootLayout({

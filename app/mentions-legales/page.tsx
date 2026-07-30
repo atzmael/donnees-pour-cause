@@ -1,9 +1,20 @@
 import type { Metadata } from "next";
 import { LegalPage } from "@/components/legal/LegalPage";
+import {getUserLocale} from "@/i18n/locale";
+import {buildMetadata} from "@/lib/metadata";
 
-export const metadata: Metadata = {
-  title: "Mentions légales — Données en cause",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await getUserLocale();
+  return buildMetadata({
+    locale,
+    path: "/mentions-legales",
+    title: locale === "fr" ? "Mentions légales — Données en cause" : "Legal notice — Données en cause",
+    description:
+      locale === "fr"
+        ? "Informations relatives à l’éditeur, à la publication et à l’hébergement du site Données en cause."
+        : "Information about the publisher, publication director and hosting of the Données en cause website.",
+  });
+}
 
 export default function MentionsLegalesPage() {
   return (

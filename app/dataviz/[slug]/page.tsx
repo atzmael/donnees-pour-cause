@@ -1,13 +1,33 @@
 import { notFound } from "next/navigation";
+import type {Metadata} from "next";
 import Link from "next/link";
 import { SiteFooter } from "@/components/SiteFooter";
 import {Brand} from "@/components/Brand";
 import { projects } from "../../projects";
+import {getUserLocale} from "@/i18n/locale";
+import {buildMetadata} from "@/lib/metadata";
 
 export const dynamicParams = false;
 
 export function generateStaticParams() {
   return projects.map((project) => ({ slug: project.slug }));
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{slug: string}>;
+}): Promise<Metadata> {
+  const {slug} = await params;
+  const project = projects.find((item) => item.slug === slug);
+  if (!project) return {};
+
+  return buildMetadata({
+    locale: await getUserLocale(),
+    path: `/dataviz/${slug}`,
+    title: `${project.title} — Données en cause`,
+    description: project.description,
+  });
 }
 
 export default async function DatavizPage({ params }: { params: Promise<{ slug: string }> }) {

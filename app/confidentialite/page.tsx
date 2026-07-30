@@ -1,9 +1,20 @@
 import type { Metadata } from "next";
 import { LegalPage } from "@/components/legal/LegalPage";
+import {getUserLocale} from "@/i18n/locale";
+import {buildMetadata} from "@/lib/metadata";
 
-export const metadata: Metadata = {
-  title: "Politique de confidentialité — Données en cause",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await getUserLocale();
+  return buildMetadata({
+    locale,
+    path: "/confidentialite",
+    title: locale === "fr" ? "Politique de confidentialité — Données en cause" : "Privacy policy — Données en cause",
+    description:
+      locale === "fr"
+        ? "Données traitées, mesure d’audience sans cookie et droits des visiteurs du site Données en cause."
+        : "Data processing, cookie-free audience measurement and visitor rights on the Données en cause website.",
+  });
+}
 
 export default function ConfidentialitePage() {
   return (
