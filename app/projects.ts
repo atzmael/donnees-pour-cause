@@ -3,6 +3,7 @@ export type Project = {
   title: string;
   description: string;
   format: "Cartographie" | "Charts" | "Canvas" | "3D";
+  modules: ("Outil" | "Dataviz")[];
   year: string;
   tags: string[];
   visual: "map" | "bars" | "rings" | "network";
@@ -16,6 +17,7 @@ export const projects: Project[] = [
     title: "Atlas des mobilités",
     description: "Comment la métropole se déplace-t-elle au fil d’une journée ?",
     format: "Cartographie",
+    modules: ["Outil", "Dataviz"],
     year: "2026",
     tags: ["Open data", "Temps réel"],
     visual: "map",
@@ -27,6 +29,7 @@ export const projects: Project[] = [
     title: "Le pouls électrique",
     description: "Une semaine dans la consommation électrique française.",
     format: "Charts",
+    modules: ["Dataviz"],
     year: "2026",
     tags: ["RTE", "Séries temporelles"],
     visual: "bars",
@@ -38,6 +41,7 @@ export const projects: Project[] = [
     title: "Canopées urbaines",
     description: "Mesurer l’ombre, la fraîcheur et la place du végétal en ville.",
     format: "Canvas",
+    modules: ["Outil", "Dataviz"],
     year: "2025",
     tags: ["Climat", "Imagerie"],
     visual: "network",
@@ -49,6 +53,7 @@ export const projects: Project[] = [
     title: "Objets en orbite",
     description: "Soixante-dix ans de satellites autour de la Terre.",
     format: "3D",
+    modules: ["Outil"],
     year: "2025",
     tags: ["WebGL", "Espace"],
     visual: "rings",

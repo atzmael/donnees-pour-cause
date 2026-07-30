@@ -19,7 +19,7 @@ export default async function DatavizPage({ params }: { params: Promise<{ slug: 
       <header className="story-header">
         <Link className="wordmark" href="/"><span className="wordmark-dot" /> index<span>/data</span></Link>
         <Link className="back-link" href="/">← Tous les projets</Link>
-        <span>{project.format} · {project.year}</span>
+        <span>{project.modules.join(" + ")} · {project.format} · {project.year}</span>
       </header>
 
       <section className="story-intro">
@@ -57,6 +57,7 @@ export default async function DatavizPage({ params }: { params: Promise<{ slug: 
         <p>Cette page est le canevas éditorial de la visualisation. Le composant interactif final viendra prendre toute la place dans cette scène.</p>
         <div><span>Source</span><strong>Données de démonstration</strong></div>
         <div><span>Format</span><strong>{project.format}</strong></div>
+        <div><span>Type</span><strong>{project.modules.join(" + ")}</strong></div>
       </section>
       <SiteFooter />
     </main>

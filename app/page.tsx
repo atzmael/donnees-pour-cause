@@ -6,13 +6,15 @@ import { Button, Card } from "@/components/ui";
 import { SiteFooter } from "@/components/SiteFooter";
 import { projects } from "./projects";
 
-const filters = ["Toutes", "Cartographie", "Charts", "Canvas", "3D"] as const;
+const filters = ["Tous", "Outils", "Dataviz"] as const;
 
 export default function Home() {
-  const [filter, setFilter] = useState<(typeof filters)[number]>("Toutes");
-  const visibleProjects = filter === "Toutes"
+  const [filter, setFilter] = useState<(typeof filters)[number]>("Tous");
+  const visibleProjects = filter === "Tous"
     ? projects
-    : projects.filter((project) => project.format === filter);
+    : projects.filter((project) =>
+        project.modules.includes(filter === "Outils" ? "Outil" : "Dataviz"),
+      );
 
   return (
     <main>
@@ -30,13 +32,13 @@ export default function Home() {
       <section className="intro">
         <div className="intro-number">N° 01</div>
         <div className="intro-copy">
-          <p className="kicker">COLLECTION DE DATAVISUALISATIONS</p>
-          <h1>Des données,<br />des formes,<br /><em>des histoires.</em></h1>
+          <p className="kicker">OUTILS & DATAVISUALISATIONS</p>
+          <h1>Des données,<br />des outils,<br /><em>des histoires.</em></h1>
         </div>
         <div className="intro-note">
           <p>
-            Un espace d’exploration où chaque page transforme
-            un jeu de données en expérience visuelle singulière.
+            Un répertoire d’outils et de visualisations pour explorer,
+            comprendre et mettre en cause les données.
           </p>
           <span>↓ Explorer la collection</span>
         </div>
@@ -57,7 +59,7 @@ export default function Home() {
           <p>{String(visibleProjects.length).padStart(2, "0")} projets</p>
         </div>
 
-        <div className="filters" aria-label="Filtrer les projets">
+        <div className="filters" aria-label="Filtrer les projets par type">
           {filters.map((item) => (
             <Button
               key={item}
@@ -83,6 +85,9 @@ export default function Home() {
                 </div>
               </div>
               <div className="project-copy">
+                <div className="project-modules" aria-label={`Type : ${project.modules.join(" et ")}`}>
+                  {project.modules.map((module) => <span key={module}>{module}</span>)}
+                </div>
                 <div className="project-meta"><span>{project.format}</span><span>{project.year}</span></div>
                 <h3>{project.title}</h3>
                 <p>{project.description}</p>

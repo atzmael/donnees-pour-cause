@@ -29,7 +29,8 @@ individuellement.
 ## Comment fonctionne la plateforme
 
 L’accueil joue le rôle d’un index éditorial. Il présente les projets comme les
-articles d’une revue et permet de les filtrer par format.
+articles d’une revue et permet de les filtrer selon deux modules : **Outil** et
+**Dataviz**. Un projet peut relever de l’un, de l’autre ou associer les deux.
 
 Chaque dataviz dispose ensuite de sa propre page :
 
@@ -68,7 +69,7 @@ Les métadonnées de la collection sont centralisées dans
 
 Pour créer un projet :
 
-1. ajouter son titre, son slug, son format, son résumé et ses sources dans la
+1. ajouter son titre, son slug, son ou ses modules, son format, son résumé et ses sources dans la
    collection ;
 2. créer ou adapter sa page sous `app/dataviz/` ;
 3. placer le code de visualisation dans un composant dédié ;

@@ -122,6 +122,8 @@ em { color: var(--coral); font-style: normal; }
 .project-index { font: 500 12px var(--font-roboto), sans-serif; align-self: start; padding-top: 8px; }
 .project-preview { height: 185px; overflow: hidden; position: relative; background: var(--mint); }
 .project-copy { max-width: 520px; }.project-meta { display: flex; gap: 16px; font-size: 8px; font-weight: 800; letter-spacing: 1.4px; text-transform: uppercase; }
+.project-modules { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 10px; }
+.project-modules span { border: 1px solid currentColor; border-radius: 999px; padding: 4px 8px 3px; font-size: 8px; font-weight: 800; letter-spacing: 1.1px; line-height: 1; text-transform: uppercase; }
 .project-copy h3 {
   margin: 14px 0 12px;
   font: 700 clamp(25px, 2.6vw, 36px)/1.16 var(--font-roboto), sans-serif;
