@@ -296,9 +296,11 @@ export function ForestFiresDataviz() {
         </div>
         <p className="fire-freshness">
           <i aria-hidden="true" />
-          {selectedNational
-            ? `${selectedNational.source} · ${selectedNational.status === "provisional" ? "données provisoires" : "données consolidées"}`
-            : "Données indisponibles"}
+          {metric === "heatwaveDays"
+            ? `Météo-France · vagues de chaleur nationales ${year === currentYear ? "provisoires" : "observées"}`
+            : selectedNational
+              ? `${selectedNational.source} · ${selectedNational.status === "provisional" ? "données provisoires" : "données consolidées"}`
+              : "Données indisponibles"}
           {dataset && ` · mise à jour le ${new Date(dataset.updatedAt).toLocaleString("fr-FR", {dateStyle: "long", timeStyle: "short"})}`}
         </p>
 
@@ -497,22 +499,27 @@ export function ForestFiresDataviz() {
           <ul className="fire-source-links">
             <li>
               <a href="https://bdiff.agriculture.gouv.fr/incendies/zip" target="_blank" rel="noreferrer">
-                BDIFF — export brut des incendies de forêt ↗
+                BDIFF — incendies consolidés 2006–2025, export CSV ↗
               </a>
             </li>
             <li>
               <a href="https://forest-fire.emergency.copernicus.eu/applications/data-and-services" target="_blank" rel="noreferrer">
-                EFFIS — surfaces brûlées mises à jour ↗
+                EFFIS — périmètres satellitaires provisoires 2026 ↗
               </a>
             </li>
             <li>
               <a href="https://indicateurs-snbc.developpement-durable.gouv.fr/duree-et-severite-des-vagues-de-chaleur-a8.html?lang=fr" target="_blank" rel="noreferrer">
-                Météo-France — jours cumulés de vagues de chaleur ↗
+                Météo-France / Ministère de la Transition écologique — série 2006–2019 ↗
+              </a>
+            </li>
+            <li>
+              <a href="https://education.meteofrance.fr/le-changement-climatique/quel-climat-futur/changement-climatique-quel-impact-sur-les-vagues-de" target="_blank" rel="noreferrer">
+                Météo-France — recensement des vagues de chaleur 2020–2026 ↗
               </a>
             </li>
             <li>
               <a href="https://geoservices.ign.fr/adminexpress#telechargement" target="_blank" rel="noreferrer">
-                IGN ADMIN EXPRESS — limites administratives brutes ↗
+                IGN ADMIN EXPRESS — limites départementales ↗
               </a>
             </li>
           </ul>
