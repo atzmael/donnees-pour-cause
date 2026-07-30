@@ -1,12 +1,10 @@
 "use client";
 
 import {useLocale, useTranslations} from "next-intl";
-import {usePathname, useRouter} from "@/i18n/navigation";
-import type {Locale} from "@/i18n/routing";
+import {useRouter} from "next/navigation";
 
 export function LocaleSwitcher() {
-  const locale = useLocale() as Locale;
-  const pathname = usePathname();
+  const locale = useLocale();
   const router = useRouter();
   const t = useTranslations("LocaleSwitcher");
 
@@ -18,7 +16,10 @@ export function LocaleSwitcher() {
           key={nextLocale}
           className={locale === nextLocale ? "is-active" : ""}
           aria-pressed={locale === nextLocale}
-          onClick={() => router.replace(pathname, {locale: nextLocale})}
+          onClick={() => {
+            document.cookie = `site-locale=${nextLocale}; path=/; max-age=31536000; samesite=lax`;
+            router.refresh();
+          }}
         >
           {t(nextLocale)}
         </button>

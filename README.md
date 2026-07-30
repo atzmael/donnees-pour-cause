@@ -40,15 +40,13 @@ Chaque dataviz dispose ensuite de sa propre page :
 
 ## Traductions
 
-Le site utilise `next-intl` avec deux locales, `fr` et `en`. Chaque URL est
-préfixée par sa langue (`/fr/...` ou `/en/...`) afin de rester partageable et
-indexable. La racine détecte la langue du navigateur et utilise le français
-comme langue de repli.
+Le site utilise `next-intl` avec deux locales, `fr` et `en`. Le changement de
+langue ne modifie pas les URL. La préférence est conservée pendant un an dans
+un cookie fonctionnel `site-locale`, avec le français comme langue de repli.
 
 Les messages d’interface sont maintenus dans `messages/fr.json` et
 `messages/en.json`. Toute nouvelle interface doit ajouter ses clés dans les deux
-catalogues. La navigation interne doit passer par `i18n/navigation.ts` pour
-conserver la langue active.
+catalogues.
 
 Cette page réunit :
 

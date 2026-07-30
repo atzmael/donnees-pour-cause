@@ -1,11 +1,9 @@
 import type { Metadata } from "next";
 import { Roboto } from "next/font/google";
-import {hasLocale, NextIntlClientProvider} from "next-intl";
-import {setRequestLocale} from "next-intl/server";
-import {notFound} from "next/navigation";
+import {NextIntlClientProvider} from "next-intl";
+import {cookies} from "next/headers";
 import { VercelInsightsConsent } from "@/components/privacy/VercelInsightsConsent";
-import {routing} from "@/i18n/routing";
-import "../globals.css";
+import "./globals.css";
 
 const roboto = Roboto({
   subsets: ["latin"],
@@ -44,22 +42,17 @@ export const metadata: Metadata = {
   },
 };
 
-export function generateStaticParams() {
-  return routing.locales.map((locale) => ({locale}));
-}
-
 export default async function RootLayout({
   children,
-  params,
-}: Readonly<{ children: React.ReactNode; params: Promise<{locale: string}> }>) {
-  const {locale} = await params;
-  if (!hasLocale(routing.locales, locale)) notFound();
-  setRequestLocale(locale);
+}: Readonly<{ children: React.ReactNode }>) {
+  const storedLocale = (await cookies()).get("site-locale")?.value;
+  const locale = storedLocale === "en" ? "en" : "fr";
+  const messages = (await import(`../messages/${locale}.json`)).default;
 
   return (
     <html lang={locale}>
       <body className={roboto.variable}>
-        <NextIntlClientProvider>
+        <NextIntlClientProvider locale={locale} messages={messages}>
           {children}
           <VercelInsightsConsent />
         </NextIntlClientProvider>

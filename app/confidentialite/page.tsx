@@ -31,6 +31,16 @@ export default function ConfidentialitePage() {
       </section>
 
       <section>
+        <h2>Préférence de langue</h2>
+        <p>
+          Le cookie fonctionnel <code>site-locale</code> mémorise le choix entre
+          le français et l’anglais pendant un an. Il est strictement nécessaire
+          à la personnalisation linguistique demandée par le visiteur, n’est pas
+          utilisé à des fins de suivi et ne requiert pas de consentement.
+        </p>
+      </section>
+
+      <section>
         <h2>Mesure d’audience et de performance</h2>
         <p>
           Avec le consentement du visiteur uniquement, le site charge Vercel Web

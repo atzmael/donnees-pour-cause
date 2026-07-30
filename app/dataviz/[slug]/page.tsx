@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import {Link} from "@/i18n/navigation";
+import Link from "next/link";
 import { SiteFooter } from "@/components/SiteFooter";
 import {Brand} from "@/components/Brand";
 import { projects } from "../../projects";

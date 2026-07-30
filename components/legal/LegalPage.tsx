@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import {useTranslations} from "next-intl";
-import {Link} from "@/i18n/navigation";
+import Link from "next/link";
 import { SiteFooter } from "@/components/SiteFooter";
 import {Brand} from "@/components/Brand";
 

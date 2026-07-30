@@ -1,7 +1,7 @@
 "use client";
 
 import {useTranslations} from "next-intl";
-import {Link} from "@/i18n/navigation";
+import Link from "next/link";
 import {LocaleSwitcher} from "@/components/LocaleSwitcher";
 import {Brand} from "@/components/Brand";
 import { openAnalyticsPreferences } from "@/components/privacy/VercelInsightsConsent";
