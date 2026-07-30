@@ -647,6 +647,27 @@ em { color: var(--color-primary); font-style: normal; }
 }
 .fire-method h2 { margin: 0; font-size: clamp(36px, 4.6vw, 62px); line-height: 1.05; letter-spacing: -2px; }
 .fire-method div p { max-width: 730px; margin: 38px 0 0; font-size: 17px; line-height: 1.7; }
+.fire-source-links {
+  max-width: 730px;
+  margin: 34px 0 0;
+  padding: 0;
+  border-top: 1px solid color-mix(in srgb, var(--fire-ink) 18%, transparent);
+  list-style: none;
+}
+.fire-source-links li {
+  border-bottom: 1px solid color-mix(in srgb, var(--fire-ink) 18%, transparent);
+}
+.fire-source-links a {
+  display: block;
+  padding: 16px 0;
+  color: var(--fire-ink);
+  font-size: 14px;
+  font-weight: 700;
+  text-decoration: none;
+}
+.fire-source-links a:hover {
+  color: var(--fire-burn);
+}
 
 @media (max-width: 900px) {
   .fire-opening { padding-right: 28px; padding-left: 28px; }

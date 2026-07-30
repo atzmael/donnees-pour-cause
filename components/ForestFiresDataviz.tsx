@@ -9,7 +9,7 @@ type Metric = "burnedArea" | "fireCount" | "temperature";
 type Position = [number, number];
 type DepartmentFeature = {
   type: "Feature";
-  properties: {code: string; nom: string; region: string};
+  properties: {code: string; nom: string; region?: string};
   geometry:
     | {type: "Polygon"; coordinates: Position[][]}
     | {type: "MultiPolygon"; coordinates: Position[][][]};
@@ -141,7 +141,7 @@ export function ForestFiresDataviz() {
 
   useEffect(() => {
     let active = true;
-    fetch("/data/departements-1000m.geojson")
+    fetch("/data/departements-detail.geojson")
       .then((response) => response.json() as Promise<DepartmentCollection>)
       .then((collection) => {
         if (active) {
@@ -277,8 +277,7 @@ export function ForestFiresDataviz() {
         </div>
         <p className="fire-freshness">
           <i aria-hidden="true" />
-          Données les plus à jour disponibles dans les sources utilisées
-          {year > LATEST_AVAILABLE_YEAR ? ` · dernier millésime disponible : ${LATEST_AVAILABLE_YEAR}` : ""}
+          Prototype — valeurs de démonstration, non issues des données BDIFF
         </p>
 
         <div className="fire-map-layout">
@@ -381,11 +380,28 @@ export function ForestFiresDataviz() {
         <div>
           <h2>Une première structure,<br />avant les données définitives.</h2>
           <p>
-            Le prototype simule le croisement de la Base de données sur les incendies
-            de forêt en France (BDIFF) avec les températures de la réanalyse ERA5.
-            Le prochain lot remplacera ces valeurs de démonstration par des données
-            contrôlées, documentera les millésimes et publiera les transformations.
+            Les valeurs actuellement visibles sont générées pour tester l’interface :
+            elles ne doivent pas être interprétées comme des statistiques officielles.
+            Le prochain lot remplacera cette simulation par des agrégats contrôlés,
+            issus des fichiers bruts ci-dessous, avec leur date d’arrêté.
           </p>
+          <ul className="fire-source-links">
+            <li>
+              <a href="https://www.data.gouv.fr/api/1/datasets/r/8b0131fb-977d-40c9-aa7e-33a9d4beaa62" target="_blank" rel="noreferrer">
+                BDIFF — export brut des incendies de forêt ↗
+              </a>
+            </li>
+            <li>
+              <a href="https://www.data.gouv.fr/datasets/donnees-climatologiques-de-base-quotidiennes" target="_blank" rel="noreferrer">
+                Météo-France — fichiers climatologiques quotidiens bruts ↗
+              </a>
+            </li>
+            <li>
+              <a href="https://geoservices.ign.fr/adminexpress#telechargement" target="_blank" rel="noreferrer">
+                IGN ADMIN EXPRESS — limites administratives brutes ↗
+              </a>
+            </li>
+          </ul>
         </div>
       </section>
 
