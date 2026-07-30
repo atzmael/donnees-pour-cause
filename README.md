@@ -1,98 +1,154 @@
-# vinext-starter
+# DONNÉES EN CAUSE
 
-A clean full-stack starter running on
-[vinext](https://github.com/cloudflare/vinext), with optional Cloudflare D1 and
-Drizzle support.
+**Répertoire de visualisations engagées**
 
-## Prerequisites
+Des données pour éclairer les enjeux de notre époque.
 
-- Node.js `>=22.13.0`
+## Pourquoi
 
-## Quick Start
+Les données structurent une part croissante du débat public, mais elles restent
+souvent difficiles à lire, isolées de leur contexte ou réduites à quelques
+chiffres.
+
+**DONNÉES EN CAUSE** est un répertoire éditorial de datavisualisations. Chaque
+projet part d’une question contemporaine et cherche la forme visuelle la plus
+juste pour la rendre compréhensible : graphique, cartographie, canvas, 3D ou
+expérience interactive.
+
+La plateforme poursuit trois objectifs :
+
+- rendre des données complexes accessibles sans les simplifier à l’excès ;
+- relier les chiffres aux enjeux humains, sociaux et environnementaux qu’ils
+  décrivent ;
+- proposer des expériences visuelles ouvertes, partageables et documentées.
+
+Il ne s’agit pas d’un outil permettant aux visiteurs de fabriquer des
+graphiques. Le site publie une collection de récits visuels conçus
+individuellement.
+
+## Comment fonctionne la plateforme
+
+L’accueil joue le rôle d’un index éditorial. Il présente les projets comme les
+articles d’une revue et permet de les filtrer par format.
+
+Chaque dataviz dispose ensuite de sa propre page :
+
+```text
+/dataviz/[slug]
+```
+
+Cette page réunit :
+
+- le sujet et la question éditoriale ;
+- les sources et la méthodologie ;
+- la visualisation principale ;
+- les éléments de contexte nécessaires à son interprétation.
+
+Les données peuvent être embarquées dans le projet ou chargées depuis une API.
+Les pages actuellement publiées sont pré-générées pour être servies rapidement
+par le CDN de Vercel. Les futures sources temps réel devront être isolées dans
+des routes API protégées et mises en cache.
+
+## Ligne éditoriale
+
+Une visualisation publiée dans **DONNÉES EN CAUSE** doit :
+
+1. partir d’une question explicite ;
+2. citer ses sources et signaler leurs limites ;
+3. choisir un format adapté au message, et non l’inverse ;
+4. rester lisible sur ordinateur et mobile ;
+5. éviter les effets visuels qui déforment ou dramatisent artificiellement les
+   données ;
+6. rendre la méthodologie accessible au public.
+
+## Ajouter une dataviz
+
+Les métadonnées de la collection sont centralisées dans
+[`app/projects.ts`](./app/projects.ts).
+
+Pour créer un projet :
+
+1. ajouter son titre, son slug, son format, son résumé et ses sources dans la
+   collection ;
+2. créer ou adapter sa page sous `app/dataviz/` ;
+3. placer le code de visualisation dans un composant dédié ;
+4. ajouter les données statiques dans le projet ou documenter l’API utilisée ;
+5. vérifier les états de chargement, d’erreur et d’absence de données ;
+6. tester le rendu mobile, l’accessibilité et la compilation de production.
+
+Les composants d’interface communs sont exportés depuis
+[`components/ui`](./components/ui). Les règles minimales de couleur, boutons et
+cartes sont documentées dans
+[`docs/design-system.md`](./docs/design-system.md).
+
+## Technologies
+
+- Next.js et React
+- TypeScript
+- pnpm
+- Turbopack
+- Vercel Analytics et Speed Insights
+- Canvas, WebGL/3D, bibliothèques de charts et outils cartographiques selon les
+  besoins de chaque projet
+
+Le site utilise des en-têtes de sécurité, une politique CSP et une génération
+statique par défaut. La protection DDoS et les règles de limitation des futures
+routes API sont prises en charge au niveau de Vercel.
+
+## Développement local
+
+Prérequis :
+
+- Node.js `>= 22.13`
+- pnpm `11`
 
 ```bash
-npm install
-npm run dev
-npm run build
+pnpm install
+pnpm dev
 ```
 
-This starter does not use `wrangler.jsonc`.
+Le site est disponible sur [http://localhost:3000](http://localhost:3000).
 
-## Included Shape
+Commandes utiles :
 
-- edit site code under `app/`
-- `.openai/hosting.json` declares optional Sites D1 and R2 bindings
-- `vite.config.ts` simulates declared bindings for local development
-- `db/schema.ts` starts intentionally empty
-- `examples/d1/` contains an optional D1 example surface
-- `drizzle.config.ts` supports local migration generation when needed
-
-## Workspace Auth Headers
-
-OpenAI workspace sites can read the current user's email from
-`oai-authenticated-user-email`.
-
-SIWC-authenticated workspace sites may also receive
-`oai-authenticated-user-full-name` when the user's SIWC profile has a non-empty
-`name` claim. The full-name value is percent-encoded UTF-8 and is accompanied by
-`oai-authenticated-user-full-name-encoding: percent-encoded-utf-8`.
-
-Treat the full name as optional and fall back to email when it is absent:
-
-```tsx
-import { headers } from "next/headers";
-
-export default async function Home() {
-  const requestHeaders = await headers();
-  const email = requestHeaders.get("oai-authenticated-user-email");
-  const encodedFullName = requestHeaders.get("oai-authenticated-user-full-name");
-  const fullName =
-    encodedFullName &&
-    requestHeaders.get("oai-authenticated-user-full-name-encoding") ===
-      "percent-encoded-utf-8"
-      ? decodeURIComponent(encodedFullName)
-      : null;
-
-  const displayName = fullName ?? email;
-  // ...
-}
+```bash
+pnpm dev       # développement avec Turbopack
+pnpm build     # compilation de production
+pnpm lint      # analyse statique
+pnpm audit     # audit des dépendances
 ```
 
-## Optional Dispatch-Owned ChatGPT Sign-In
+Définir l’URL publique dans `.env.local` :
 
-Import the ready-to-use helpers from `app/chatgpt-auth.ts` when the site needs
-optional or required ChatGPT sign-in:
+```bash
+NEXT_PUBLIC_SITE_URL=https://votre-domaine.fr
+```
 
-- Use `getChatGPTUser()` for optional signed-in UI.
-- Use `requireChatGPTUser(returnTo)` for server-rendered pages that should send
-  anonymous visitors through Sign in with ChatGPT.
-- Use `chatGPTSignInPath(returnTo)` and `chatGPTSignOutPath(returnTo)` for
-  browser links or actions.
-- Pass a same-origin relative `returnTo` path for the destination after sign-in
-  or sign-out. The helper validates and safely encodes it.
-- Mark protected pages with `export const dynamic = "force-dynamic"` because
-  they depend on per-request identity headers.
+Ne jamais placer une clé privée dans une variable `NEXT_PUBLIC_*`.
 
-Dispatch owns `/signin-with-chatgpt`, `/signout-with-chatgpt`, `/callback`, the
-OAuth cookies, and identity header injection. Do not implement app routes for
-those reserved paths. Routes that do not import and call the helper remain
-anonymous-compatible.
+## Cycle de publication
 
-SIWC establishes identity only; it does not prove workspace membership. Use the
-Sites hosting platform's access policy controls for workspace-wide restrictions,
-or enforce explicit server-side membership or allowlist checks.
+- `preprod` reçoit les développements et alimente l’environnement de
+  préproduction ;
+- `main` représente la version de production ;
+- une modification est validée sur `preprod`, puis fusionnée dans `main` par
+  pull request.
 
-Use SIWC for account pages, user-specific dashboards, saved records, and write
-actions tied to the current ChatGPT user. Leave public content anonymous.
+Avant toute fusion :
 
-## Useful Commands
+```bash
+pnpm build
+pnpm audit --prod
+```
 
-- `npm run dev`: start local development
-- `npm run build`: verify the vinext build output
-- `npm test`: build the starter and verify its rendered loading skeleton
-- `npm run db:generate`: generate Drizzle migrations after schema changes
+## Mesure d’audience et respect des visiteurs
 
-## Learn More
+Vercel Analytics mesure la fréquentation et Speed Insights suit les performances
+réelles. Aucun outil publicitaire n’est intégré par défaut.
 
-- [vinext Documentation](https://github.com/cloudflare/vinext)
-- [Drizzle D1 Guide](https://orm.drizzle.team/docs/get-started/d1-new)
+Toute nouvelle collecte doit avoir une finalité documentée, limiter les données
+personnelles et respecter les obligations applicables, notamment le RGPD.
+
+## Crédits
+
+**A [creadiv](https://creadiv.fr) project.**
