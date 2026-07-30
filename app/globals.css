@@ -2,17 +2,20 @@
 
 :root {
   /* Color tokens: use semantic roles in components, never raw values. */
-  --color-primary: #2e7d32;
-  --color-primary-hover: #1b5e20;
-  --color-primary-light: #e8f5e9;
-  --color-secondary: #2e9f74;
-  --color-accent: #8bc34a;
-  --color-text: #1f2937;
-  --color-text-muted: #6b7280;
-  --color-background: #fafbf8;
-  --color-surface: #ffffff;
-  --color-border: #e5e7eb;
-  --color-on-ink: #ffffff;
+  --color-primary: #2f6b3f;
+  --color-secondary: #5e8f57;
+  --color-accent: #d6b98c;
+  --color-background: #faf9f6;
+  --color-foreground: #263238;
+
+  /* Derived semantic states keep the interface within the core palette. */
+  --color-primary-hover: color-mix(in srgb, var(--color-primary) 84%, var(--color-foreground));
+  --color-primary-light: color-mix(in srgb, var(--color-primary) 10%, var(--color-background));
+  --color-text: var(--color-foreground);
+  --color-text-muted: color-mix(in srgb, var(--color-foreground) 62%, var(--color-background));
+  --color-surface: var(--color-background);
+  --color-border: color-mix(in srgb, var(--color-foreground) 14%, var(--color-background));
+  --color-on-ink: var(--color-background);
 
   /* Compatibility aliases for existing dataviz artwork. */
   --color-ink: var(--color-text);

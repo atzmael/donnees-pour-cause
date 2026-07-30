@@ -10,16 +10,15 @@ Les composants utilisent uniquement les variables définies dans
 
 | Rôle | Variable | Valeur |
 | --- | --- | --- |
-| Primary | `--color-primary` | `#2E7D32` |
-| Primary hover | `--color-primary-hover` | `#1B5E20` |
-| Primary light | `--color-primary-light` | `#E8F5E9` |
-| Secondary | `--color-secondary` | `#2E9F74` |
-| Accent | `--color-accent` | `#8BC34A` |
-| Text | `--color-text` | `#1F2937` |
-| Text muted | `--color-text-muted` | `#6B7280` |
-| Background | `--color-background` | `#FAFBF8` |
-| Surface | `--color-surface` | `#FFFFFF` |
-| Border | `--color-border` | `#E5E7EB` |
+| Primary — vert forêt | `--color-primary` | `#2F6B3F` |
+| Secondary — vert mousse | `--color-secondary` | `#5E8F57` |
+| Accent — sable | `--color-accent` | `#D6B98C` |
+| Background | `--color-background` | `#FAF9F6` |
+| Foreground | `--color-foreground` | `#263238` |
+
+Les états `hover`, les surfaces légères, les bordures et le texte atténué sont
+dérivés de ces cinq couleurs avec `color-mix()`. Ils ne constituent pas de
+nouvelles couleurs maîtresses.
 
 Les nouvelles interfaces ne doivent pas ajouter de couleurs hexadécimales
 directement dans les composants. Une nouvelle couleur doit d’abord recevoir un
