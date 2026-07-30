@@ -29,7 +29,6 @@ export default function Home() {
       </header>
 
       <section className="intro">
-        <div className="intro-number">N° 01</div>
         <div className="intro-copy">
           <p className="kicker">OUTILS & DATAVISUALISATIONS</p>
           <h1>Des données,<br />des outils,<br /><em>des histoires.</em></h1>
