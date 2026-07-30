@@ -29,18 +29,9 @@
     "legalNav": "Legal information",
     "legal": "Legal notice",
     "privacy": "Privacy",
-    "terms": "Terms",
-    "preferences": "Manage preferences"
+    "terms": "Terms"
   },
   "LocaleSwitcher": {"label": "Language", "fr": "FR", "en": "EN"},
-  "Consent": {
-    "kicker": "AUDIENCE MEASUREMENT",
-    "title": "Your visit, your choice.",
-    "description": "With your consent, Vercel Web Analytics helps us understand site traffic. No audience measurement is loaded before you consent.",
-    "more": "Learn more",
-    "deny": "Decline",
-    "accept": "Accept"
-  },
   "LegalShell": {
     "back": "← Back to home",
     "label": "Legal information",

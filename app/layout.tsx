@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Roboto } from "next/font/google";
 import {NextIntlClientProvider} from "next-intl";
-import { VercelAnalyticsConsent } from "@/components/privacy/VercelAnalyticsConsent";
+import {Analytics} from "@vercel/analytics/next";
 import {getUserLocale} from "@/i18n/locale";
 import "./globals.css";
 
@@ -53,7 +53,7 @@ export default async function RootLayout({
       <body className={roboto.variable}>
         <NextIntlClientProvider locale={locale} messages={messages}>
           {children}
-          <VercelAnalyticsConsent />
+          <Analytics />
         </NextIntlClientProvider>
       </body>
     </html>

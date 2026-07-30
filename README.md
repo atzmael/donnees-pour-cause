@@ -156,9 +156,8 @@ pnpm audit --prod
 
 ## Mesure d’audience et respect des visiteurs
 
-Vercel Web Analytics mesure la fréquentation après consentement préalable du
-visiteur. Aucun outil publicitaire ou de mesure de performance n’est intégré par
-défaut.
+Vercel Web Analytics mesure la fréquentation sans cookie. Aucun outil
+publicitaire ou de mesure de performance n’est intégré par défaut.
 
 Toute nouvelle collecte doit avoir une finalité documentée, limiter les données
 personnelles et respecter les obligations applicables, notamment le RGPD.

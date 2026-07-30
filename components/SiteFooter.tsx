@@ -4,7 +4,6 @@ import {useTranslations} from "next-intl";
 import Link from "next/link";
 import {LocaleSwitcher} from "@/components/LocaleSwitcher";
 import {Brand} from "@/components/Brand";
-import { openAnalyticsPreferences } from "@/components/privacy/VercelAnalyticsConsent";
 
 export function SiteFooter() {
   const t = useTranslations("Footer");
@@ -33,9 +32,6 @@ export function SiteFooter() {
         >
           CC BY 4.0
         </a>
-        <button type="button" onClick={openAnalyticsPreferences}>
-          {t("preferences")}
-        </button>
         <LocaleSwitcher />
       </nav>
     </footer>

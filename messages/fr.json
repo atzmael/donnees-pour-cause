@@ -29,18 +29,9 @@
     "legalNav": "Informations légales",
     "legal": "Mentions légales",
     "privacy": "Confidentialité",
-    "terms": "CGU",
-    "preferences": "Gérer mes préférences"
+    "terms": "CGU"
   },
   "LocaleSwitcher": {"label": "Langue", "fr": "FR", "en": "EN"},
-  "Consent": {
-    "kicker": "MESURE D’AUDIENCE",
-    "title": "Votre visite, votre choix.",
-    "description": "Avec votre accord, Vercel Web Analytics nous aide à comprendre la fréquentation du site. Aucune mesure d’audience n’est chargée avant votre consentement.",
-    "more": "En savoir plus",
-    "deny": "Refuser",
-    "accept": "Accepter"
-  },
   "LegalShell": {
     "back": "← Retour à l’accueil",
     "label": "Informations légales",

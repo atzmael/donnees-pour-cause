@@ -197,30 +197,6 @@ em { color: var(--color-primary); font-style: normal; }
 .legal-content dt { padding-top: 4px; font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; }
 .legal-content dd { margin: 0; }
 
-/* Consent is intentionally shown before any Vercel measurement script loads. */
-.consent-panel {
-  position: fixed;
-  z-index: 50;
-  right: 22px;
-  bottom: 22px;
-  left: 22px;
-  width: min(920px, calc(100% - 44px));
-  margin-left: auto;
-  display: grid;
-  grid-template-columns: 1fr auto;
-  align-items: end;
-  gap: 38px;
-  padding: 26px;
-  color: var(--color-text);
-  background: var(--cream);
-  border: 1px solid var(--color-border);
-  box-shadow: 0 18px 70px color-mix(in srgb, var(--color-text) 18%, transparent);
-}
-.consent-panel h2 { margin: 8px 0 10px; font-size: 24px; letter-spacing: -.3px; }
-.consent-panel p:not(.kicker) { max-width: 640px; margin: 0 0 9px; font-size: 13px; line-height: 1.55; color: var(--color-text-muted); }
-.consent-panel a { font-size: 11px; font-weight: 700; text-underline-offset: 3px; }
-.consent-actions { display: flex; gap: 8px; }
-
 /* Dataviz article pages */
 .story { min-height: 100vh; background: var(--cream); }
 .story-header .back-link { text-decoration: none; font-weight: 700; }.story-header > span { text-transform: uppercase; letter-spacing: 1.2px; }
@@ -258,7 +234,6 @@ em { color: var(--color-primary); font-style: normal; }
   .manifesto { padding: 75px 24px; }.manifesto-text { font-size:32px;line-height:1.2;letter-spacing:-.4px }.manifesto-details { flex-direction:column;gap:10px }
   .footer-main { grid-template-columns:1fr auto;row-gap:24px;padding:28px 0 }.creadiv-credit{grid-column:1 / -1;grid-row:2;justify-self:start}.legal-links{gap:16px;padding:18px 0}.legal-links .locale-switcher{margin-left:0}
   .legal-document { width: min(100% - 36px, 880px); padding: 65px 0 80px }.legal-document > h1{font-size:40px}.legal-lead{font-size:16px}.legal-content{margin-top:48px}.legal-content dl > div{grid-template-columns:1fr;gap:4px}
-  .consent-panel { right:12px;bottom:12px;left:12px;width:calc(100% - 24px);grid-template-columns:1fr;gap:20px;padding:20px }.consent-actions{display:grid;grid-template-columns:1fr 1fr}.consent-actions .ui-button{width:100%}
   .story-header { padding: 0 18px; }.story-intro { padding: 65px 20px 40px }.story-intro h1{font-size:40px;line-height:1.08;letter-spacing:-.5px}
   .dataviz-stage { min-height:600px }.big-stat strong{font-size:42px}.full-bars{inset:120px 20px 120px}.full-network{inset:90px 20px 130px}.full-map,.full-rings{right:-330px}
   .story-caption { grid-template-columns:1fr;gap:25px }

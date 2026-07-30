@@ -43,9 +43,9 @@ export default function ConfidentialitePage() {
       <section>
         <h2>Mesure d’audience et de performance</h2>
         <p>
-          Avec le consentement du visiteur uniquement, le site charge Vercel Web
-          Analytics. Ce service transmet à Vercel des données agrégées relatives
-          aux pages consultées :
+          Le site utilise Vercel Web Analytics, une solution de mesure d’audience
+          sans cookie qui transmet à Vercel des données agrégées relatives aux
+          pages consultées :
           URL et route, date et heure, référent, paramètres filtrés, pays
           approximatif, navigateur, système d’exploitation, type d’appareil,
           et version du script Analytics.
@@ -57,19 +57,14 @@ export default function ConfidentialitePage() {
         </p>
         <dl>
           <div><dt>Finalité</dt><dd>Mesurer l’audience et améliorer les performances du site.</dd></div>
-          <div><dt>Base juridique</dt><dd>Consentement, article 6, paragraphe 1, point a du RGPD.</dd></div>
+          <div><dt>Base juridique</dt><dd>Intérêt légitime à mesurer et améliorer la fréquentation du site.</dd></div>
           <div><dt>Destinataire</dt><dd>Maël Maltete et Vercel Inc., prestataire technique.</dd></div>
-          <div><dt>Déclenchement</dt><dd>Aucun script de mesure n’est chargé avant acceptation.</dd></div>
+          <div><dt>Traceur</dt><dd>Vercel Web Analytics n’utilise pas de cookie.</dd></div>
         </dl>
       </section>
 
       <section>
         <h2>Durées de conservation</h2>
-        <p>
-          La préférence de consentement est conservée dans le stockage local du
-          navigateur jusqu’à sa modification par le visiteur ou à la suppression
-          des données du navigateur.
-        </p>
         <p>
           La fenêtre de consultation des statistiques dépend du forfait Vercel
           actif. À la date de mise à jour de cette politique, elle est annoncée
@@ -104,15 +99,9 @@ export default function ConfidentialitePage() {
       <section>
         <h2>Vos choix et vos droits</h2>
         <p>
-          Le visiteur peut refuser la mesure d’audience sans conséquence sur
-          l’accès au site. Il peut modifier son choix à tout moment depuis le lien
-          « Gérer mes préférences » présent dans le pied de page.
-        </p>
-        <p>
           Dans les limites prévues par le RGPD, toute personne peut demander
           l’accès, la rectification, l’effacement ou la limitation de ses données,
-          s’opposer à un traitement et retirer son consentement. Les demandes sont
-          adressées à{" "}
+          ainsi que s’opposer à un traitement. Les demandes sont adressées à{" "}
           <a href="mailto:creadiv.tech+dpc@gmail.com">creadiv.tech+dpc@gmail.com</a>.
         </p>
         <p>
