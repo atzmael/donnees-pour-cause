@@ -100,7 +100,7 @@ cartes sont documentées dans
 - TypeScript
 - pnpm
 - Turbopack
-- Vercel Analytics et Speed Insights
+- Vercel Web Analytics
 - Canvas, WebGL/3D, bibliothèques de charts et outils cartographiques selon les
   besoins de chaque projet
 
@@ -156,8 +156,9 @@ pnpm audit --prod
 
 ## Mesure d’audience et respect des visiteurs
 
-Vercel Analytics mesure la fréquentation et Speed Insights suit les performances
-réelles. Aucun outil publicitaire n’est intégré par défaut.
+Vercel Web Analytics mesure la fréquentation après consentement préalable du
+visiteur. Aucun outil publicitaire ou de mesure de performance n’est intégré par
+défaut.
 
 Toute nouvelle collecte doit avoir une finalité documentée, limiter les données
 personnelles et respecter les obligations applicables, notamment le RGPD.

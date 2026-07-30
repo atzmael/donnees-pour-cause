@@ -44,11 +44,11 @@ export default function ConfidentialitePage() {
         <h2>Mesure d’audience et de performance</h2>
         <p>
           Avec le consentement du visiteur uniquement, le site charge Vercel Web
-          Analytics et Vercel Speed Insights. Ces services transmettent à Vercel
-          des données agrégées relatives aux pages consultées et aux performances :
+          Analytics. Ce service transmet à Vercel des données agrégées relatives
+          aux pages consultées :
           URL et route, date et heure, référent, paramètres filtrés, pays
           approximatif, navigateur, système d’exploitation, type d’appareil,
-          qualité du réseau et métriques Web Vitals.
+          et version du script Analytics.
         </p>
         <p>
           Selon sa documentation, Vercel n’associe pas ces mesures à une identité

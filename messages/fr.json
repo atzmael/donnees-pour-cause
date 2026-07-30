@@ -36,7 +36,7 @@
   "Consent": {
     "kicker": "MESURE D’AUDIENCE",
     "title": "Votre visite, votre choix.",
-    "description": "Avec votre accord, Vercel Analytics et Speed Insights nous aident à comprendre la fréquentation et les performances du site. Aucune mesure n’est chargée avant votre consentement.",
+    "description": "Avec votre accord, Vercel Web Analytics nous aide à comprendre la fréquentation du site. Aucune mesure d’audience n’est chargée avant votre consentement.",
     "more": "En savoir plus",
     "deny": "Refuser",
     "accept": "Accepter"

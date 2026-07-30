@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import {useTranslations} from "next-intl";
 import Link from "next/link";
 import { Analytics } from "@vercel/analytics/next";
-import { SpeedInsights } from "@vercel/speed-insights/next";
 import { Button } from "@/components/ui";
 
 type ConsentChoice = "granted" | "denied" | null;
@@ -16,7 +15,7 @@ export function openAnalyticsPreferences() {
   window.dispatchEvent(new Event(OPEN_PREFERENCES_EVENT));
 }
 
-export function VercelInsightsConsent() {
+export function VercelAnalyticsConsent() {
   const t = useTranslations("Consent");
   const [choice, setChoice] = useState<ConsentChoice>(null);
   const [isReady, setIsReady] = useState(false);
@@ -49,12 +48,7 @@ export function VercelInsightsConsent() {
 
   return (
     <>
-      {choice === "granted" && (
-        <>
-          <Analytics />
-          <SpeedInsights />
-        </>
-      )}
+      {choice === "granted" && <Analytics />}
 
       {showPanel && (
         <aside

@@ -36,7 +36,7 @@
   "Consent": {
     "kicker": "AUDIENCE MEASUREMENT",
     "title": "Your visit, your choice.",
-    "description": "With your consent, Vercel Analytics and Speed Insights help us understand traffic and site performance. No measurement is loaded before you consent.",
+    "description": "With your consent, Vercel Web Analytics helps us understand site traffic. No audience measurement is loaded before you consent.",
     "more": "Learn more",
     "deny": "Decline",
     "accept": "Accept"

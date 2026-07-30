@@ -4,7 +4,7 @@ import {useTranslations} from "next-intl";
 import Link from "next/link";
 import {LocaleSwitcher} from "@/components/LocaleSwitcher";
 import {Brand} from "@/components/Brand";
-import { openAnalyticsPreferences } from "@/components/privacy/VercelInsightsConsent";
+import { openAnalyticsPreferences } from "@/components/privacy/VercelAnalyticsConsent";
 
 export function SiteFooter() {
   const t = useTranslations("Footer");
