@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { Button, Card } from "@/components/ui";
 import { projects } from "./projects";
 
 const filters = ["Toutes", "Cartographie", "Charts", "Canvas", "3D"] as const;
@@ -56,19 +57,20 @@ export default function Home() {
 
         <div className="filters" aria-label="Filtrer les projets">
           {filters.map((item) => (
-            <button
+            <Button
               key={item}
-              className={filter === item ? "active" : ""}
+              size="sm"
+              selected={filter === item}
               onClick={() => setFilter(item)}
             >
               {item}
-            </button>
+            </Button>
           ))}
         </div>
 
         <div className="project-list">
           {visibleProjects.map((project, index) => (
-            <a className="project-row" href={`/dataviz/${project.slug}`} key={project.slug}>
+            <Card className="project-row" href={`/dataviz/${project.slug}`} interactive key={project.slug}>
               <span className="project-index">{String(index + 1).padStart(2, "0")}</span>
               <div className={`project-preview preview-${project.visual}`}>
                 <div className="preview-content">
@@ -85,7 +87,7 @@ export default function Home() {
                 <div className="project-tags">{project.tags.map((tag) => <span key={tag}>{tag}</span>)}</div>
               </div>
               <span className="project-arrow">↗</span>
-            </a>
+            </Card>
           ))}
         </div>
       </section>
@@ -104,7 +106,14 @@ export default function Home() {
 
       <footer>
         <a className="wordmark" href="/"><span className="wordmark-dot" /> index<span>/data</span></a>
-        <p>Une collection vivante de récits visuels.</p>
+        <a
+          className="creadiv-credit"
+          href="https://creadiv.fr"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          A creadiv project ↗
+        </a>
         <a href="#projets">Retour en haut ↑</a>
       </footer>
     </main>

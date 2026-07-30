@@ -2,20 +2,25 @@
   "name": "datafold-studio",
   "version": "0.1.0",
   "private": true,
+  "packageManager": "pnpm@11.1.2",
   "engines": {
     "node": ">=22.13.0"
   },
   "scripts": {
-    "dev": "WRANGLER_LOG_PATH=.wrangler/wrangler.log vinext dev",
-    "build": "WRANGLER_LOG_PATH=.wrangler/wrangler.log vinext build",
-    "start": "WRANGLER_LOG_PATH=.wrangler/wrangler.log vinext start",
-    "test": "npm run build && node --test tests/rendered-html.test.mjs",
+    "dev": "next dev --turbopack",
+    "build": "next build --turbopack",
+    "build:sites": "WRANGLER_LOG_PATH=.wrangler/wrangler.log vinext build",
+    "vercel-build": "pnpm build",
+    "start": "next start",
+    "test": "pnpm build",
     "lint": "eslint . --ignore-pattern dist --ignore-pattern .next",
     "db:generate": "drizzle-kit generate"
   },
   "dependencies": {
+    "@vercel/analytics": "^2.0.1",
+    "@vercel/speed-insights": "^2.0.0",
     "drizzle-orm": "0.45.2",
-    "next": "16.2.6",
+    "next": "^16.2.12",
     "react": "19.2.6",
     "react-dom": "19.2.6"
   },
