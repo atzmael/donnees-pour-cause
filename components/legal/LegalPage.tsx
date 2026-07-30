@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import {useTranslations} from "next-intl";
 import {Link} from "@/i18n/navigation";
 import { SiteFooter } from "@/components/SiteFooter";
+import {Brand} from "@/components/Brand";
 
 export function LegalPage({
   title,
@@ -16,9 +17,7 @@ export function LegalPage({
   return (
     <main className="legal-page">
       <header className="story-header">
-        <Link className="wordmark" href="/">
-          <span className="wordmark-dot" /> données<span>/en cause</span>
-        </Link>
+        <Brand />
         <Link className="back-link" href="/">{t("back")}</Link>
         <span>{t("label")}</span>
       </header>

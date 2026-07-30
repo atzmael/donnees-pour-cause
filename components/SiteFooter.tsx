@@ -3,6 +3,7 @@
 import {useTranslations} from "next-intl";
 import {Link} from "@/i18n/navigation";
 import {LocaleSwitcher} from "@/components/LocaleSwitcher";
+import {Brand} from "@/components/Brand";
 import { openAnalyticsPreferences } from "@/components/privacy/VercelInsightsConsent";
 
 export function SiteFooter() {
@@ -10,9 +11,7 @@ export function SiteFooter() {
   return (
     <footer className="site-footer">
       <div className="footer-main">
-        <Link className="wordmark" href="/">
-          <span className="wordmark-dot" /> données<span>/en cause</span>
-        </Link>
+        <Brand />
         <a
           className="creadiv-credit"
           href="https://creadiv.fr"

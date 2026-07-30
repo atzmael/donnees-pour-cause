@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import {Link} from "@/i18n/navigation";
 import { SiteFooter } from "@/components/SiteFooter";
+import {Brand} from "@/components/Brand";
 import { projects } from "../../projects";
 
 export const dynamicParams = false;
@@ -17,7 +18,7 @@ export default async function DatavizPage({ params }: { params: Promise<{ slug: 
   return (
     <main className={`story story-${project.visual}`}>
       <header className="story-header">
-        <Link className="wordmark" href="/"><span className="wordmark-dot" /> index<span>/data</span></Link>
+        <Brand />
         <Link className="back-link" href="/">← Tous les projets</Link>
         <span>{project.modules.join(" + ")} · {project.format} · {project.year}</span>
       </header>

@@ -2,10 +2,10 @@
 
 import { useState } from "react";
 import {useTranslations} from "next-intl";
-import {Link} from "@/i18n/navigation";
 import { Button, Card } from "@/components/ui";
 import { SiteFooter } from "@/components/SiteFooter";
 import {LocaleSwitcher} from "@/components/LocaleSwitcher";
+import {Brand} from "@/components/Brand";
 import { projects } from "./projects";
 
 const filters = ["all", "tools", "dataviz"] as const;
@@ -22,9 +22,7 @@ export default function Home() {
   return (
     <main>
       <header className="site-header">
-        <Link className="wordmark" href="/" aria-label="Données en cause, accueil">
-          <span className="wordmark-dot" /> index<span>/data</span>
-        </Link>
+        <Brand />
         <nav aria-label="Navigation principale">
           <a href="#projets">{t("projects")}</a>
           <a href="#a-propos">{t("about")}</a>
