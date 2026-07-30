@@ -196,14 +196,8 @@ export function ForestFiresDataviz() {
     [features, hasDataForYear, metric, year],
   );
   const metricValues = departmentRows.map((row) => row.value);
-  const orderedFeatures = useMemo(
-    () => [...features].sort((first, second) => {
-      const layer = (code: string) =>
-        (code === selectedCode ? 1 : 0) + (code === hoveredCode ? 2 : 0);
-      return layer(first.properties.code) - layer(second.properties.code);
-    }),
-    [features, hoveredCode, selectedCode],
-  );
+  const selectedFeature = features.find((feature) => feature.properties.code === selectedCode);
+  const hoveredFeature = features.find((feature) => feature.properties.code === hoveredCode);
   const selectedDepartment = selectedCode
     ? departmentRows.find((row) => row.code === selectedCode)
     : undefined;
@@ -276,15 +270,13 @@ export function ForestFiresDataviz() {
               </div>
             ) : features.length ? (
               <svg viewBox="0 0 650 620" role="img" aria-label={`Carte de ${METRICS[metric].label.toLowerCase()} par département en ${year}`}>
-                {orderedFeatures.map((feature) => {
+                {features.map((feature) => {
                   const value = departmentValue(feature.properties.code, year, metric);
-                  const selected = selectedDepartment?.code === feature.properties.code;
                   const hovered = hoveredCode === feature.properties.code;
                   const baseColor = colorFor(value, metricValues, metric);
                   return (
                     <path key={feature.properties.code} d={featurePath(feature)}
                       fill={hovered ? `color-mix(in srgb, ${baseColor} 68%, var(--fire-burn))` : baseColor}
-                      className={`${selected ? "is-selected" : ""} ${hovered ? "is-hovered" : ""}`}
                       onClick={() => setSelectedCode(feature.properties.code)}
                       onMouseEnter={() => setHoveredCode(feature.properties.code)}
                       onMouseLeave={() => setHoveredCode(null)}
@@ -302,6 +294,22 @@ export function ForestFiresDataviz() {
                     </path>
                   );
                 })}
+                <g className="fire-map-outlines" aria-hidden="true">
+                  {selectedFeature && (
+                    <path
+                      className="is-selected"
+                      d={featurePath(selectedFeature)}
+                      fill="none"
+                    />
+                  )}
+                  {hoveredFeature && hoveredFeature.properties.code !== selectedFeature?.properties.code && (
+                    <path
+                      className="is-hovered"
+                      d={featurePath(hoveredFeature)}
+                      fill="none"
+                    />
+                  )}
+                </g>
               </svg>
             ) : (
               <div className="fire-map-loading">Chargement du fond de carte…</div>
