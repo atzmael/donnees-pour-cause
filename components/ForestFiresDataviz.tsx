@@ -5,7 +5,7 @@ import {useEffect, useMemo, useRef, useState} from "react";
 import {Brand} from "@/components/Brand";
 import {SiteFooter} from "@/components/SiteFooter";
 
-type Metric = "burnedArea" | "fireCount" | "temperature";
+type Metric = "burnedArea" | "fireCount";
 type Position = [number, number];
 type DepartmentFeature = {
   type: "Feature";
@@ -43,11 +43,6 @@ const METRICS: Record<Metric, {label: string; unit: string; description: string}
     unit: "feux",
     description: "Nombre total d’incendies recensés pendant l’année, quelle que soit leur surface.",
   },
-  temperature: {
-    label: "Anomalie de température",
-    unit: "°C",
-    description: "Écart entre la température moyenne observée et une moyenne climatique de référence. Une valeur positive indique une année plus chaude.",
-  },
 };
 
 const METROPOLITAN_CODES = new Set([
@@ -58,14 +53,11 @@ const METROPOLITAN_CODES = new Set([
 ]);
 
 function departmentValue(yearData: FireYearData | undefined, code: string, metric: Metric) {
-  if (!yearData || metric === "temperature") return 0;
+  if (!yearData) return 0;
   return yearData.departments[code]?.[metric] ?? 0;
 }
 
 function formatValue(value: number, metric: Metric) {
-  if (metric === "temperature") {
-    return `${value >= 0 ? "+" : ""}${value.toLocaleString("fr-FR", {maximumFractionDigits: 1})} °C`;
-  }
   return `${Math.round(value).toLocaleString("fr-FR")} ${METRICS[metric].unit}`;
 }
 
@@ -94,11 +86,8 @@ function normalizedValue(value: number, values: number[]) {
   return Math.max(0, Math.min(1, (value - low) / Math.max(1, high - low)));
 }
 
-function colorFor(value: number, values: number[], metric: Metric) {
+function colorFor(value: number, values: number[]) {
   const amount = 16 + normalizedValue(value, values) * 80;
-  if (metric === "temperature") {
-    return `color-mix(in srgb, var(--fire-hot) ${amount}%, var(--fire-cool))`;
-  }
   return `color-mix(in srgb, var(--fire-burn) ${amount}%, var(--fire-map-low))`;
 }
 
@@ -219,7 +208,7 @@ export function ForestFiresDataviz() {
           <p className="kicker">FEUX DE FORÊT · FRANCE MÉTROPOLITAINE · {earliestAvailableYear}—{currentYear}</p>
           <h1 id="fire-title">Quand la France <em>prend feu</em></h1>
           <p className="fire-deck">
-            <strong className="fire-inline-number">{currentYear - earliestAvailableYear + 1}</strong> années d’incendies mises en regard des températures pour comprendre
+            <strong className="fire-inline-number">{currentYear - earliestAvailableYear + 1}</strong> années d’incendies cartographiées pour comprendre
             où les feux se concentrent — et pourquoi certaines saisons laissent une trace hors norme.
           </p>
         </div>
@@ -244,7 +233,6 @@ export function ForestFiresDataviz() {
               onClick={() => setMetric(key)}
               disabled={
                 !selectedNational
-                || key === "temperature"
                 || (key === "fireCount" && selectedNational.source === "EFFIS")
               }
             >
@@ -253,10 +241,8 @@ export function ForestFiresDataviz() {
                 <i aria-hidden="true">?</i>
               </span>
               <strong data-animate-number>
-                {key === "temperature"
-                  ? "Bientôt"
-                  : key === "fireCount" && selectedNational?.source === "EFFIS"
-                    ? "Non comparable"
+                {key === "fireCount" && selectedNational?.source === "EFFIS"
+                  ? "Non comparable"
                   : selectedNational
                     ? formatValue(selectedNational[key], key)
                     : "—"}
@@ -294,7 +280,7 @@ export function ForestFiresDataviz() {
                 {features.map((feature) => {
                   const value = departmentValue(selectedNational, feature.properties.code, metric);
                   const hovered = hoveredCode === feature.properties.code;
-                  const baseColor = colorFor(value, metricValues, metric);
+                  const baseColor = colorFor(value, metricValues);
                   return (
                     <path key={feature.properties.code} d={featurePath(feature)}
                       fill={hovered ? `color-mix(in srgb, ${baseColor} 68%, var(--fire-burn))` : baseColor}
