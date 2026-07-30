@@ -8,14 +8,18 @@ sémantiques, `Button` et `Card`.
 Les composants utilisent uniquement les variables définies dans
 `app/globals.css`.
 
-| Rôle | Variable | Usage |
+| Rôle | Variable | Valeur |
 | --- | --- | --- |
-| Texte principal | `--color-ink` | Texte, boutons actifs, fonds sombres |
-| Fond de page | `--color-background` | Fond général |
-| Surface | `--color-surface` | Cartes et sections claires |
-| Surface accentuée | `--color-surface-accent` | Survols et sections secondaires |
-| Accent | `--color-accent` | Points d’attention et données remarquables |
-| Bordure | `--color-border` | Séparateurs et contours |
+| Primary | `--color-primary` | `#2E7D32` |
+| Primary hover | `--color-primary-hover` | `#1B5E20` |
+| Primary light | `--color-primary-light` | `#E8F5E9` |
+| Secondary | `--color-secondary` | `#2E9F74` |
+| Accent | `--color-accent` | `#8BC34A` |
+| Text | `--color-text` | `#1F2937` |
+| Text muted | `--color-text-muted` | `#6B7280` |
+| Background | `--color-background` | `#FAFBF8` |
+| Surface | `--color-surface` | `#FFFFFF` |
+| Border | `--color-border` | `#E5E7EB` |
 
 Les nouvelles interfaces ne doivent pas ajouter de couleurs hexadécimales
 directement dans les composants. Une nouvelle couleur doit d’abord recevoir un
