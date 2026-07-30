@@ -93,6 +93,7 @@ button:focus-visible, a:focus-visible { outline: 3px solid var(--color-secondary
 .brand-name { color: var(--color-foreground); }
 .brand-name > span { color: var(--color-primary); }
 .site-footer .brand-name { color: var(--color-on-ink); }
+.site-footer .brand-name > span { color: var(--color-accent); }
 .site-header nav { display: flex; gap: 32px; }
 .site-header nav a { position: relative; padding: 10px 0; text-decoration: none; font-weight: 700; }
 .site-header nav a::after { content: ""; position: absolute; right: 0; bottom: 4px; left: 0; height: 2px; background: var(--color-primary); transform: scaleX(0); transform-origin: right; transition: transform var(--transition-ui); }
