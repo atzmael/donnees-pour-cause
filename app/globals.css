@@ -138,6 +138,7 @@ em { color: var(--color-primary); font-style: normal; }
 .project-row:hover { background: var(--color-primary-light); }
 .project-index { font: 500 12px var(--font-roboto), sans-serif; align-self: start; padding-top: 8px; }
 .project-preview { height: 185px; overflow: hidden; position: relative; background: var(--mint); }
+.project-preview-image img { object-fit: cover; }
 .project-copy { max-width: 520px; }.project-meta { display: flex; gap: 16px; font-size: 10px; font-weight: 800; letter-spacing: 1.2px; text-transform: uppercase; }
 .project-modules { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 10px; }
 .project-modules span { border: 1px solid currentColor; border-radius: 999px; padding: 5px 9px 4px; font-size: 10px; font-weight: 800; letter-spacing: 1px; line-height: 1; text-transform: uppercase; }

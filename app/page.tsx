@@ -87,13 +87,22 @@ export default function Home() {
           {visibleProjects.map((project, index) => (
             <Card className="project-row" href={`/dataviz/${project.slug}`} interactive key={project.slug}>
               <span className="project-index">{String(index + 1).padStart(2, "0")}</span>
-              <div className={`project-preview preview-${project.visual}`}>
-                <div className="preview-content">
-                  {project.visual === "map" && <><i /><i /><i /><b /></>}
-                  {project.visual === "bars" && [42, 67, 51, 86, 72, 96].map((value) => <i key={value} style={{ height: `${value}%` }} />)}
-                  {project.visual === "rings" && <><i /><i /><i /><b /></>}
-                  {project.visual === "network" && <><i /><i /><i /><i /><b /><b /></>}
-                </div>
+              <div className={`project-preview ${project.socialImage ? "project-preview-image" : `preview-${project.visual}`}`}>
+                {project.socialImage ? (
+                  <Image
+                    src={project.socialImage}
+                    alt=""
+                    fill
+                    sizes="(max-width: 680px) 100vw, 38vw"
+                  />
+                ) : (
+                  <div className="preview-content">
+                    {project.visual === "map" && <><i /><i /><i /><b /></>}
+                    {project.visual === "bars" && [42, 67, 51, 86, 72, 96].map((value) => <i key={value} style={{ height: `${value}%` }} />)}
+                    {project.visual === "rings" && <><i /><i /><i /><b /></>}
+                    {project.visual === "network" && <><i /><i /><i /><i /><b /><b /></>}
+                  </div>
+                )}
               </div>
               <div className="project-copy">
                 <div className="project-modules" aria-label={`Type : ${project.modules.join(" et ")}`}>
