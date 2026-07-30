@@ -304,7 +304,7 @@ em { color: var(--color-primary); font-style: normal; }
 }
 .fire-overview {
   display: grid;
-  grid-template-columns: minmax(190px, .75fr) repeat(2, minmax(170px, 1fr));
+  grid-template-columns: minmax(170px, .72fr) repeat(3, minmax(155px, 1fr));
   margin-top: 44px;
   border-top: 1px solid var(--fire-ink);
   border-bottom: 1px solid color-mix(in srgb, var(--fire-ink) 20%, transparent);
@@ -795,7 +795,7 @@ em { color: var(--color-primary); font-style: normal; }
 @media (max-width: 900px) {
   .fire-opening { padding-right: 28px; padding-left: 28px; }
   .fire-opening h1 { font-size: clamp(52px, 7.5vw, 72px); letter-spacing: -3.6px; }
-  .fire-overview { grid-template-columns: 170px repeat(2, minmax(140px, 1fr)); }
+  .fire-overview { grid-template-columns: 150px repeat(3, minmax(135px, 1fr)); }
   .fire-overview-year, .fire-overview-stat { padding-right: 14px; padding-left: 14px; }
   .fire-section-heading { grid-template-columns: 140px 1fr; }
   .fire-section-heading > p:last-child { grid-column: 2; }

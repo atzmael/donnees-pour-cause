@@ -5,7 +5,7 @@ import {useEffect, useMemo, useRef, useState} from "react";
 import {Brand} from "@/components/Brand";
 import {SiteFooter} from "@/components/SiteFooter";
 
-type Metric = "burnedArea" | "fireCount";
+type Metric = "burnedArea" | "fireCount" | "heatwaveDays";
 type ViewMode = "map" | "evolution";
 type Position = [number, number];
 type DepartmentFeature = {
@@ -23,6 +23,7 @@ type FireYearData = {
   burnedArea: number;
   forestBurnedArea: number;
   forestShare: number;
+  heatwaveDays: number;
   departments: Record<string, {
     fireCount: number;
     burnedArea: number;
@@ -35,6 +36,7 @@ type FireDataset = {
   earliestYear: number;
   latestConsolidatedYear: number;
   currentYear: number;
+  heatwaveSource: string;
   years: Record<string, FireYearData>;
 };
 
@@ -51,6 +53,11 @@ const METRICS: Record<Metric, {label: string; unit: string; description: string}
     unit: "feux",
     description: "Nombre total d’incendies recensés pendant l’année, quelle que soit leur surface.",
   },
+  heatwaveDays: {
+    label: "Jours de canicule",
+    unit: "jours",
+    description: "Nombre national de jours appartenant à une vague de chaleur selon Météo-France. La mise en regard avec les incendies montre une corrélation, pas une causalité.",
+  },
 };
 
 const METROPOLITAN_CODES = new Set([
@@ -61,7 +68,7 @@ const METROPOLITAN_CODES = new Set([
 ]);
 
 function departmentValue(yearData: FireYearData | undefined, code: string, metric: Metric) {
-  if (!yearData) return 0;
+  if (!yearData || metric === "heatwaveDays") return 0;
   return yearData.departments[code]?.[metric] ?? 0;
 }
 
@@ -200,7 +207,7 @@ export function ForestFiresDataviz() {
       .map(([yearKey, value]) => ({year: Number(yearKey), ...value}))
       .sort((first, second) => first.year - second.year)
     : [];
-  const evolutionMetrics: Metric[] = ["burnedArea", "fireCount"];
+  const evolutionMetrics: Metric[] = ["burnedArea", "fireCount", "heatwaveDays"];
   const evolutionPoints = (key: Metric) => {
     const availableYears = timelineYears.filter(
       (item) => !(key === "fireCount" && item.source === "EFFIS"),
@@ -257,7 +264,10 @@ export function ForestFiresDataviz() {
               className={`fire-overview-stat ${metric === key ? "is-selected" : ""}`}
               aria-pressed={metric === key}
               aria-describedby={`fire-metric-help-${key}`}
-              onClick={() => setMetric(key)}
+              onClick={() => {
+                setMetric(key);
+                if (key === "heatwaveDays") setView("evolution");
+              }}
               disabled={
                 !selectedNational
                 || (key === "fireCount" && selectedNational.source === "EFFIS")
@@ -298,7 +308,10 @@ export function ForestFiresDataviz() {
             role="tab"
             aria-selected={view === "map"}
             className={view === "map" ? "is-selected" : ""}
-            onClick={() => setView("map")}
+            onClick={() => {
+              if (metric === "heatwaveDays") setMetric("burnedArea");
+              setView("map");
+            }}
           >
             Carte
           </button>
@@ -477,7 +490,9 @@ export function ForestFiresDataviz() {
             depuis les incendies publiés par la BDIFF. L’année {currentYear} repose sur les
             périmètres satellitaires EFFIS disponibles au moment de la mise à jour.
             Les deux sources n’ont pas le même niveau de consolidation : cette rupture est
-            indiquée directement dans l’interface.
+            indiquée directement dans l’interface. Les jours de canicule correspondent aux
+            vagues de chaleur nationales identifiées par Météo-France ; leur rapprochement
+            avec les incendies décrit une corrélation et non un lien de causalité.
           </p>
           <ul className="fire-source-links">
             <li>
@@ -488,6 +503,11 @@ export function ForestFiresDataviz() {
             <li>
               <a href="https://forest-fire.emergency.copernicus.eu/applications/data-and-services" target="_blank" rel="noreferrer">
                 EFFIS — surfaces brûlées mises à jour ↗
+              </a>
+            </li>
+            <li>
+              <a href="https://indicateurs-snbc.developpement-durable.gouv.fr/duree-et-severite-des-vagues-de-chaleur-a8.html?lang=fr" target="_blank" rel="noreferrer">
+                Météo-France — jours cumulés de vagues de chaleur ↗
               </a>
             </li>
             <li>
