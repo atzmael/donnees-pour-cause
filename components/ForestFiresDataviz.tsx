@@ -40,6 +40,8 @@ const NATIONAL_DATA: NationalYear[] = [
   {year: 2025, fireCount: 4860, burnedArea: 18700, temperature: 2.2},
   {year: 2026, fireCount: 3180, burnedArea: 12600, temperature: 1.8},
 ];
+const EARLIEST_AVAILABLE_YEAR = Math.min(...NATIONAL_DATA.map((item) => item.year));
+const LATEST_AVAILABLE_YEAR = Math.max(...NATIONAL_DATA.map((item) => item.year));
 
 const METRICS: Record<Metric, {label: string; unit: string}> = {
   burnedArea: {label: "Surface brûlée", unit: "ha"},
@@ -117,10 +119,12 @@ function colorFor(value: number, values: number[], metric: Metric) {
 }
 
 export function ForestFiresDataviz() {
-  const [year, setYear] = useState(2026);
+  const currentYear = new Date().getFullYear();
+  const [year, setYear] = useState(() => new Date().getFullYear());
   const [metric, setMetric] = useState<Metric>("burnedArea");
   const [features, setFeatures] = useState<DepartmentFeature[]>([]);
   const [selectedCode, setSelectedCode] = useState<string | null>(null);
+  const [hoveredCode, setHoveredCode] = useState<string | null>(null);
   const overviewRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -179,21 +183,36 @@ export function ForestFiresDataviz() {
     };
   }, []);
 
-  const selectedNational =
-    NATIONAL_DATA.find((item) => item.year === year) ?? NATIONAL_DATA[NATIONAL_DATA.length - 1];
+  const selectedNational = NATIONAL_DATA.find((item) => item.year === year);
+  const hasDataForYear = Boolean(selectedNational);
   const departmentRows = useMemo(
-    () => features.map((feature) => ({
-      code: feature.properties.code,
-      name: feature.properties.nom,
-      value: departmentValue(feature.properties.code, year, metric),
-    })).sort((a, b) => b.value - a.value),
-    [features, metric, year],
+    () => hasDataForYear
+      ? features.map((feature) => ({
+        code: feature.properties.code,
+        name: feature.properties.nom,
+        value: departmentValue(feature.properties.code, year, metric),
+      })).sort((a, b) => b.value - a.value)
+      : [],
+    [features, hasDataForYear, metric, year],
   );
   const metricValues = departmentRows.map((row) => row.value);
+  const orderedFeatures = useMemo(
+    () => [...features].sort((first, second) => {
+      const layer = (code: string) =>
+        (code === selectedCode ? 1 : 0) + (code === hoveredCode ? 2 : 0);
+      return layer(first.properties.code) - layer(second.properties.code);
+    }),
+    [features, hoveredCode, selectedCode],
+  );
   const selectedDepartment = selectedCode
     ? departmentRows.find((row) => row.code === selectedCode)
     : undefined;
   const selectedRank = departmentRows.findIndex((row) => row.code === selectedDepartment?.code) + 1;
+  const selectYear = (nextYear: number) => {
+    setYear(nextYear);
+    setSelectedCode(null);
+    setHoveredCode(null);
+  };
 
   return (
     <main className="fire-story">
@@ -205,10 +224,10 @@ export function ForestFiresDataviz() {
 
       <section className="fire-opening" id="carte" aria-labelledby="fire-title">
         <div className="fire-opening-copy">
-          <p className="kicker">FEUX DE FORÊT · FRANCE MÉTROPOLITAINE · 2006—2026</p>
+          <p className="kicker">FEUX DE FORÊT · FRANCE MÉTROPOLITAINE · {EARLIEST_AVAILABLE_YEAR}—{currentYear}</p>
           <h1 id="fire-title">Quand la France <em>prend feu</em></h1>
           <p className="fire-deck">
-            <strong className="fire-inline-number">21</strong> années d’incendies mises en regard des températures pour comprendre
+            <strong className="fire-inline-number">{currentYear - EARLIEST_AVAILABLE_YEAR + 1}</strong> années d’incendies mises en regard des températures pour comprendre
             où les feux se concentrent — et pourquoi certaines saisons laissent une trace hors norme.
           </p>
         </div>
@@ -217,11 +236,11 @@ export function ForestFiresDataviz() {
           <div className="fire-overview-year">
             <span>Année observée</span>
             <div className="fire-year-control">
-              <button type="button" onClick={() => setYear(Math.max(2006, year - 1))} disabled={year === 2006} aria-label="Année précédente">←</button>
+              <button type="button" onClick={() => selectYear(Math.max(EARLIEST_AVAILABLE_YEAR, year - 1))} disabled={year === EARLIEST_AVAILABLE_YEAR} aria-label="Année précédente">←</button>
               <strong data-animate-number>{year}</strong>
-              <button type="button" onClick={() => setYear(Math.min(2026, year + 1))} disabled={year === 2026} aria-label="Année suivante">→</button>
+              <button type="button" onClick={() => selectYear(Math.min(currentYear, year + 1))} disabled={year === currentYear} aria-label="Année suivante">→</button>
             </div>
-            {year === 2026 && <small>Provisoire</small>}
+            {year === currentYear && <small>{hasDataForYear ? "Provisoire" : "Données insuffisantes"}</small>}
           </div>
           {(Object.keys(METRICS) as Metric[]).map((key) => (
             <button
@@ -230,25 +249,47 @@ export function ForestFiresDataviz() {
               className={`fire-overview-stat ${metric === key ? "is-selected" : ""}`}
               aria-pressed={metric === key}
               onClick={() => setMetric(key)}
+              disabled={!selectedNational}
             >
               <span>{METRICS[key].label}</span>
-              <strong data-animate-number>{formatValue(selectedNational[key], key)}</strong>
+              <strong data-animate-number>
+                {selectedNational ? formatValue(selectedNational[key], key) : "—"}
+              </strong>
             </button>
           ))}
         </div>
+        <p className="fire-freshness">
+          <i aria-hidden="true" />
+          Données les plus à jour disponibles dans les sources utilisées
+          {year > LATEST_AVAILABLE_YEAR ? ` · dernier millésime disponible : ${LATEST_AVAILABLE_YEAR}` : ""}
+        </p>
 
         <div className="fire-map-layout">
           <div className="fire-map-wrap">
-            {features.length ? (
+            {!hasDataForYear ? (
+              <div className="fire-year-unavailable" role="status">
+                <strong>{year}</strong>
+                <p>Nous n’avons pas encore assez de données pour l’année {year}, merci de sélectionner une année antérieure.</p>
+                <button type="button" onClick={() => selectYear(LATEST_AVAILABLE_YEAR)}>
+                  Voir {LATEST_AVAILABLE_YEAR}
+                </button>
+              </div>
+            ) : features.length ? (
               <svg viewBox="0 0 650 620" role="img" aria-label={`Carte de ${METRICS[metric].label.toLowerCase()} par département en ${year}`}>
-                {features.map((feature) => {
+                {orderedFeatures.map((feature) => {
                   const value = departmentValue(feature.properties.code, year, metric);
                   const selected = selectedDepartment?.code === feature.properties.code;
+                  const hovered = hoveredCode === feature.properties.code;
+                  const baseColor = colorFor(value, metricValues, metric);
                   return (
                     <path key={feature.properties.code} d={featurePath(feature)}
-                      fill={colorFor(value, metricValues, metric)}
-                      className={selected ? "is-selected" : ""}
+                      fill={hovered ? `color-mix(in srgb, ${baseColor} 68%, var(--fire-burn))` : baseColor}
+                      className={`${selected ? "is-selected" : ""} ${hovered ? "is-hovered" : ""}`}
                       onClick={() => setSelectedCode(feature.properties.code)}
+                      onMouseEnter={() => setHoveredCode(feature.properties.code)}
+                      onMouseLeave={() => setHoveredCode(null)}
+                      onFocus={() => setHoveredCode(feature.properties.code)}
+                      onBlur={() => setHoveredCode(null)}
                       onKeyDown={(event) => {
                         if (event.key === "Enter" || event.key === " ") {
                           event.preventDefault();
@@ -265,7 +306,7 @@ export function ForestFiresDataviz() {
             ) : (
               <div className="fire-map-loading">Chargement du fond de carte…</div>
             )}
-            <div className="fire-legend"><span>Moins</span><i /><span>Plus</span></div>
+            {hasDataForYear && <div className="fire-legend"><span>Moins</span><i /><span>Plus</span></div>}
           </div>
 
           <aside className="fire-map-aside" aria-live="polite">
