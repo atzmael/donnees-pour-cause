@@ -42,7 +42,9 @@ Chaque dataviz dispose ensuite de sa propre page :
 
 Le site utilise `next-intl` avec deux locales, `fr` et `en`. Le changement de
 langue ne modifie pas les URL. La préférence est conservée pendant un an dans
-un cookie fonctionnel `site-locale`, avec le français comme langue de repli.
+un cookie fonctionnel `site-locale`. Lors de la première visite, la langue du
+navigateur est utilisée si elle correspond au français ou à l’anglais. Le
+français reste la langue de repli.
 
 Les messages d’interface sont maintenus dans `messages/fr.json` et
 `messages/en.json`. Toute nouvelle interface doit ajouter ses clés dans les deux

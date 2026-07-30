@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import { Roboto } from "next/font/google";
 import {NextIntlClientProvider} from "next-intl";
-import {cookies} from "next/headers";
 import { VercelInsightsConsent } from "@/components/privacy/VercelInsightsConsent";
+import {getUserLocale} from "@/i18n/locale";
 import "./globals.css";
 
 const roboto = Roboto({
@@ -45,8 +45,7 @@ export const metadata: Metadata = {
 export default async function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
-  const storedLocale = (await cookies()).get("site-locale")?.value;
-  const locale = storedLocale === "en" ? "en" : "fr";
+  const locale = await getUserLocale();
   const messages = (await import(`../messages/${locale}.json`)).default;
 
   return (
