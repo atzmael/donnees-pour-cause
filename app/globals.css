@@ -333,6 +333,7 @@ em { color: var(--color-primary); font-style: normal; }
   text-transform: uppercase;
 }
 .fire-overview-stat {
+  position: relative;
   border-top: 0;
   border-bottom: 0;
   border-left: 0;
@@ -351,6 +352,47 @@ em { color: var(--color-primary); font-style: normal; }
   margin-top: 17px;
   font-size: clamp(25px, 2.7vw, 40px);
   letter-spacing: -1.5px;
+}
+.fire-overview-stat .fire-metric-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.fire-metric-label i {
+  display: inline-grid;
+  place-items: center;
+  width: 15px;
+  height: 15px;
+  border: 1px solid currentColor;
+  border-radius: 50%;
+  font-size: 9px;
+  font-style: normal;
+  line-height: 1;
+}
+.fire-overview-stat .fire-metric-tooltip {
+  position: absolute;
+  z-index: 10;
+  left: 18px;
+  bottom: calc(100% - 8px);
+  width: min(270px, calc(100vw - 48px));
+  padding: 12px 14px;
+  border-radius: 4px;
+  background: var(--fire-ink);
+  color: var(--fire-paper);
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.45;
+  letter-spacing: 0;
+  text-transform: none;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(6px);
+  transition: opacity 150ms ease, transform 150ms ease;
+}
+.fire-overview-stat:hover .fire-metric-tooltip,
+.fire-overview-stat:focus-visible .fire-metric-tooltip {
+  opacity: 1;
+  transform: translateY(0);
 }
 .fire-overview .fire-year-control { margin-top: 13px; gap: 9px; }
 .fire-overview .fire-year-control button { width: auto; height: auto; }

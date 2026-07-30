@@ -43,10 +43,22 @@ const NATIONAL_DATA: NationalYear[] = [
 const EARLIEST_AVAILABLE_YEAR = Math.min(...NATIONAL_DATA.map((item) => item.year));
 const LATEST_AVAILABLE_YEAR = Math.max(...NATIONAL_DATA.map((item) => item.year));
 
-const METRICS: Record<Metric, {label: string; unit: string}> = {
-  burnedArea: {label: "Surface brûlée", unit: "ha"},
-  fireCount: {label: "Nombre de feux", unit: "feux"},
-  temperature: {label: "Anomalie de température", unit: "°C"},
+const METRICS: Record<Metric, {label: string; unit: string; description: string}> = {
+  burnedArea: {
+    label: "Surface brûlée",
+    unit: "ha",
+    description: "Surface totale parcourue par les incendies recensés pendant l’année, exprimée en hectares.",
+  },
+  fireCount: {
+    label: "Nombre de feux",
+    unit: "feux",
+    description: "Nombre total d’incendies recensés pendant l’année, quelle que soit leur surface.",
+  },
+  temperature: {
+    label: "Anomalie de température",
+    unit: "°C",
+    description: "Écart entre la température moyenne observée et une moyenne climatique de référence. Une valeur positive indique une année plus chaude.",
+  },
 };
 
 const METROPOLITAN_CODES = new Set([
@@ -242,13 +254,24 @@ export function ForestFiresDataviz() {
               type="button"
               className={`fire-overview-stat ${metric === key ? "is-selected" : ""}`}
               aria-pressed={metric === key}
+              aria-describedby={`fire-metric-help-${key}`}
               onClick={() => setMetric(key)}
               disabled={!selectedNational}
             >
-              <span>{METRICS[key].label}</span>
+              <span className="fire-metric-label">
+                {METRICS[key].label}
+                <i aria-hidden="true">?</i>
+              </span>
               <strong data-animate-number>
                 {selectedNational ? formatValue(selectedNational[key], key) : "—"}
               </strong>
+              <span
+                className="fire-metric-tooltip"
+                id={`fire-metric-help-${key}`}
+                role="tooltip"
+              >
+                {METRICS[key].description}
+              </span>
             </button>
           ))}
         </div>
