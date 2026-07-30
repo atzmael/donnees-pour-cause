@@ -68,6 +68,7 @@ button:focus-visible, a:focus-visible { outline: 3px solid var(--color-secondary
 .ui-button-primary:hover, .ui-button.is-selected:hover { background: var(--color-primary-hover); border-color: var(--color-primary-hover); }
 .ui-button-outline { color: var(--color-primary); background: var(--color-surface); border-color: var(--color-border); }
 .ui-button-outline:hover { color: var(--color-primary-hover); border-color: var(--color-primary); background: var(--color-primary-light); }
+.ui-button-outline.is-selected:hover { color: var(--color-on-ink); background: var(--color-primary-hover); border-color: var(--color-primary-hover); }
 .ui-button-ghost { color: var(--color-primary); background: transparent; border-color: transparent; }
 .ui-button-ghost:hover { color: var(--color-primary-hover); background: var(--color-primary-light); }
 .ui-button:disabled { opacity: .45; cursor: not-allowed; transform: none; }
@@ -128,12 +129,13 @@ em { color: var(--color-primary); font-style: normal; }
 }
 .collection-head > p { font-size: 12px; text-transform: uppercase; letter-spacing: 1.2px; }
 .filters { display: flex; gap: 6px; margin: 35px 0 28px; border-bottom: 1px solid var(--line); padding-bottom: 18px; overflow-x: auto; }
-.project-list { border-top: 1px solid var(--color-text); }
+.filters .ui-button:hover { transform: none; }
+.project-list { border-top: 0; }
 .project-row {
   min-height: 240px; display: grid; grid-template-columns: 50px minmax(250px, 38%) 1fr 40px; gap: clamp(18px, 3vw, 45px);
-  align-items: center; border-width: 0 0 1px; border-radius: 0; padding: 26px 0; background: transparent;
+  align-items: center; border-width: 0 0 1px; border-radius: 0; padding: 26px 12px; background: transparent;
 }
-.project-row:hover { padding-left: 12px; padding-right: 12px; background: var(--color-primary-light); }
+.project-row:hover { background: var(--color-primary-light); }
 .project-index { font: 500 12px var(--font-roboto), sans-serif; align-self: start; padding-top: 8px; }
 .project-preview { height: 185px; overflow: hidden; position: relative; background: var(--mint); }
 .project-copy { max-width: 520px; }.project-meta { display: flex; gap: 16px; font-size: 10px; font-weight: 800; letter-spacing: 1.2px; text-transform: uppercase; }
