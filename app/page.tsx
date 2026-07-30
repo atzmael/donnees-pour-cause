@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import {useTranslations} from "next-intl";
 import { Button, Card } from "@/components/ui";
 import { SiteFooter } from "@/components/SiteFooter";
@@ -41,11 +42,15 @@ export default function Home() {
           </p>
           <span>{t("explore")}</span>
         </div>
-        <div className="intro-art" aria-hidden="true">
-          <div className="sun" />
-          <div className="mesh mesh-a" />
-          <div className="mesh mesh-b" />
-          <i className="orbit-point p1" /><i className="orbit-point p2" />
+        <div className="intro-art">
+          <Image
+            className="hero-logo"
+            src="/logo.png"
+            alt="Données en cause"
+            width={520}
+            height={520}
+            priority
+          />
         </div>
       </section>
 
