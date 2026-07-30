@@ -40,7 +40,7 @@ export default function Home() {
           <p>
             {t("intro")}
           </p>
-          <span>{t("explore")}</span>
+          <a className="intro-explore" href="#projets">{t("explore")}</a>
         </div>
         <div className="intro-art">
           <Image

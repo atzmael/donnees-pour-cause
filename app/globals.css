@@ -113,7 +113,9 @@ button:focus-visible, a:focus-visible { outline: 3px solid var(--color-secondary
 }
 em { color: var(--color-primary); font-style: normal; }
 .intro-note { position: absolute; z-index: 3; right: clamp(24px, 7vw, 105px); bottom: 54px; width: min(330px, 32vw); padding: 20px 22px 18px; background: color-mix(in srgb, var(--color-background) 92%, transparent); border: 1px solid var(--color-border); border-left: 4px solid var(--color-secondary); backdrop-filter: blur(8px); }
-.intro-note p { margin: 0; font: 400 17px/1.55 var(--font-roboto), sans-serif; }.intro-note span { display: block; margin-top: 16px; color: var(--color-primary); font-size: 11px; font-weight: 800; letter-spacing: 1.2px; }
+.intro-note p { margin: 0; font: 400 17px/1.55 var(--font-roboto), sans-serif; }
+.intro-explore { display: inline-block; margin-top: 16px; padding: 5px 0; color: var(--color-primary); font-size: 11px; font-weight: 800; letter-spacing: 1.2px; text-decoration: none; transition: color var(--transition-ui), transform var(--transition-ui); }
+.intro-explore:hover { color: var(--color-primary-hover); transform: translateY(2px); }
 .intro-art { position: absolute; width: clamp(390px, 40vw, 540px); height: clamp(390px, 40vw, 540px); right: clamp(18px, 5vw, 80px); top: 34px; }
 .hero-logo { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; box-shadow: 0 30px 80px color-mix(in srgb, var(--color-foreground) 20%, transparent); }
 
