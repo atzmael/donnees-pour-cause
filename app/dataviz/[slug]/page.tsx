@@ -3,6 +3,7 @@ import type {Metadata} from "next";
 import Link from "next/link";
 import { SiteFooter } from "@/components/SiteFooter";
 import {Brand} from "@/components/Brand";
+import {ForestFiresDataviz} from "@/components/ForestFiresDataviz";
 import { projects } from "../../projects";
 import {getUserLocale} from "@/i18n/locale";
 import {buildMetadata} from "@/lib/metadata";
@@ -27,6 +28,11 @@ export async function generateMetadata({
     path: `/dataviz/${slug}`,
     title: `${project.title} — Données en cause`,
     description: project.description,
+    image: project.slug === "feux-de-foret" ? "/og-feux-de-foret.png" : undefined,
+    imageAlt:
+      project.slug === "feux-de-foret"
+        ? "Quand la France prend feu — carte des incendies en France de 2006 à 2024"
+        : undefined,
   });
 }
 
@@ -34,6 +40,10 @@ export default async function DatavizPage({ params }: { params: Promise<{ slug: 
   const { slug } = await params;
   const project = projects.find((item) => item.slug === slug);
   if (!project) notFound();
+
+  if (project.slug === "feux-de-foret") {
+    return <ForestFiresDataviz />;
+  }
 
   return (
     <main className={`story story-${project.visual}`}>

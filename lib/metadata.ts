@@ -33,15 +33,24 @@ export function buildMetadata({
   title,
   description,
   path = "/",
+  image,
+  imageAlt,
 }: {
   locale: Locale;
   title?: string;
   description?: string;
   path?: string;
+  image?: string;
+  imageAlt?: string;
 }): Metadata {
   const localized = copy[locale];
   const resolvedTitle = title ?? localized.title;
   const resolvedDescription = description ?? localized.description;
+  const resolvedImage = image ?? localized.image;
+  const resolvedImageAlt = imageAlt ?? localized.imageAlt;
+  const resolvedImageSize = image
+    ? {width: 1536, height: 1024}
+    : {width: 1732, height: 909};
 
   return {
     metadataBase: getSiteUrl(),
@@ -75,13 +84,13 @@ export function buildMetadata({
       description: resolvedDescription,
       locale: locale === "fr" ? "fr_FR" : "en_US",
       alternateLocale: locale === "fr" ? ["en_US"] : ["fr_FR"],
-      images: [{url: localized.image, width: 1732, height: 909, alt: localized.imageAlt}],
+      images: [{url: resolvedImage, ...resolvedImageSize, alt: resolvedImageAlt}],
     },
     twitter: {
       card: "summary_large_image",
       title: resolvedTitle,
       description: resolvedDescription,
-      images: [{url: localized.image, alt: localized.imageAlt}],
+      images: [{url: resolvedImage, alt: resolvedImageAlt}],
     },
     robots: {
       index: true,
