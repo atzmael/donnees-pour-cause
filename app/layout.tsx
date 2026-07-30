@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
-import { Analytics } from "@vercel/analytics/next";
-import { SpeedInsights } from "@vercel/speed-insights/next";
 import { Roboto } from "next/font/google";
+import { VercelInsightsConsent } from "@/components/privacy/VercelInsightsConsent";
 import "./globals.css";
 
 const roboto = Roboto({
@@ -42,8 +41,7 @@ export default function RootLayout({
     <html lang="fr">
       <body className={roboto.variable}>
         {children}
-        <Analytics />
-        <SpeedInsights />
+        <VercelInsightsConsent />
       </body>
     </html>
   );

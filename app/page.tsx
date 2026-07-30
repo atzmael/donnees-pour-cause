@@ -1,7 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { Button, Card } from "@/components/ui";
+import { SiteFooter } from "@/components/SiteFooter";
 import { projects } from "./projects";
 
 const filters = ["Toutes", "Cartographie", "Charts", "Canvas", "3D"] as const;
@@ -15,9 +17,9 @@ export default function Home() {
   return (
     <main>
       <header className="site-header">
-        <a className="wordmark" href="/" aria-label="Index data, accueil">
+        <Link className="wordmark" href="/" aria-label="Données en cause, accueil">
           <span className="wordmark-dot" /> index<span>/data</span>
-        </a>
+        </Link>
         <nav aria-label="Navigation principale">
           <a href="#projets">Projets</a>
           <a href="#a-propos">À propos</a>
@@ -104,18 +106,7 @@ export default function Home() {
         </div>
       </section>
 
-      <footer>
-        <a className="wordmark" href="/"><span className="wordmark-dot" /> index<span>/data</span></a>
-        <a
-          className="creadiv-credit"
-          href="https://creadiv.fr"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          A creadiv project ↗
-        </a>
-        <a href="#projets">Retour en haut ↑</a>
-      </footer>
+      <SiteFooter />
     </main>
   );
 }

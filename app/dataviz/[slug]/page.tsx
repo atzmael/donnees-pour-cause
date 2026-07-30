@@ -1,4 +1,6 @@
 import { notFound } from "next/navigation";
+import Link from "next/link";
+import { SiteFooter } from "@/components/SiteFooter";
 import { projects } from "../../projects";
 
 export const dynamicParams = false;
@@ -15,8 +17,8 @@ export default async function DatavizPage({ params }: { params: Promise<{ slug: 
   return (
     <main className={`story story-${project.visual}`}>
       <header className="story-header">
-        <a className="wordmark" href="/"><span className="wordmark-dot" /> index<span>/data</span></a>
-        <a className="back-link" href="/">← Tous les projets</a>
+        <Link className="wordmark" href="/"><span className="wordmark-dot" /> index<span>/data</span></Link>
+        <Link className="back-link" href="/">← Tous les projets</Link>
         <span>{project.format} · {project.year}</span>
       </header>
 
@@ -56,6 +58,7 @@ export default async function DatavizPage({ params }: { params: Promise<{ slug: 
         <div><span>Source</span><strong>Données de démonstration</strong></div>
         <div><span>Format</span><strong>{project.format}</strong></div>
       </section>
+      <SiteFooter />
     </main>
   );
 }
