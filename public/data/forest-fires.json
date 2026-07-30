@@ -1,0 +1,5080 @@
+{
+  "updatedAt": "2026-07-30T20:40:48.941Z",
+  "earliestYear": 2006,
+  "latestConsolidatedYear": 2025,
+  "currentYear": 2026,
+  "years": {
+    "2006": {
+      "source": "BDIFF",
+      "status": "consolidated",
+      "fireCount": 3231,
+      "burnedArea": 7026,
+      "departments": {
+        "11": {
+          "fireCount": 88,
+          "burnedArea": 402.9
+        },
+        "12": {
+          "fireCount": 4,
+          "burnedArea": 40.2
+        },
+        "13": {
+          "fireCount": 205,
+          "burnedArea": 390.5
+        },
+        "16": {
+          "fireCount": 20,
+          "burnedArea": 12.7
+        },
+        "17": {
+          "fireCount": 43,
+          "burnedArea": 39.6
+        },
+        "18": {
+          "fireCount": 1,
+          "burnedArea": 7
+        },
+        "19": {
+          "fireCount": 19,
+          "burnedArea": 59
+        },
+        "24": {
+          "fireCount": 66,
+          "burnedArea": 50.9
+        },
+        "26": {
+          "fireCount": 41,
+          "burnedArea": 44.9
+        },
+        "29": {
+          "fireCount": 1,
+          "burnedArea": 350
+        },
+        "30": {
+          "fireCount": 62,
+          "burnedArea": 217
+        },
+        "31": {
+          "fireCount": 5,
+          "burnedArea": 9.5
+        },
+        "33": {
+          "fireCount": 383,
+          "burnedArea": 136.3
+        },
+        "34": {
+          "fireCount": 128,
+          "burnedArea": 1111.1
+        },
+        "35": {
+          "fireCount": 1,
+          "burnedArea": 3
+        },
+        "37": {
+          "fireCount": 4,
+          "burnedArea": 9.2
+        },
+        "38": {
+          "fireCount": 12,
+          "burnedArea": 7.1
+        },
+        "40": {
+          "fireCount": 219,
+          "burnedArea": 139.2
+        },
+        "42": {
+          "fireCount": 1,
+          "burnedArea": 0
+        },
+        "45": {
+          "fireCount": 14,
+          "burnedArea": 9.2
+        },
+        "46": {
+          "fireCount": 54,
+          "burnedArea": 48.3
+        },
+        "47": {
+          "fireCount": 13,
+          "burnedArea": 7.2
+        },
+        "48": {
+          "fireCount": 52,
+          "burnedArea": 23.6
+        },
+        "50": {
+          "fireCount": 1,
+          "burnedArea": 30
+        },
+        "56": {
+          "fireCount": 14,
+          "burnedArea": 49
+        },
+        "58": {
+          "fireCount": 1,
+          "burnedArea": 1
+        },
+        "64": {
+          "fireCount": 7,
+          "burnedArea": 8.4
+        },
+        "66": {
+          "fireCount": 102,
+          "burnedArea": 870
+        },
+        "68": {
+          "fireCount": 5,
+          "burnedArea": 6.1
+        },
+        "71": {
+          "fireCount": 3,
+          "burnedArea": 1
+        },
+        "72": {
+          "fireCount": 20,
+          "burnedArea": 8
+        },
+        "83": {
+          "fireCount": 329,
+          "burnedArea": 652.1
+        },
+        "84": {
+          "fireCount": 41,
+          "burnedArea": 108.5
+        },
+        "85": {
+          "fireCount": 1,
+          "burnedArea": 0.2
+        },
+        "86": {
+          "fireCount": 9,
+          "burnedArea": 45.6
+        },
+        "89": {
+          "fireCount": 1,
+          "burnedArea": 1
+        },
+        "91": {
+          "fireCount": 1,
+          "burnedArea": 65
+        },
+        "06": {
+          "fireCount": 149,
+          "burnedArea": 159.8
+        },
+        "2A": {
+          "fireCount": 407,
+          "burnedArea": 249.3
+        },
+        "09": {
+          "fireCount": 41,
+          "burnedArea": 368.5
+        },
+        "2B": {
+          "fireCount": 485,
+          "burnedArea": 917
+        },
+        "07": {
+          "fireCount": 133,
+          "burnedArea": 204.8
+        },
+        "05": {
+          "fireCount": 5,
+          "burnedArea": 13.5
+        },
+        "01": {
+          "fireCount": 12,
+          "burnedArea": 27
+        },
+        "04": {
+          "fireCount": 26,
+          "burnedArea": 120.9
+        },
+        "03": {
+          "fireCount": 2,
+          "burnedArea": 1.1
+        }
+      }
+    },
+    "2007": {
+      "source": "BDIFF",
+      "status": "consolidated",
+      "fireCount": 2690,
+      "burnedArea": 7056.6,
+      "departments": {
+        "10": {
+          "fireCount": 1,
+          "burnedArea": 1
+        },
+        "11": {
+          "fireCount": 69,
+          "burnedArea": 461
+        },
+        "12": {
+          "fireCount": 2,
+          "burnedArea": 7.5
+        },
+        "13": {
+          "fireCount": 253,
+          "burnedArea": 293.8
+        },
+        "15": {
+          "fireCount": 9,
+          "burnedArea": 28
+        },
+        "16": {
+          "fireCount": 3,
+          "burnedArea": 4
+        },
+        "17": {
+          "fireCount": 20,
+          "burnedArea": 3
+        },
+        "19": {
+          "fireCount": 22,
+          "burnedArea": 25.5
+        },
+        "24": {
+          "fireCount": 34,
+          "burnedArea": 32.1
+        },
+        "25": {
+          "fireCount": 2,
+          "burnedArea": 35
+        },
+        "26": {
+          "fireCount": 35,
+          "burnedArea": 71.4
+        },
+        "30": {
+          "fireCount": 48,
+          "burnedArea": 227.1
+        },
+        "31": {
+          "fireCount": 4,
+          "burnedArea": 44
+        },
+        "33": {
+          "fireCount": 106,
+          "burnedArea": 67.1
+        },
+        "34": {
+          "fireCount": 153,
+          "burnedArea": 356.2
+        },
+        "38": {
+          "fireCount": 13,
+          "burnedArea": 22.8
+        },
+        "40": {
+          "fireCount": 62,
+          "burnedArea": 36.6
+        },
+        "46": {
+          "fireCount": 20,
+          "burnedArea": 17.9
+        },
+        "47": {
+          "fireCount": 1,
+          "burnedArea": 5
+        },
+        "48": {
+          "fireCount": 54,
+          "burnedArea": 109
+        },
+        "56": {
+          "fireCount": 1,
+          "burnedArea": 1
+        },
+        "60": {
+          "fireCount": 3,
+          "burnedArea": 6.2
+        },
+        "64": {
+          "fireCount": 4,
+          "burnedArea": 4
+        },
+        "65": {
+          "fireCount": 5,
+          "burnedArea": 17.1
+        },
+        "66": {
+          "fireCount": 99,
+          "burnedArea": 456.2
+        },
+        "67": {
+          "fireCount": 7,
+          "burnedArea": 3.2
+        },
+        "68": {
+          "fireCount": 3,
+          "burnedArea": 2.6
+        },
+        "70": {
+          "fireCount": 1,
+          "burnedArea": 4
+        },
+        "71": {
+          "fireCount": 2,
+          "burnedArea": 0
+        },
+        "72": {
+          "fireCount": 14,
+          "burnedArea": 5.6
+        },
+        "73": {
+          "fireCount": 1,
+          "burnedArea": 52
+        },
+        "81": {
+          "fireCount": 1,
+          "burnedArea": 3.5
+        },
+        "83": {
+          "fireCount": 257,
+          "burnedArea": 2224.7
+        },
+        "84": {
+          "fireCount": 44,
+          "burnedArea": 118.1
+        },
+        "89": {
+          "fireCount": 1,
+          "burnedArea": 1
+        },
+        "2B": {
+          "fireCount": 544,
+          "burnedArea": 908.4
+        },
+        "06": {
+          "fireCount": 224,
+          "burnedArea": 440.5
+        },
+        "2A": {
+          "fireCount": 420,
+          "burnedArea": 328.2
+        },
+        "07": {
+          "fireCount": 90,
+          "burnedArea": 70.8
+        },
+        "04": {
+          "fireCount": 26,
+          "burnedArea": 416.5
+        },
+        "09": {
+          "fireCount": 15,
+          "burnedArea": 124.1
+        },
+        "01": {
+          "fireCount": 12,
+          "burnedArea": 16.5
+        },
+        "05": {
+          "fireCount": 5,
+          "burnedArea": 4.6
+        }
+      }
+    },
+    "2008": {
+      "source": "BDIFF",
+      "status": "consolidated",
+      "fireCount": 1801,
+      "burnedArea": 4709.7,
+      "departments": {
+        "11": {
+          "fireCount": 91,
+          "burnedArea": 1016.5
+        },
+        "13": {
+          "fireCount": 147,
+          "burnedArea": 164.4
+        },
+        "15": {
+          "fireCount": 10,
+          "burnedArea": 20.5
+        },
+        "16": {
+          "fireCount": 14,
+          "burnedArea": 1.2
+        },
+        "17": {
+          "fireCount": 15,
+          "burnedArea": 5.8
+        },
+        "19": {
+          "fireCount": 16,
+          "burnedArea": 25
+        },
+        "24": {
+          "fireCount": 31,
+          "burnedArea": 32.3
+        },
+        "26": {
+          "fireCount": 22,
+          "burnedArea": 18.8
+        },
+        "30": {
+          "fireCount": 19,
+          "burnedArea": 73.7
+        },
+        "31": {
+          "fireCount": 5,
+          "burnedArea": 22
+        },
+        "32": {
+          "fireCount": 1,
+          "burnedArea": 3
+        },
+        "33": {
+          "fireCount": 129,
+          "burnedArea": 47.8
+        },
+        "34": {
+          "fireCount": 146,
+          "burnedArea": 289.4
+        },
+        "40": {
+          "fireCount": 92,
+          "burnedArea": 49.5
+        },
+        "43": {
+          "fireCount": 4,
+          "burnedArea": 8
+        },
+        "46": {
+          "fireCount": 87,
+          "burnedArea": 48.7
+        },
+        "47": {
+          "fireCount": 11,
+          "burnedArea": 20.5
+        },
+        "48": {
+          "fireCount": 49,
+          "burnedArea": 168
+        },
+        "50": {
+          "fireCount": 1,
+          "burnedArea": 4
+        },
+        "51": {
+          "fireCount": 1,
+          "burnedArea": 2
+        },
+        "56": {
+          "fireCount": 1,
+          "burnedArea": 350
+        },
+        "63": {
+          "fireCount": 6,
+          "burnedArea": 10.5
+        },
+        "65": {
+          "fireCount": 4,
+          "burnedArea": 3.6
+        },
+        "66": {
+          "fireCount": 48,
+          "burnedArea": 310.6
+        },
+        "67": {
+          "fireCount": 8,
+          "burnedArea": 3.1
+        },
+        "71": {
+          "fireCount": 1,
+          "burnedArea": 0
+        },
+        "72": {
+          "fireCount": 3,
+          "burnedArea": 8.5
+        },
+        "73": {
+          "fireCount": 1,
+          "burnedArea": 5
+        },
+        "81": {
+          "fireCount": 4,
+          "burnedArea": 8.2
+        },
+        "83": {
+          "fireCount": 165,
+          "burnedArea": 636.1
+        },
+        "84": {
+          "fireCount": 13,
+          "burnedArea": 9.9
+        },
+        "86": {
+          "fireCount": 2,
+          "burnedArea": 10
+        },
+        "91": {
+          "fireCount": 1,
+          "burnedArea": 0.5
+        },
+        "06": {
+          "fireCount": 118,
+          "burnedArea": 341.5
+        },
+        "07": {
+          "fireCount": 81,
+          "burnedArea": 235.8
+        },
+        "04": {
+          "fireCount": 16,
+          "burnedArea": 77.6
+        },
+        "09": {
+          "fireCount": 12,
+          "burnedArea": 247.5
+        },
+        "2B": {
+          "fireCount": 190,
+          "burnedArea": 271.9
+        },
+        "2A": {
+          "fireCount": 219,
+          "burnedArea": 98.3
+        },
+        "05": {
+          "fireCount": 4,
+          "burnedArea": 33
+        },
+        "01": {
+          "fireCount": 13,
+          "burnedArea": 26.7
+        }
+      }
+    },
+    "2009": {
+      "source": "BDIFF",
+      "status": "consolidated",
+      "fireCount": 3012,
+      "burnedArea": 14611.9,
+      "departments": {
+        "11": {
+          "fireCount": 160,
+          "burnedArea": 306.7
+        },
+        "12": {
+          "fireCount": 2,
+          "burnedArea": 150
+        },
+        "13": {
+          "fireCount": 174,
+          "burnedArea": 1285.8
+        },
+        "16": {
+          "fireCount": 51,
+          "burnedArea": 311.4
+        },
+        "17": {
+          "fireCount": 31,
+          "burnedArea": 31.3
+        },
+        "18": {
+          "fireCount": 3,
+          "burnedArea": 17.9
+        },
+        "19": {
+          "fireCount": 22,
+          "burnedArea": 63.9
+        },
+        "24": {
+          "fireCount": 100,
+          "burnedArea": 143.9
+        },
+        "26": {
+          "fireCount": 47,
+          "burnedArea": 33.6
+        },
+        "27": {
+          "fireCount": 2,
+          "burnedArea": 5.3
+        },
+        "28": {
+          "fireCount": 2,
+          "burnedArea": 0.3
+        },
+        "30": {
+          "fireCount": 34,
+          "burnedArea": 182.9
+        },
+        "31": {
+          "fireCount": 2,
+          "burnedArea": 21
+        },
+        "32": {
+          "fireCount": 1,
+          "burnedArea": 3
+        },
+        "33": {
+          "fireCount": 266,
+          "burnedArea": 293
+        },
+        "34": {
+          "fireCount": 229,
+          "burnedArea": 1848.6
+        },
+        "35": {
+          "fireCount": 19,
+          "burnedArea": 100
+        },
+        "39": {
+          "fireCount": 2,
+          "burnedArea": 2
+        },
+        "40": {
+          "fireCount": 172,
+          "burnedArea": 389.4
+        },
+        "41": {
+          "fireCount": 6,
+          "burnedArea": 73
+        },
+        "42": {
+          "fireCount": 28,
+          "burnedArea": 118.5
+        },
+        "43": {
+          "fireCount": 11,
+          "burnedArea": 58.8
+        },
+        "45": {
+          "fireCount": 6,
+          "burnedArea": 48
+        },
+        "46": {
+          "fireCount": 194,
+          "burnedArea": 399.8
+        },
+        "47": {
+          "fireCount": 30,
+          "burnedArea": 42.6
+        },
+        "48": {
+          "fireCount": 86,
+          "burnedArea": 332.2
+        },
+        "50": {
+          "fireCount": 1,
+          "burnedArea": 0.5
+        },
+        "56": {
+          "fireCount": 14,
+          "burnedArea": 169.5
+        },
+        "58": {
+          "fireCount": 1,
+          "burnedArea": 3
+        },
+        "63": {
+          "fireCount": 10,
+          "burnedArea": 22.3
+        },
+        "64": {
+          "fireCount": 5,
+          "burnedArea": 7
+        },
+        "65": {
+          "fireCount": 9,
+          "burnedArea": 313.6
+        },
+        "66": {
+          "fireCount": 72,
+          "burnedArea": 375.7
+        },
+        "69": {
+          "fireCount": 1,
+          "burnedArea": 8
+        },
+        "71": {
+          "fireCount": 4,
+          "burnedArea": 8
+        },
+        "72": {
+          "fireCount": 19,
+          "burnedArea": 56.5
+        },
+        "76": {
+          "fireCount": 5,
+          "burnedArea": 8
+        },
+        "81": {
+          "fireCount": 2,
+          "burnedArea": 13
+        },
+        "83": {
+          "fireCount": 183,
+          "burnedArea": 382.7
+        },
+        "84": {
+          "fireCount": 24,
+          "burnedArea": 17.4
+        },
+        "86": {
+          "fireCount": 14,
+          "burnedArea": 43
+        },
+        "89": {
+          "fireCount": 2,
+          "burnedArea": 3.1
+        },
+        "95": {
+          "fireCount": 1,
+          "burnedArea": 0.1
+        },
+        "07": {
+          "fireCount": 116,
+          "burnedArea": 327.3
+        },
+        "09": {
+          "fireCount": 9,
+          "burnedArea": 479
+        },
+        "2B": {
+          "fireCount": 271,
+          "burnedArea": 411.2
+        },
+        "06": {
+          "fireCount": 141,
+          "burnedArea": 119.9
+        },
+        "2A": {
+          "fireCount": 378,
+          "burnedArea": 5532.6
+        },
+        "04": {
+          "fireCount": 47,
+          "burnedArea": 47.4
+        },
+        "05": {
+          "fireCount": 3,
+          "burnedArea": 0.5
+        }
+      }
+    },
+    "2010": {
+      "source": "BDIFF",
+      "status": "consolidated",
+      "fireCount": 2443,
+      "burnedArea": 8524.3,
+      "departments": {
+        "11": {
+          "fireCount": 139,
+          "burnedArea": 455.8
+        },
+        "12": {
+          "fireCount": 105,
+          "burnedArea": 250.5
+        },
+        "13": {
+          "fireCount": 137,
+          "burnedArea": 1168.5
+        },
+        "16": {
+          "fireCount": 36,
+          "burnedArea": 50.8
+        },
+        "17": {
+          "fireCount": 63,
+          "burnedArea": 165.5
+        },
+        "18": {
+          "fireCount": 4,
+          "burnedArea": 9.9
+        },
+        "19": {
+          "fireCount": 1,
+          "burnedArea": 3
+        },
+        "24": {
+          "fireCount": 108,
+          "burnedArea": 131.1
+        },
+        "26": {
+          "fireCount": 23,
+          "burnedArea": 9
+        },
+        "27": {
+          "fireCount": 4,
+          "burnedArea": 15.2
+        },
+        "28": {
+          "fireCount": 16,
+          "burnedArea": 4.3
+        },
+        "30": {
+          "fireCount": 51,
+          "burnedArea": 162.2
+        },
+        "32": {
+          "fireCount": 10,
+          "burnedArea": 10.5
+        },
+        "33": {
+          "fireCount": 356,
+          "burnedArea": 410.6
+        },
+        "34": {
+          "fireCount": 161,
+          "burnedArea": 3275.3
+        },
+        "35": {
+          "fireCount": 4,
+          "burnedArea": 2
+        },
+        "38": {
+          "fireCount": 5,
+          "burnedArea": 39.2
+        },
+        "40": {
+          "fireCount": 145,
+          "burnedArea": 448.1
+        },
+        "41": {
+          "fireCount": 13,
+          "burnedArea": 28.8
+        },
+        "43": {
+          "fireCount": 4,
+          "burnedArea": 9.1
+        },
+        "45": {
+          "fireCount": 1,
+          "burnedArea": 5
+        },
+        "46": {
+          "fireCount": 102,
+          "burnedArea": 132.3
+        },
+        "47": {
+          "fireCount": 11,
+          "burnedArea": 20.6
+        },
+        "48": {
+          "fireCount": 45,
+          "burnedArea": 166.6
+        },
+        "54": {
+          "fireCount": 3,
+          "burnedArea": 129.7
+        },
+        "56": {
+          "fireCount": 14,
+          "burnedArea": 42.5
+        },
+        "57": {
+          "fireCount": 1,
+          "burnedArea": 0.3
+        },
+        "58": {
+          "fireCount": 3,
+          "burnedArea": 11
+        },
+        "61": {
+          "fireCount": 3,
+          "burnedArea": 18
+        },
+        "63": {
+          "fireCount": 16,
+          "burnedArea": 44.7
+        },
+        "65": {
+          "fireCount": 17,
+          "burnedArea": 243.5
+        },
+        "66": {
+          "fireCount": 66,
+          "burnedArea": 127.4
+        },
+        "68": {
+          "fireCount": 3,
+          "burnedArea": 5.8
+        },
+        "71": {
+          "fireCount": 5,
+          "burnedArea": 26.5
+        },
+        "72": {
+          "fireCount": 3,
+          "burnedArea": 52
+        },
+        "81": {
+          "fireCount": 2,
+          "burnedArea": 0.7
+        },
+        "83": {
+          "fireCount": 117,
+          "burnedArea": 104.5
+        },
+        "84": {
+          "fireCount": 10,
+          "burnedArea": 2.9
+        },
+        "86": {
+          "fireCount": 5,
+          "burnedArea": 13
+        },
+        "88": {
+          "fireCount": 19,
+          "burnedArea": 16
+        },
+        "95": {
+          "fireCount": 6,
+          "burnedArea": 0.1
+        },
+        "2A": {
+          "fireCount": 275,
+          "burnedArea": 82.6
+        },
+        "06": {
+          "fireCount": 62,
+          "burnedArea": 58.8
+        },
+        "07": {
+          "fireCount": 103,
+          "burnedArea": 278.4
+        },
+        "2B": {
+          "fireCount": 137,
+          "burnedArea": 282.9
+        },
+        "04": {
+          "fireCount": 27,
+          "burnedArea": 6.6
+        },
+        "05": {
+          "fireCount": 2,
+          "burnedArea": 2.5
+        }
+      }
+    },
+    "2011": {
+      "source": "BDIFF",
+      "status": "consolidated",
+      "fireCount": 2774,
+      "burnedArea": 6799.8,
+      "departments": {
+        "11": {
+          "fireCount": 131,
+          "burnedArea": 151.9
+        },
+        "12": {
+          "fireCount": 24,
+          "burnedArea": 39.7
+        },
+        "13": {
+          "fireCount": 154,
+          "burnedArea": 196.6
+        },
+        "15": {
+          "fireCount": 1,
+          "burnedArea": 5
+        },
+        "16": {
+          "fireCount": 26,
+          "burnedArea": 201.2
+        },
+        "17": {
+          "fireCount": 64,
+          "burnedArea": 54.5
+        },
+        "18": {
+          "fireCount": 6,
+          "burnedArea": 9.7
+        },
+        "19": {
+          "fireCount": 8,
+          "burnedArea": 38.1
+        },
+        "22": {
+          "fireCount": 2,
+          "burnedArea": 0.1
+        },
+        "24": {
+          "fireCount": 139,
+          "burnedArea": 298.7
+        },
+        "25": {
+          "fireCount": 1,
+          "burnedArea": 0
+        },
+        "26": {
+          "fireCount": 27,
+          "burnedArea": 26.3
+        },
+        "28": {
+          "fireCount": 22,
+          "burnedArea": 19.6
+        },
+        "30": {
+          "fireCount": 44,
+          "burnedArea": 95.3
+        },
+        "32": {
+          "fireCount": 4,
+          "burnedArea": 11.1
+        },
+        "33": {
+          "fireCount": 314,
+          "burnedArea": 652.6
+        },
+        "34": {
+          "fireCount": 169,
+          "burnedArea": 682.9
+        },
+        "35": {
+          "fireCount": 3,
+          "burnedArea": 18
+        },
+        "38": {
+          "fireCount": 29,
+          "burnedArea": 99
+        },
+        "39": {
+          "fireCount": 2,
+          "burnedArea": 3
+        },
+        "40": {
+          "fireCount": 133,
+          "burnedArea": 217.4
+        },
+        "41": {
+          "fireCount": 4,
+          "burnedArea": 17.8
+        },
+        "43": {
+          "fireCount": 5,
+          "burnedArea": 35.7
+        },
+        "45": {
+          "fireCount": 4,
+          "burnedArea": 19.8
+        },
+        "46": {
+          "fireCount": 1,
+          "burnedArea": 1
+        },
+        "47": {
+          "fireCount": 40,
+          "burnedArea": 29.6
+        },
+        "48": {
+          "fireCount": 61,
+          "burnedArea": 413.1
+        },
+        "50": {
+          "fireCount": 1,
+          "burnedArea": 25
+        },
+        "56": {
+          "fireCount": 6,
+          "burnedArea": 40
+        },
+        "58": {
+          "fireCount": 6,
+          "burnedArea": 22.2
+        },
+        "60": {
+          "fireCount": 2,
+          "burnedArea": 4
+        },
+        "63": {
+          "fireCount": 13,
+          "burnedArea": 54.4
+        },
+        "65": {
+          "fireCount": 18,
+          "burnedArea": 97.8
+        },
+        "66": {
+          "fireCount": 35,
+          "burnedArea": 582.5
+        },
+        "67": {
+          "fireCount": 5,
+          "burnedArea": 11.6
+        },
+        "68": {
+          "fireCount": 6,
+          "burnedArea": 1.9
+        },
+        "69": {
+          "fireCount": 1,
+          "burnedArea": 0.3
+        },
+        "71": {
+          "fireCount": 57,
+          "burnedArea": 7.7
+        },
+        "72": {
+          "fireCount": 14,
+          "burnedArea": 116
+        },
+        "74": {
+          "fireCount": 9,
+          "burnedArea": 22.7
+        },
+        "81": {
+          "fireCount": 17,
+          "burnedArea": 48.4
+        },
+        "83": {
+          "fireCount": 122,
+          "burnedArea": 56.3
+        },
+        "84": {
+          "fireCount": 33,
+          "burnedArea": 36.9
+        },
+        "86": {
+          "fireCount": 7,
+          "burnedArea": 31
+        },
+        "89": {
+          "fireCount": 1,
+          "burnedArea": 2
+        },
+        "95": {
+          "fireCount": 1,
+          "burnedArea": 0.1
+        },
+        "2A": {
+          "fireCount": 354,
+          "burnedArea": 171.7
+        },
+        "07": {
+          "fireCount": 120,
+          "burnedArea": 480.3
+        },
+        "06": {
+          "fireCount": 84,
+          "burnedArea": 311.1
+        },
+        "04": {
+          "fireCount": 38,
+          "burnedArea": 38.3
+        },
+        "05": {
+          "fireCount": 6,
+          "burnedArea": 68.3
+        },
+        "09": {
+          "fireCount": 4,
+          "burnedArea": 44
+        },
+        "2B": {
+          "fireCount": 396,
+          "burnedArea": 1188
+        }
+      }
+    },
+    "2012": {
+      "source": "BDIFF",
+      "status": "consolidated",
+      "fireCount": 2763,
+      "burnedArea": 7584.3,
+      "departments": {
+        "11": {
+          "fireCount": 168,
+          "burnedArea": 261.4
+        },
+        "12": {
+          "fireCount": 24,
+          "burnedArea": 197.9
+        },
+        "13": {
+          "fireCount": 159,
+          "burnedArea": 831
+        },
+        "15": {
+          "fireCount": 43,
+          "burnedArea": 146.4
+        },
+        "16": {
+          "fireCount": 21,
+          "burnedArea": 40.6
+        },
+        "17": {
+          "fireCount": 38,
+          "burnedArea": 24.7
+        },
+        "18": {
+          "fireCount": 5,
+          "burnedArea": 3.8
+        },
+        "19": {
+          "fireCount": 6,
+          "burnedArea": 28.8
+        },
+        "21": {
+          "fireCount": 1,
+          "burnedArea": 12
+        },
+        "24": {
+          "fireCount": 100,
+          "burnedArea": 173.2
+        },
+        "26": {
+          "fireCount": 23,
+          "burnedArea": 17.5
+        },
+        "28": {
+          "fireCount": 9,
+          "burnedArea": 1.9
+        },
+        "30": {
+          "fireCount": 98,
+          "burnedArea": 85.9
+        },
+        "32": {
+          "fireCount": 8,
+          "burnedArea": 40.1
+        },
+        "33": {
+          "fireCount": 192,
+          "burnedArea": 716.5
+        },
+        "34": {
+          "fireCount": 161,
+          "burnedArea": 537.6
+        },
+        "35": {
+          "fireCount": 6,
+          "burnedArea": 6.5
+        },
+        "37": {
+          "fireCount": 9,
+          "burnedArea": 8.4
+        },
+        "38": {
+          "fireCount": 72,
+          "burnedArea": 66.8
+        },
+        "40": {
+          "fireCount": 91,
+          "burnedArea": 75.9
+        },
+        "41": {
+          "fireCount": 1,
+          "burnedArea": 1
+        },
+        "43": {
+          "fireCount": 8,
+          "burnedArea": 16.3
+        },
+        "47": {
+          "fireCount": 37,
+          "burnedArea": 48.8
+        },
+        "48": {
+          "fireCount": 63,
+          "burnedArea": 329.8
+        },
+        "50": {
+          "fireCount": 1,
+          "burnedArea": 10
+        },
+        "54": {
+          "fireCount": 2,
+          "burnedArea": 9
+        },
+        "55": {
+          "fireCount": 1,
+          "burnedArea": 11
+        },
+        "57": {
+          "fireCount": 1,
+          "burnedArea": 2
+        },
+        "58": {
+          "fireCount": 3,
+          "burnedArea": 12
+        },
+        "63": {
+          "fireCount": 15,
+          "burnedArea": 24.8
+        },
+        "65": {
+          "fireCount": 125,
+          "burnedArea": 569.4
+        },
+        "66": {
+          "fireCount": 65,
+          "burnedArea": 458.7
+        },
+        "68": {
+          "fireCount": 2,
+          "burnedArea": 0.8
+        },
+        "71": {
+          "fireCount": 32,
+          "burnedArea": 18.6
+        },
+        "72": {
+          "fireCount": 2,
+          "burnedArea": 47
+        },
+        "77": {
+          "fireCount": 16,
+          "burnedArea": 18
+        },
+        "81": {
+          "fireCount": 7,
+          "burnedArea": 13.2
+        },
+        "83": {
+          "fireCount": 180,
+          "burnedArea": 85.6
+        },
+        "84": {
+          "fireCount": 35,
+          "burnedArea": 73.5
+        },
+        "86": {
+          "fireCount": 3,
+          "burnedArea": 3
+        },
+        "88": {
+          "fireCount": 6,
+          "burnedArea": 31.3
+        },
+        "89": {
+          "fireCount": 1,
+          "burnedArea": 5
+        },
+        "91": {
+          "fireCount": 2,
+          "burnedArea": 0.2
+        },
+        "94": {
+          "fireCount": 1,
+          "burnedArea": 2
+        },
+        "2B": {
+          "fireCount": 368,
+          "burnedArea": 458.4
+        },
+        "06": {
+          "fireCount": 102,
+          "burnedArea": 251
+        },
+        "2A": {
+          "fireCount": 245,
+          "burnedArea": 173.2
+        },
+        "07": {
+          "fireCount": 106,
+          "burnedArea": 506.3
+        },
+        "04": {
+          "fireCount": 65,
+          "burnedArea": 252.4
+        },
+        "05": {
+          "fireCount": 19,
+          "burnedArea": 69.6
+        },
+        "09": {
+          "fireCount": 11,
+          "burnedArea": 787
+        },
+        "01": {
+          "fireCount": 2,
+          "burnedArea": 13
+        },
+        "03": {
+          "fireCount": 2,
+          "burnedArea": 5.5
+        }
+      }
+    },
+    "2013": {
+      "source": "BDIFF",
+      "status": "consolidated",
+      "fireCount": 1510,
+      "burnedArea": 2735.5,
+      "departments": {
+        "11": {
+          "fireCount": 120,
+          "burnedArea": 405.6
+        },
+        "12": {
+          "fireCount": 12,
+          "burnedArea": 26.4
+        },
+        "13": {
+          "fireCount": 121,
+          "burnedArea": 102
+        },
+        "15": {
+          "fireCount": 6,
+          "burnedArea": 4.7
+        },
+        "16": {
+          "fireCount": 4,
+          "burnedArea": 3.3
+        },
+        "17": {
+          "fireCount": 23,
+          "burnedArea": 18.3
+        },
+        "18": {
+          "fireCount": 1,
+          "burnedArea": 2
+        },
+        "22": {
+          "fireCount": 1,
+          "burnedArea": 20
+        },
+        "24": {
+          "fireCount": 48,
+          "burnedArea": 127.3
+        },
+        "26": {
+          "fireCount": 11,
+          "burnedArea": 4.5
+        },
+        "28": {
+          "fireCount": 8,
+          "burnedArea": 5.5
+        },
+        "30": {
+          "fireCount": 85,
+          "burnedArea": 63.8
+        },
+        "32": {
+          "fireCount": 1,
+          "burnedArea": 5
+        },
+        "33": {
+          "fireCount": 79,
+          "burnedArea": 57
+        },
+        "34": {
+          "fireCount": 159,
+          "burnedArea": 213.2
+        },
+        "35": {
+          "fireCount": 3,
+          "burnedArea": 1.5
+        },
+        "38": {
+          "fireCount": 1,
+          "burnedArea": 35
+        },
+        "40": {
+          "fireCount": 42,
+          "burnedArea": 234.7
+        },
+        "41": {
+          "fireCount": 3,
+          "burnedArea": 3.5
+        },
+        "43": {
+          "fireCount": 1,
+          "burnedArea": 12.4
+        },
+        "47": {
+          "fireCount": 12,
+          "burnedArea": 11.1
+        },
+        "48": {
+          "fireCount": 32,
+          "burnedArea": 24.8
+        },
+        "50": {
+          "fireCount": 1,
+          "burnedArea": 0.1
+        },
+        "57": {
+          "fireCount": 1,
+          "burnedArea": 10
+        },
+        "61": {
+          "fireCount": 2,
+          "burnedArea": 0.1
+        },
+        "63": {
+          "fireCount": 3,
+          "burnedArea": 10.6
+        },
+        "65": {
+          "fireCount": 35,
+          "burnedArea": 200.3
+        },
+        "66": {
+          "fireCount": 67,
+          "burnedArea": 225.4
+        },
+        "68": {
+          "fireCount": 1,
+          "burnedArea": 5
+        },
+        "71": {
+          "fireCount": 5,
+          "burnedArea": 1.1
+        },
+        "72": {
+          "fireCount": 2,
+          "burnedArea": 5
+        },
+        "74": {
+          "fireCount": 3,
+          "burnedArea": 0.2
+        },
+        "77": {
+          "fireCount": 1,
+          "burnedArea": 0
+        },
+        "81": {
+          "fireCount": 2,
+          "burnedArea": 1.3
+        },
+        "82": {
+          "fireCount": 3,
+          "burnedArea": 8.7
+        },
+        "83": {
+          "fireCount": 57,
+          "burnedArea": 25.9
+        },
+        "84": {
+          "fireCount": 15,
+          "burnedArea": 6.2
+        },
+        "88": {
+          "fireCount": 1,
+          "burnedArea": 3
+        },
+        "04": {
+          "fireCount": 21,
+          "burnedArea": 41.3
+        },
+        "06": {
+          "fireCount": 35,
+          "burnedArea": 29.5
+        },
+        "2A": {
+          "fireCount": 192,
+          "burnedArea": 47.6
+        },
+        "2B": {
+          "fireCount": 261,
+          "burnedArea": 649.5
+        },
+        "07": {
+          "fireCount": 25,
+          "burnedArea": 78
+        },
+        "05": {
+          "fireCount": 4,
+          "burnedArea": 5
+        }
+      }
+    },
+    "2014": {
+      "source": "BDIFF",
+      "status": "consolidated",
+      "fireCount": 1730,
+      "burnedArea": 4735.2,
+      "departments": {
+        "11": {
+          "fireCount": 143,
+          "burnedArea": 507.5
+        },
+        "12": {
+          "fireCount": 55,
+          "burnedArea": 38.2
+        },
+        "13": {
+          "fireCount": 95,
+          "burnedArea": 22.3
+        },
+        "15": {
+          "fireCount": 13,
+          "burnedArea": 34.9
+        },
+        "16": {
+          "fireCount": 4,
+          "burnedArea": 12.5
+        },
+        "17": {
+          "fireCount": 20,
+          "burnedArea": 7.8
+        },
+        "21": {
+          "fireCount": 1,
+          "burnedArea": 1
+        },
+        "24": {
+          "fireCount": 42,
+          "burnedArea": 48.9
+        },
+        "25": {
+          "fireCount": 1,
+          "burnedArea": 0.1
+        },
+        "26": {
+          "fireCount": 7,
+          "burnedArea": 20
+        },
+        "28": {
+          "fireCount": 11,
+          "burnedArea": 5.9
+        },
+        "30": {
+          "fireCount": 25,
+          "burnedArea": 57.9
+        },
+        "31": {
+          "fireCount": 1,
+          "burnedArea": 25
+        },
+        "33": {
+          "fireCount": 122,
+          "burnedArea": 220.8
+        },
+        "34": {
+          "fireCount": 179,
+          "burnedArea": 354
+        },
+        "35": {
+          "fireCount": 4,
+          "burnedArea": 6.1
+        },
+        "38": {
+          "fireCount": 1,
+          "burnedArea": 7
+        },
+        "40": {
+          "fireCount": 55,
+          "burnedArea": 62.2
+        },
+        "41": {
+          "fireCount": 8,
+          "burnedArea": 17.7
+        },
+        "43": {
+          "fireCount": 7,
+          "burnedArea": 13.4
+        },
+        "45": {
+          "fireCount": 3,
+          "burnedArea": 6.1
+        },
+        "47": {
+          "fireCount": 16,
+          "burnedArea": 17.7
+        },
+        "48": {
+          "fireCount": 31,
+          "burnedArea": 39.7
+        },
+        "54": {
+          "fireCount": 3,
+          "burnedArea": 8
+        },
+        "63": {
+          "fireCount": 6,
+          "burnedArea": 1.2
+        },
+        "65": {
+          "fireCount": 26,
+          "burnedArea": 34.8
+        },
+        "66": {
+          "fireCount": 81,
+          "burnedArea": 243.4
+        },
+        "68": {
+          "fireCount": 5,
+          "burnedArea": 6
+        },
+        "70": {
+          "fireCount": 3,
+          "burnedArea": 0.8
+        },
+        "71": {
+          "fireCount": 6,
+          "burnedArea": 0.6
+        },
+        "77": {
+          "fireCount": 2,
+          "burnedArea": 8
+        },
+        "81": {
+          "fireCount": 4,
+          "burnedArea": 8.6
+        },
+        "82": {
+          "fireCount": 7,
+          "burnedArea": 4.7
+        },
+        "83": {
+          "fireCount": 49,
+          "burnedArea": 9.6
+        },
+        "84": {
+          "fireCount": 11,
+          "burnedArea": 49.3
+        },
+        "86": {
+          "fireCount": 2,
+          "burnedArea": 5
+        },
+        "88": {
+          "fireCount": 9,
+          "burnedArea": 16.5
+        },
+        "90": {
+          "fireCount": 2,
+          "burnedArea": 0.9
+        },
+        "06": {
+          "fireCount": 55,
+          "burnedArea": 144.8
+        },
+        "2A": {
+          "fireCount": 219,
+          "burnedArea": 269.2
+        },
+        "2B": {
+          "fireCount": 322,
+          "burnedArea": 2084.6
+        },
+        "04": {
+          "fireCount": 24,
+          "burnedArea": 21.4
+        },
+        "07": {
+          "fireCount": 47,
+          "burnedArea": 279.4
+        },
+        "05": {
+          "fireCount": 3,
+          "burnedArea": 12
+        }
+      }
+    },
+    "2015": {
+      "source": "BDIFF",
+      "status": "consolidated",
+      "fireCount": 2898,
+      "burnedArea": 8168.8,
+      "departments": {
+        "10": {
+          "fireCount": 3,
+          "burnedArea": 85
+        },
+        "11": {
+          "fireCount": 232,
+          "burnedArea": 237
+        },
+        "12": {
+          "fireCount": 62,
+          "burnedArea": 49
+        },
+        "13": {
+          "fireCount": 158,
+          "burnedArea": 65.9
+        },
+        "15": {
+          "fireCount": 25,
+          "burnedArea": 75.5
+        },
+        "16": {
+          "fireCount": 12,
+          "burnedArea": 36.7
+        },
+        "17": {
+          "fireCount": 28,
+          "burnedArea": 21.2
+        },
+        "18": {
+          "fireCount": 11,
+          "burnedArea": 1.2
+        },
+        "21": {
+          "fireCount": 8,
+          "burnedArea": 126.9
+        },
+        "22": {
+          "fireCount": 1,
+          "burnedArea": 3.5
+        },
+        "23": {
+          "fireCount": 8,
+          "burnedArea": 17
+        },
+        "24": {
+          "fireCount": 51,
+          "burnedArea": 55.8
+        },
+        "25": {
+          "fireCount": 4,
+          "burnedArea": 4.4
+        },
+        "26": {
+          "fireCount": 20,
+          "burnedArea": 18.1
+        },
+        "27": {
+          "fireCount": 7,
+          "burnedArea": 13.9
+        },
+        "28": {
+          "fireCount": 20,
+          "burnedArea": 248
+        },
+        "30": {
+          "fireCount": 83,
+          "burnedArea": 140.1
+        },
+        "31": {
+          "fireCount": 5,
+          "burnedArea": 50
+        },
+        "32": {
+          "fireCount": 4,
+          "burnedArea": 30
+        },
+        "33": {
+          "fireCount": 228,
+          "burnedArea": 1060.7
+        },
+        "34": {
+          "fireCount": 190,
+          "burnedArea": 312.3
+        },
+        "35": {
+          "fireCount": 4,
+          "burnedArea": 10.1
+        },
+        "36": {
+          "fireCount": 1,
+          "burnedArea": 3
+        },
+        "38": {
+          "fireCount": 38,
+          "burnedArea": 31.4
+        },
+        "39": {
+          "fireCount": 2,
+          "burnedArea": 5.4
+        },
+        "40": {
+          "fireCount": 131,
+          "burnedArea": 106.8
+        },
+        "41": {
+          "fireCount": 26,
+          "burnedArea": 52.8
+        },
+        "42": {
+          "fireCount": 7,
+          "burnedArea": 139
+        },
+        "43": {
+          "fireCount": 18,
+          "burnedArea": 40.5
+        },
+        "45": {
+          "fireCount": 26,
+          "burnedArea": 77.9
+        },
+        "46": {
+          "fireCount": 99,
+          "burnedArea": 133.7
+        },
+        "47": {
+          "fireCount": 24,
+          "burnedArea": 20.8
+        },
+        "48": {
+          "fireCount": 64,
+          "burnedArea": 191.5
+        },
+        "49": {
+          "fireCount": 1,
+          "burnedArea": 8
+        },
+        "54": {
+          "fireCount": 2,
+          "burnedArea": 39
+        },
+        "57": {
+          "fireCount": 4,
+          "burnedArea": 14
+        },
+        "58": {
+          "fireCount": 8,
+          "burnedArea": 27.7
+        },
+        "63": {
+          "fireCount": 26,
+          "burnedArea": 39.6
+        },
+        "66": {
+          "fireCount": 136,
+          "burnedArea": 358.6
+        },
+        "68": {
+          "fireCount": 7,
+          "burnedArea": 14
+        },
+        "69": {
+          "fireCount": 41,
+          "burnedArea": 309.5
+        },
+        "70": {
+          "fireCount": 3,
+          "burnedArea": 0.9
+        },
+        "71": {
+          "fireCount": 23,
+          "burnedArea": 326
+        },
+        "72": {
+          "fireCount": 64,
+          "burnedArea": 183.7
+        },
+        "73": {
+          "fireCount": 11,
+          "burnedArea": 84.7
+        },
+        "74": {
+          "fireCount": 1,
+          "burnedArea": 50
+        },
+        "77": {
+          "fireCount": 23,
+          "burnedArea": 17.4
+        },
+        "78": {
+          "fireCount": 1,
+          "burnedArea": 0.5
+        },
+        "79": {
+          "fireCount": 6,
+          "burnedArea": 39.3
+        },
+        "81": {
+          "fireCount": 11,
+          "burnedArea": 13.7
+        },
+        "83": {
+          "fireCount": 90,
+          "burnedArea": 39.2
+        },
+        "84": {
+          "fireCount": 17,
+          "burnedArea": 44.5
+        },
+        "86": {
+          "fireCount": 11,
+          "burnedArea": 10.3
+        },
+        "88": {
+          "fireCount": 6,
+          "burnedArea": 10.7
+        },
+        "89": {
+          "fireCount": 3,
+          "burnedArea": 1.2
+        },
+        "07": {
+          "fireCount": 90,
+          "burnedArea": 284.2
+        },
+        "2A": {
+          "fireCount": 300,
+          "burnedArea": 294.7
+        },
+        "2B": {
+          "fireCount": 249,
+          "burnedArea": 582.9
+        },
+        "06": {
+          "fireCount": 85,
+          "burnedArea": 500.2
+        },
+        "04": {
+          "fireCount": 56,
+          "burnedArea": 41.4
+        },
+        "05": {
+          "fireCount": 2,
+          "burnedArea": 2
+        },
+        "01": {
+          "fireCount": 4,
+          "burnedArea": 390
+        },
+        "02": {
+          "fireCount": 8,
+          "burnedArea": 10.2
+        },
+        "03": {
+          "fireCount": 4,
+          "burnedArea": 43.9
+        },
+        "09": {
+          "fireCount": 5,
+          "burnedArea": 922
+        }
+      }
+    },
+    "2016": {
+      "source": "BDIFF",
+      "status": "consolidated",
+      "fireCount": 2775,
+      "burnedArea": 14101.5,
+      "departments": {
+        "11": {
+          "fireCount": 222,
+          "burnedArea": 2209.7
+        },
+        "12": {
+          "fireCount": 69,
+          "burnedArea": 82.6
+        },
+        "13": {
+          "fireCount": 378,
+          "burnedArea": 4533.2
+        },
+        "15": {
+          "fireCount": 32,
+          "burnedArea": 54.8
+        },
+        "16": {
+          "fireCount": 4,
+          "burnedArea": 14.5
+        },
+        "17": {
+          "fireCount": 44,
+          "burnedArea": 58.8
+        },
+        "18": {
+          "fireCount": 4,
+          "burnedArea": 13.2
+        },
+        "19": {
+          "fireCount": 16,
+          "burnedArea": 41.9
+        },
+        "23": {
+          "fireCount": 4,
+          "burnedArea": 13
+        },
+        "24": {
+          "fireCount": 47,
+          "burnedArea": 111.5
+        },
+        "25": {
+          "fireCount": 1,
+          "burnedArea": 0
+        },
+        "26": {
+          "fireCount": 8,
+          "burnedArea": 3.8
+        },
+        "28": {
+          "fireCount": 6,
+          "burnedArea": 3.7
+        },
+        "30": {
+          "fireCount": 86,
+          "burnedArea": 83
+        },
+        "31": {
+          "fireCount": 20,
+          "burnedArea": 361
+        },
+        "32": {
+          "fireCount": 6,
+          "burnedArea": 39
+        },
+        "33": {
+          "fireCount": 200,
+          "burnedArea": 201.8
+        },
+        "34": {
+          "fireCount": 206,
+          "burnedArea": 618.1
+        },
+        "35": {
+          "fireCount": 1,
+          "burnedArea": 6.5
+        },
+        "36": {
+          "fireCount": 4,
+          "burnedArea": 0.1
+        },
+        "38": {
+          "fireCount": 47,
+          "burnedArea": 42.6
+        },
+        "40": {
+          "fireCount": 113,
+          "burnedArea": 196.6
+        },
+        "42": {
+          "fireCount": 3,
+          "burnedArea": 9.3
+        },
+        "43": {
+          "fireCount": 11,
+          "burnedArea": 6.9
+        },
+        "45": {
+          "fireCount": 11,
+          "burnedArea": 28.9
+        },
+        "46": {
+          "fireCount": 96,
+          "burnedArea": 110.3
+        },
+        "47": {
+          "fireCount": 30,
+          "burnedArea": 30.3
+        },
+        "48": {
+          "fireCount": 37,
+          "burnedArea": 75.6
+        },
+        "49": {
+          "fireCount": 1,
+          "burnedArea": 150
+        },
+        "58": {
+          "fireCount": 9,
+          "burnedArea": 29.4
+        },
+        "63": {
+          "fireCount": 16,
+          "burnedArea": 72
+        },
+        "66": {
+          "fireCount": 194,
+          "burnedArea": 1956
+        },
+        "68": {
+          "fireCount": 1,
+          "burnedArea": 3
+        },
+        "69": {
+          "fireCount": 4,
+          "burnedArea": 1.7
+        },
+        "70": {
+          "fireCount": 1,
+          "burnedArea": 0
+        },
+        "72": {
+          "fireCount": 32,
+          "burnedArea": 6
+        },
+        "73": {
+          "fireCount": 7,
+          "burnedArea": 5.1
+        },
+        "74": {
+          "fireCount": 8,
+          "burnedArea": 7.3
+        },
+        "77": {
+          "fireCount": 13,
+          "burnedArea": 3.1
+        },
+        "79": {
+          "fireCount": 3,
+          "burnedArea": 1.5
+        },
+        "81": {
+          "fireCount": 6,
+          "burnedArea": 81.6
+        },
+        "83": {
+          "fireCount": 91,
+          "burnedArea": 660.9
+        },
+        "84": {
+          "fireCount": 24,
+          "burnedArea": 40.3
+        },
+        "86": {
+          "fireCount": 11,
+          "burnedArea": 40.3
+        },
+        "88": {
+          "fireCount": 4,
+          "burnedArea": 0.6
+        },
+        "06": {
+          "fireCount": 68,
+          "burnedArea": 545.6
+        },
+        "2A": {
+          "fireCount": 247,
+          "burnedArea": 51.6
+        },
+        "2B": {
+          "fireCount": 236,
+          "burnedArea": 1110.8
+        },
+        "04": {
+          "fireCount": 49,
+          "burnedArea": 159.1
+        },
+        "07": {
+          "fireCount": 29,
+          "burnedArea": 82.8
+        },
+        "09": {
+          "fireCount": 9,
+          "burnedArea": 123
+        },
+        "01": {
+          "fireCount": 3,
+          "burnedArea": 10
+        },
+        "05": {
+          "fireCount": 3,
+          "burnedArea": 8.9
+        }
+      }
+    },
+    "2017": {
+      "source": "BDIFF",
+      "status": "consolidated",
+      "fireCount": 3216,
+      "burnedArea": 23091.1,
+      "departments": {
+        "11": {
+          "fireCount": 212,
+          "burnedArea": 705.6
+        },
+        "12": {
+          "fireCount": 44,
+          "burnedArea": 118.9
+        },
+        "13": {
+          "fireCount": 257,
+          "burnedArea": 1651.6
+        },
+        "15": {
+          "fireCount": 43,
+          "burnedArea": 114.6
+        },
+        "16": {
+          "fireCount": 11,
+          "burnedArea": 42.3
+        },
+        "17": {
+          "fireCount": 38,
+          "burnedArea": 38.1
+        },
+        "19": {
+          "fireCount": 14,
+          "burnedArea": 46.8
+        },
+        "21": {
+          "fireCount": 2,
+          "burnedArea": 0.9
+        },
+        "24": {
+          "fireCount": 27,
+          "burnedArea": 42.2
+        },
+        "26": {
+          "fireCount": 25,
+          "burnedArea": 52
+        },
+        "30": {
+          "fireCount": 111,
+          "burnedArea": 548.5
+        },
+        "31": {
+          "fireCount": 8,
+          "burnedArea": 50
+        },
+        "32": {
+          "fireCount": 13,
+          "burnedArea": 37.2
+        },
+        "33": {
+          "fireCount": 181,
+          "burnedArea": 1168.8
+        },
+        "34": {
+          "fireCount": 222,
+          "burnedArea": 952
+        },
+        "35": {
+          "fireCount": 6,
+          "burnedArea": 29
+        },
+        "36": {
+          "fireCount": 7,
+          "burnedArea": 0.5
+        },
+        "38": {
+          "fireCount": 112,
+          "burnedArea": 42
+        },
+        "39": {
+          "fireCount": 11,
+          "burnedArea": 14.6
+        },
+        "40": {
+          "fireCount": 72,
+          "burnedArea": 540.8
+        },
+        "43": {
+          "fireCount": 31,
+          "burnedArea": 53.6
+        },
+        "45": {
+          "fireCount": 14,
+          "burnedArea": 49
+        },
+        "46": {
+          "fireCount": 54,
+          "burnedArea": 32.9
+        },
+        "47": {
+          "fireCount": 30,
+          "burnedArea": 27.8
+        },
+        "48": {
+          "fireCount": 66,
+          "burnedArea": 180
+        },
+        "49": {
+          "fireCount": 3,
+          "burnedArea": 8
+        },
+        "50": {
+          "fireCount": 3,
+          "burnedArea": 1
+        },
+        "58": {
+          "fireCount": 1,
+          "burnedArea": 5
+        },
+        "63": {
+          "fireCount": 16,
+          "burnedArea": 16.1
+        },
+        "65": {
+          "fireCount": 1,
+          "burnedArea": 30
+        },
+        "66": {
+          "fireCount": 205,
+          "burnedArea": 440.1
+        },
+        "68": {
+          "fireCount": 12,
+          "burnedArea": 12.3
+        },
+        "71": {
+          "fireCount": 6,
+          "burnedArea": 12.5
+        },
+        "72": {
+          "fireCount": 41,
+          "burnedArea": 56.6
+        },
+        "73": {
+          "fireCount": 5,
+          "burnedArea": 8.6
+        },
+        "74": {
+          "fireCount": 12,
+          "burnedArea": 8.4
+        },
+        "77": {
+          "fireCount": 10,
+          "burnedArea": 5.5
+        },
+        "79": {
+          "fireCount": 1,
+          "burnedArea": 0.1
+        },
+        "81": {
+          "fireCount": 11,
+          "burnedArea": 10.5
+        },
+        "83": {
+          "fireCount": 138,
+          "burnedArea": 4188.8
+        },
+        "84": {
+          "fireCount": 42,
+          "burnedArea": 1247.8
+        },
+        "86": {
+          "fireCount": 7,
+          "burnedArea": 14.8
+        },
+        "87": {
+          "fireCount": 35,
+          "burnedArea": 69.8
+        },
+        "88": {
+          "fireCount": 4,
+          "burnedArea": 1.2
+        },
+        "05": {
+          "fireCount": 30,
+          "burnedArea": 69.4
+        },
+        "2A": {
+          "fireCount": 318,
+          "burnedArea": 1359.1
+        },
+        "2B": {
+          "fireCount": 319,
+          "burnedArea": 6675.5
+        },
+        "06": {
+          "fireCount": 136,
+          "burnedArea": 640
+        },
+        "04": {
+          "fireCount": 130,
+          "burnedArea": 676.6
+        },
+        "09": {
+          "fireCount": 4,
+          "burnedArea": 601
+        },
+        "07": {
+          "fireCount": 110,
+          "burnedArea": 305
+        },
+        "01": {
+          "fireCount": 5,
+          "burnedArea": 88
+        }
+      }
+    },
+    "2018": {
+      "source": "BDIFF",
+      "status": "consolidated",
+      "fireCount": 1634,
+      "burnedArea": 3939.6,
+      "departments": {
+        "11": {
+          "fireCount": 117,
+          "burnedArea": 191.1
+        },
+        "12": {
+          "fireCount": 37,
+          "burnedArea": 61.5
+        },
+        "13": {
+          "fireCount": 112,
+          "burnedArea": 40.4
+        },
+        "15": {
+          "fireCount": 22,
+          "burnedArea": 25.5
+        },
+        "16": {
+          "fireCount": 5,
+          "burnedArea": 7.2
+        },
+        "17": {
+          "fireCount": 21,
+          "burnedArea": 12.6
+        },
+        "19": {
+          "fireCount": 5,
+          "burnedArea": 12
+        },
+        "21": {
+          "fireCount": 3,
+          "burnedArea": 3.4
+        },
+        "23": {
+          "fireCount": 7,
+          "burnedArea": 34.6
+        },
+        "24": {
+          "fireCount": 21,
+          "burnedArea": 31
+        },
+        "26": {
+          "fireCount": 15,
+          "burnedArea": 11.6
+        },
+        "30": {
+          "fireCount": 63,
+          "burnedArea": 39.3
+        },
+        "31": {
+          "fireCount": 2,
+          "burnedArea": 4.3
+        },
+        "32": {
+          "fireCount": 1,
+          "burnedArea": 1
+        },
+        "33": {
+          "fireCount": 122,
+          "burnedArea": 82.5
+        },
+        "34": {
+          "fireCount": 138,
+          "burnedArea": 285.7
+        },
+        "35": {
+          "fireCount": 1,
+          "burnedArea": 5.6
+        },
+        "36": {
+          "fireCount": 4,
+          "burnedArea": 0.5
+        },
+        "38": {
+          "fireCount": 2,
+          "burnedArea": 4.5
+        },
+        "40": {
+          "fireCount": 38,
+          "burnedArea": 20.5
+        },
+        "43": {
+          "fireCount": 3,
+          "burnedArea": 12.7
+        },
+        "45": {
+          "fireCount": 8,
+          "burnedArea": 27.5
+        },
+        "46": {
+          "fireCount": 99,
+          "burnedArea": 275.5
+        },
+        "47": {
+          "fireCount": 38,
+          "burnedArea": 19.8
+        },
+        "48": {
+          "fireCount": 34,
+          "burnedArea": 62.6
+        },
+        "49": {
+          "fireCount": 2,
+          "burnedArea": 11
+        },
+        "50": {
+          "fireCount": 3,
+          "burnedArea": 0.3
+        },
+        "58": {
+          "fireCount": 2,
+          "burnedArea": 14
+        },
+        "61": {
+          "fireCount": 1,
+          "burnedArea": 0
+        },
+        "63": {
+          "fireCount": 5,
+          "burnedArea": 8.9
+        },
+        "65": {
+          "fireCount": 2,
+          "burnedArea": 46
+        },
+        "66": {
+          "fireCount": 134,
+          "burnedArea": 167
+        },
+        "68": {
+          "fireCount": 1,
+          "burnedArea": 2
+        },
+        "71": {
+          "fireCount": 2,
+          "burnedArea": 0.5
+        },
+        "72": {
+          "fireCount": 78,
+          "burnedArea": 21.4
+        },
+        "73": {
+          "fireCount": 4,
+          "burnedArea": 2.1
+        },
+        "74": {
+          "fireCount": 8,
+          "burnedArea": 9.8
+        },
+        "76": {
+          "fireCount": 1,
+          "burnedArea": 2
+        },
+        "77": {
+          "fireCount": 7,
+          "burnedArea": 3.5
+        },
+        "79": {
+          "fireCount": 2,
+          "burnedArea": 0
+        },
+        "81": {
+          "fireCount": 13,
+          "burnedArea": 67.6
+        },
+        "83": {
+          "fireCount": 51,
+          "burnedArea": 25.6
+        },
+        "84": {
+          "fireCount": 15,
+          "burnedArea": 4.9
+        },
+        "86": {
+          "fireCount": 20,
+          "burnedArea": 41.3
+        },
+        "88": {
+          "fireCount": 7,
+          "burnedArea": 1.1
+        },
+        "2B": {
+          "fireCount": 87,
+          "burnedArea": 2081.1
+        },
+        "06": {
+          "fireCount": 47,
+          "burnedArea": 65.6
+        },
+        "2A": {
+          "fireCount": 121,
+          "burnedArea": 15.1
+        },
+        "04": {
+          "fireCount": 52,
+          "burnedArea": 12.1
+        },
+        "07": {
+          "fireCount": 38,
+          "burnedArea": 57.6
+        },
+        "05": {
+          "fireCount": 13,
+          "burnedArea": 6.2
+        }
+      }
+    },
+    "2019": {
+      "source": "BDIFF",
+      "status": "consolidated",
+      "fireCount": 2949,
+      "burnedArea": 13394.3,
+      "departments": {
+        "10": {
+          "fireCount": 2,
+          "burnedArea": 4
+        },
+        "11": {
+          "fireCount": 194,
+          "burnedArea": 1790.1
+        },
+        "12": {
+          "fireCount": 11,
+          "burnedArea": 21.2
+        },
+        "13": {
+          "fireCount": 208,
+          "burnedArea": 80.9
+        },
+        "15": {
+          "fireCount": 93,
+          "burnedArea": 346.3
+        },
+        "16": {
+          "fireCount": 12,
+          "burnedArea": 29.2
+        },
+        "17": {
+          "fireCount": 16,
+          "burnedArea": 154.9
+        },
+        "18": {
+          "fireCount": 14,
+          "burnedArea": 84.2
+        },
+        "19": {
+          "fireCount": 3,
+          "burnedArea": 4
+        },
+        "21": {
+          "fireCount": 15,
+          "burnedArea": 92.7
+        },
+        "23": {
+          "fireCount": 18,
+          "burnedArea": 34.5
+        },
+        "24": {
+          "fireCount": 42,
+          "burnedArea": 71.5
+        },
+        "26": {
+          "fireCount": 49,
+          "burnedArea": 32.9
+        },
+        "27": {
+          "fireCount": 3,
+          "burnedArea": 221
+        },
+        "28": {
+          "fireCount": 3,
+          "burnedArea": 7.8
+        },
+        "30": {
+          "fireCount": 102,
+          "burnedArea": 1095.1
+        },
+        "31": {
+          "fireCount": 8,
+          "burnedArea": 263.1
+        },
+        "32": {
+          "fireCount": 5,
+          "burnedArea": 13.5
+        },
+        "33": {
+          "fireCount": 161,
+          "burnedArea": 346.9
+        },
+        "34": {
+          "fireCount": 203,
+          "burnedArea": 1217.6
+        },
+        "35": {
+          "fireCount": 6,
+          "burnedArea": 17.5
+        },
+        "36": {
+          "fireCount": 7,
+          "burnedArea": 26.3
+        },
+        "37": {
+          "fireCount": 13,
+          "burnedArea": 65
+        },
+        "38": {
+          "fireCount": 24,
+          "burnedArea": 39.5
+        },
+        "39": {
+          "fireCount": 34,
+          "burnedArea": 70.2
+        },
+        "40": {
+          "fireCount": 59,
+          "burnedArea": 245.1
+        },
+        "41": {
+          "fireCount": 51,
+          "burnedArea": 240.1
+        },
+        "42": {
+          "fireCount": 1,
+          "burnedArea": 4
+        },
+        "43": {
+          "fireCount": 6,
+          "burnedArea": 29.5
+        },
+        "45": {
+          "fireCount": 19,
+          "burnedArea": 403.4
+        },
+        "46": {
+          "fireCount": 85,
+          "burnedArea": 63.9
+        },
+        "47": {
+          "fireCount": 70,
+          "burnedArea": 47.5
+        },
+        "48": {
+          "fireCount": 63,
+          "burnedArea": 140.1
+        },
+        "49": {
+          "fireCount": 5,
+          "burnedArea": 25
+        },
+        "50": {
+          "fireCount": 1,
+          "burnedArea": 40
+        },
+        "52": {
+          "fireCount": 4,
+          "burnedArea": 87.1
+        },
+        "55": {
+          "fireCount": 5,
+          "burnedArea": 397.1
+        },
+        "58": {
+          "fireCount": 13,
+          "burnedArea": 58.3
+        },
+        "63": {
+          "fireCount": 18,
+          "burnedArea": 28.8
+        },
+        "64": {
+          "fireCount": 103,
+          "burnedArea": 292.1
+        },
+        "65": {
+          "fireCount": 19,
+          "burnedArea": 424
+        },
+        "66": {
+          "fireCount": 132,
+          "burnedArea": 485.9
+        },
+        "69": {
+          "fireCount": 9,
+          "burnedArea": 7.1
+        },
+        "71": {
+          "fireCount": 9,
+          "burnedArea": 15.1
+        },
+        "72": {
+          "fireCount": 83,
+          "burnedArea": 45.2
+        },
+        "74": {
+          "fireCount": 7,
+          "burnedArea": 2.3
+        },
+        "76": {
+          "fireCount": 2,
+          "burnedArea": 10
+        },
+        "77": {
+          "fireCount": 12,
+          "burnedArea": 3.9
+        },
+        "79": {
+          "fireCount": 2,
+          "burnedArea": 20.2
+        },
+        "81": {
+          "fireCount": 13,
+          "burnedArea": 39.8
+        },
+        "82": {
+          "fireCount": 9,
+          "burnedArea": 27.3
+        },
+        "83": {
+          "fireCount": 84,
+          "burnedArea": 115.8
+        },
+        "84": {
+          "fireCount": 27,
+          "burnedArea": 47.1
+        },
+        "86": {
+          "fireCount": 39,
+          "burnedArea": 185.4
+        },
+        "87": {
+          "fireCount": 38,
+          "burnedArea": 85.6
+        },
+        "88": {
+          "fireCount": 37,
+          "burnedArea": 33.3
+        },
+        "2A": {
+          "fireCount": 217,
+          "burnedArea": 236.2
+        },
+        "2B": {
+          "fireCount": 145,
+          "burnedArea": 1576.3
+        },
+        "04": {
+          "fireCount": 84,
+          "burnedArea": 292.3
+        },
+        "06": {
+          "fireCount": 86,
+          "burnedArea": 654.8
+        },
+        "07": {
+          "fireCount": 108,
+          "burnedArea": 643.2
+        },
+        "03": {
+          "fireCount": 8,
+          "burnedArea": 110.1
+        },
+        "05": {
+          "fireCount": 24,
+          "burnedArea": 25.6
+        },
+        "09": {
+          "fireCount": 4,
+          "burnedArea": 66
+        },
+        "01": {
+          "fireCount": 1,
+          "burnedArea": 10
+        },
+        "02": {
+          "fireCount": 1,
+          "burnedArea": 0.2
+        }
+      }
+    },
+    "2020": {
+      "source": "BDIFF",
+      "status": "consolidated",
+      "fireCount": 2760,
+      "burnedArea": 10722.3,
+      "departments": {
+        "10": {
+          "fireCount": 8,
+          "burnedArea": 5.7
+        },
+        "11": {
+          "fireCount": 169,
+          "burnedArea": 117.5
+        },
+        "12": {
+          "fireCount": 18,
+          "burnedArea": 136.9
+        },
+        "13": {
+          "fireCount": 244,
+          "burnedArea": 1479.4
+        },
+        "14": {
+          "fireCount": 5,
+          "burnedArea": 10.4
+        },
+        "15": {
+          "fireCount": 18,
+          "burnedArea": 55.3
+        },
+        "16": {
+          "fireCount": 10,
+          "burnedArea": 74.7
+        },
+        "17": {
+          "fireCount": 36,
+          "burnedArea": 18.1
+        },
+        "19": {
+          "fireCount": 33,
+          "burnedArea": 31.4
+        },
+        "21": {
+          "fireCount": 42,
+          "burnedArea": 70.9
+        },
+        "23": {
+          "fireCount": 5,
+          "burnedArea": 7.5
+        },
+        "24": {
+          "fireCount": 20,
+          "burnedArea": 45.9
+        },
+        "26": {
+          "fireCount": 25,
+          "burnedArea": 325.2
+        },
+        "27": {
+          "fireCount": 11,
+          "burnedArea": 30.6
+        },
+        "28": {
+          "fireCount": 10,
+          "burnedArea": 136.4
+        },
+        "29": {
+          "fireCount": 13,
+          "burnedArea": 2.2
+        },
+        "30": {
+          "fireCount": 61,
+          "burnedArea": 166.6
+        },
+        "31": {
+          "fireCount": 10,
+          "burnedArea": 27.4
+        },
+        "32": {
+          "fireCount": 4,
+          "burnedArea": 13.1
+        },
+        "33": {
+          "fireCount": 145,
+          "burnedArea": 664.3
+        },
+        "34": {
+          "fireCount": 110,
+          "burnedArea": 222.4
+        },
+        "35": {
+          "fireCount": 11,
+          "burnedArea": 12.8
+        },
+        "36": {
+          "fireCount": 6,
+          "burnedArea": 17.7
+        },
+        "37": {
+          "fireCount": 15,
+          "burnedArea": 10.9
+        },
+        "38": {
+          "fireCount": 109,
+          "burnedArea": 40.1
+        },
+        "39": {
+          "fireCount": 15,
+          "burnedArea": 8.3
+        },
+        "40": {
+          "fireCount": 76,
+          "burnedArea": 55
+        },
+        "41": {
+          "fireCount": 104,
+          "burnedArea": 82
+        },
+        "42": {
+          "fireCount": 3,
+          "burnedArea": 55
+        },
+        "43": {
+          "fireCount": 7,
+          "burnedArea": 22.5
+        },
+        "45": {
+          "fireCount": 15,
+          "burnedArea": 277.3
+        },
+        "46": {
+          "fireCount": 40,
+          "burnedArea": 65.6
+        },
+        "47": {
+          "fireCount": 31,
+          "burnedArea": 14.1
+        },
+        "48": {
+          "fireCount": 46,
+          "burnedArea": 145.7
+        },
+        "49": {
+          "fireCount": 4,
+          "burnedArea": 7
+        },
+        "52": {
+          "fireCount": 8,
+          "burnedArea": 22.3
+        },
+        "53": {
+          "fireCount": 4,
+          "burnedArea": 10.3
+        },
+        "54": {
+          "fireCount": 4,
+          "burnedArea": 20
+        },
+        "55": {
+          "fireCount": 9,
+          "burnedArea": 13.6
+        },
+        "57": {
+          "fireCount": 5,
+          "burnedArea": 24.5
+        },
+        "58": {
+          "fireCount": 6,
+          "burnedArea": 34.6
+        },
+        "60": {
+          "fireCount": 1,
+          "burnedArea": 7
+        },
+        "61": {
+          "fireCount": 8,
+          "burnedArea": 4.1
+        },
+        "62": {
+          "fireCount": 1,
+          "burnedArea": 0.1
+        },
+        "63": {
+          "fireCount": 11,
+          "burnedArea": 16.4
+        },
+        "64": {
+          "fireCount": 28,
+          "burnedArea": 268.1
+        },
+        "65": {
+          "fireCount": 3,
+          "burnedArea": 7
+        },
+        "66": {
+          "fireCount": 62,
+          "burnedArea": 173.8
+        },
+        "67": {
+          "fireCount": 22,
+          "burnedArea": 12.7
+        },
+        "68": {
+          "fireCount": 7,
+          "burnedArea": 4.7
+        },
+        "70": {
+          "fireCount": 44,
+          "burnedArea": 23.8
+        },
+        "71": {
+          "fireCount": 9,
+          "burnedArea": 9.7
+        },
+        "72": {
+          "fireCount": 85,
+          "burnedArea": 41.8
+        },
+        "74": {
+          "fireCount": 28,
+          "burnedArea": 1.5
+        },
+        "76": {
+          "fireCount": 10,
+          "burnedArea": 6.6
+        },
+        "77": {
+          "fireCount": 62,
+          "burnedArea": 24.1
+        },
+        "79": {
+          "fireCount": 4,
+          "burnedArea": 22.1
+        },
+        "80": {
+          "fireCount": 1,
+          "burnedArea": 0.1
+        },
+        "81": {
+          "fireCount": 17,
+          "burnedArea": 18.3
+        },
+        "82": {
+          "fireCount": 8,
+          "burnedArea": 101.4
+        },
+        "83": {
+          "fireCount": 59,
+          "burnedArea": 214.9
+        },
+        "84": {
+          "fireCount": 31,
+          "burnedArea": 155
+        },
+        "85": {
+          "fireCount": 21,
+          "burnedArea": 0.6
+        },
+        "86": {
+          "fireCount": 6,
+          "burnedArea": 23.4
+        },
+        "87": {
+          "fireCount": 30,
+          "burnedArea": 42.6
+        },
+        "88": {
+          "fireCount": 105,
+          "burnedArea": 13.7
+        },
+        "89": {
+          "fireCount": 35,
+          "burnedArea": 102.7
+        },
+        "90": {
+          "fireCount": 19,
+          "burnedArea": 0.3
+        },
+        "91": {
+          "fireCount": 5,
+          "burnedArea": 11.2
+        },
+        "2A": {
+          "fireCount": 144,
+          "burnedArea": 3203.6
+        },
+        "04": {
+          "fireCount": 66,
+          "burnedArea": 90.3
+        },
+        "2B": {
+          "fireCount": 143,
+          "burnedArea": 928.1
+        },
+        "06": {
+          "fireCount": 63,
+          "burnedArea": 164.1
+        },
+        "07": {
+          "fireCount": 69,
+          "burnedArea": 238.1
+        },
+        "05": {
+          "fireCount": 14,
+          "burnedArea": 73.9
+        },
+        "08": {
+          "fireCount": 7,
+          "burnedArea": 7.2
+        },
+        "02": {
+          "fireCount": 6,
+          "burnedArea": 35.5
+        },
+        "03": {
+          "fireCount": 7,
+          "burnedArea": 38
+        },
+        "01": {
+          "fireCount": 2,
+          "burnedArea": 13
+        },
+        "09": {
+          "fireCount": 2,
+          "burnedArea": 42
+        }
+      }
+    },
+    "2021": {
+      "source": "BDIFF",
+      "status": "consolidated",
+      "fireCount": 2332,
+      "burnedArea": 12779.3,
+      "departments": {
+        "10": {
+          "fireCount": 1,
+          "burnedArea": 2
+        },
+        "11": {
+          "fireCount": 268,
+          "burnedArea": 1266.2
+        },
+        "12": {
+          "fireCount": 19,
+          "burnedArea": 57.6
+        },
+        "13": {
+          "fireCount": 297,
+          "burnedArea": 134.9
+        },
+        "15": {
+          "fireCount": 19,
+          "burnedArea": 6
+        },
+        "16": {
+          "fireCount": 4,
+          "burnedArea": 4.7
+        },
+        "17": {
+          "fireCount": 31,
+          "burnedArea": 133.6
+        },
+        "19": {
+          "fireCount": 12,
+          "burnedArea": 13.3
+        },
+        "21": {
+          "fireCount": 7,
+          "burnedArea": 3.4
+        },
+        "23": {
+          "fireCount": 10,
+          "burnedArea": 4.4
+        },
+        "24": {
+          "fireCount": 19,
+          "burnedArea": 67.9
+        },
+        "26": {
+          "fireCount": 11,
+          "burnedArea": 7
+        },
+        "29": {
+          "fireCount": 7,
+          "burnedArea": 0.7
+        },
+        "30": {
+          "fireCount": 90,
+          "burnedArea": 73.2
+        },
+        "33": {
+          "fireCount": 65,
+          "burnedArea": 400.1
+        },
+        "34": {
+          "fireCount": 128,
+          "burnedArea": 790.2
+        },
+        "36": {
+          "fireCount": 1,
+          "burnedArea": 167
+        },
+        "37": {
+          "fireCount": 11,
+          "burnedArea": 10.2
+        },
+        "38": {
+          "fireCount": 68,
+          "burnedArea": 8.8
+        },
+        "39": {
+          "fireCount": 9,
+          "burnedArea": 15
+        },
+        "40": {
+          "fireCount": 52,
+          "burnedArea": 131
+        },
+        "41": {
+          "fireCount": 61,
+          "burnedArea": 11.8
+        },
+        "43": {
+          "fireCount": 3,
+          "burnedArea": 7.3
+        },
+        "45": {
+          "fireCount": 11,
+          "burnedArea": 19.9
+        },
+        "46": {
+          "fireCount": 31,
+          "burnedArea": 13.5
+        },
+        "47": {
+          "fireCount": 21,
+          "burnedArea": 5.8
+        },
+        "48": {
+          "fireCount": 25,
+          "burnedArea": 60.2
+        },
+        "49": {
+          "fireCount": 23,
+          "burnedArea": 70.4
+        },
+        "54": {
+          "fireCount": 1,
+          "burnedArea": 1
+        },
+        "55": {
+          "fireCount": 1,
+          "burnedArea": 3.5
+        },
+        "56": {
+          "fireCount": 5,
+          "burnedArea": 12
+        },
+        "57": {
+          "fireCount": 1,
+          "burnedArea": 0
+        },
+        "61": {
+          "fireCount": 3,
+          "burnedArea": 4.1
+        },
+        "63": {
+          "fireCount": 3,
+          "burnedArea": 19.2
+        },
+        "64": {
+          "fireCount": 24,
+          "burnedArea": 813
+        },
+        "66": {
+          "fireCount": 124,
+          "burnedArea": 411.1
+        },
+        "68": {
+          "fireCount": 1,
+          "burnedArea": 0
+        },
+        "71": {
+          "fireCount": 2,
+          "burnedArea": 0
+        },
+        "72": {
+          "fireCount": 39,
+          "burnedArea": 5.9
+        },
+        "74": {
+          "fireCount": 5,
+          "burnedArea": 0.4
+        },
+        "76": {
+          "fireCount": 1,
+          "burnedArea": 1
+        },
+        "77": {
+          "fireCount": 29,
+          "burnedArea": 5.7
+        },
+        "81": {
+          "fireCount": 19,
+          "burnedArea": 44.4
+        },
+        "82": {
+          "fireCount": 6,
+          "burnedArea": 19.6
+        },
+        "83": {
+          "fireCount": 72,
+          "burnedArea": 6847.7
+        },
+        "84": {
+          "fireCount": 53,
+          "burnedArea": 284.5
+        },
+        "85": {
+          "fireCount": 10,
+          "burnedArea": 0.3
+        },
+        "86": {
+          "fireCount": 8,
+          "burnedArea": 9.2
+        },
+        "87": {
+          "fireCount": 15,
+          "burnedArea": 24.6
+        },
+        "88": {
+          "fireCount": 56,
+          "burnedArea": 5.2
+        },
+        "89": {
+          "fireCount": 6,
+          "burnedArea": 27.4
+        },
+        "06": {
+          "fireCount": 69,
+          "burnedArea": 97.2
+        },
+        "09": {
+          "fireCount": 5,
+          "burnedArea": 11.6
+        },
+        "2B": {
+          "fireCount": 177,
+          "burnedArea": 343.3
+        },
+        "2A": {
+          "fireCount": 164,
+          "burnedArea": 122
+        },
+        "04": {
+          "fireCount": 43,
+          "burnedArea": 21.2
+        },
+        "05": {
+          "fireCount": 25,
+          "burnedArea": 15.4
+        },
+        "07": {
+          "fireCount": 51,
+          "burnedArea": 132.1
+        },
+        "01": {
+          "fireCount": 1,
+          "burnedArea": 1
+        },
+        "08": {
+          "fireCount": 9,
+          "burnedArea": 9.4
+        }
+      }
+    },
+    "2022": {
+      "source": "BDIFF",
+      "status": "consolidated",
+      "fireCount": 4378,
+      "burnedArea": 58981,
+      "departments": {
+        "10": {
+          "fireCount": 6,
+          "burnedArea": 18.7
+        },
+        "11": {
+          "fireCount": 211,
+          "burnedArea": 452.8
+        },
+        "12": {
+          "fireCount": 17,
+          "burnedArea": 465.3
+        },
+        "13": {
+          "fireCount": 428,
+          "burnedArea": 1725.7
+        },
+        "14": {
+          "fireCount": 1,
+          "burnedArea": 2
+        },
+        "15": {
+          "fireCount": 55,
+          "burnedArea": 77.5
+        },
+        "16": {
+          "fireCount": 53,
+          "burnedArea": 434.3
+        },
+        "17": {
+          "fireCount": 34,
+          "burnedArea": 115.6
+        },
+        "18": {
+          "fireCount": 19,
+          "burnedArea": 35.1
+        },
+        "19": {
+          "fireCount": 3,
+          "burnedArea": 32.7
+        },
+        "21": {
+          "fireCount": 32,
+          "burnedArea": 105.6
+        },
+        "22": {
+          "fireCount": 1,
+          "burnedArea": 0.5
+        },
+        "23": {
+          "fireCount": 3,
+          "burnedArea": 0.7
+        },
+        "24": {
+          "fireCount": 79,
+          "burnedArea": 323.2
+        },
+        "26": {
+          "fireCount": 29,
+          "burnedArea": 433.9
+        },
+        "27": {
+          "fireCount": 55,
+          "burnedArea": 189.7
+        },
+        "28": {
+          "fireCount": 8,
+          "burnedArea": 27.1
+        },
+        "29": {
+          "fireCount": 137,
+          "burnedArea": 2129.9
+        },
+        "30": {
+          "fireCount": 114,
+          "burnedArea": 1225.7
+        },
+        "31": {
+          "fireCount": 18,
+          "burnedArea": 73.9
+        },
+        "32": {
+          "fireCount": 6,
+          "burnedArea": 7.2
+        },
+        "33": {
+          "fireCount": 245,
+          "burnedArea": 28727.8
+        },
+        "34": {
+          "fireCount": 117,
+          "burnedArea": 1471.6
+        },
+        "35": {
+          "fireCount": 47,
+          "burnedArea": 86.4
+        },
+        "36": {
+          "fireCount": 9,
+          "burnedArea": 22.5
+        },
+        "37": {
+          "fireCount": 21,
+          "burnedArea": 38.7
+        },
+        "38": {
+          "fireCount": 137,
+          "burnedArea": 173.9
+        },
+        "39": {
+          "fireCount": 33,
+          "burnedArea": 1082.8
+        },
+        "40": {
+          "fireCount": 128,
+          "burnedArea": 1343.8
+        },
+        "41": {
+          "fireCount": 63,
+          "burnedArea": 227.8
+        },
+        "42": {
+          "fireCount": 9,
+          "burnedArea": 33.2
+        },
+        "43": {
+          "fireCount": 41,
+          "burnedArea": 36.5
+        },
+        "44": {
+          "fireCount": 25,
+          "burnedArea": 94.1
+        },
+        "45": {
+          "fireCount": 14,
+          "burnedArea": 80.7
+        },
+        "46": {
+          "fireCount": 55,
+          "burnedArea": 254.6
+        },
+        "47": {
+          "fireCount": 28,
+          "burnedArea": 37.8
+        },
+        "48": {
+          "fireCount": 67,
+          "burnedArea": 1534
+        },
+        "49": {
+          "fireCount": 27,
+          "burnedArea": 2068.9
+        },
+        "50": {
+          "fireCount": 30,
+          "burnedArea": 56.2
+        },
+        "52": {
+          "fireCount": 8,
+          "burnedArea": 11.3
+        },
+        "53": {
+          "fireCount": 6,
+          "burnedArea": 0.2
+        },
+        "54": {
+          "fireCount": 6,
+          "burnedArea": 41.8
+        },
+        "55": {
+          "fireCount": 5,
+          "burnedArea": 3.4
+        },
+        "56": {
+          "fireCount": 122,
+          "burnedArea": 664
+        },
+        "57": {
+          "fireCount": 18,
+          "burnedArea": 50.1
+        },
+        "58": {
+          "fireCount": 9,
+          "burnedArea": 49.3
+        },
+        "59": {
+          "fireCount": 9,
+          "burnedArea": 2.6
+        },
+        "60": {
+          "fireCount": 30,
+          "burnedArea": 168.7
+        },
+        "61": {
+          "fireCount": 202,
+          "burnedArea": 1067.7
+        },
+        "62": {
+          "fireCount": 1,
+          "burnedArea": 0.3
+        },
+        "63": {
+          "fireCount": 4,
+          "burnedArea": 1.3
+        },
+        "64": {
+          "fireCount": 23,
+          "burnedArea": 37.6
+        },
+        "65": {
+          "fireCount": 2,
+          "burnedArea": 55
+        },
+        "66": {
+          "fireCount": 132,
+          "burnedArea": 1566.8
+        },
+        "67": {
+          "fireCount": 28,
+          "burnedArea": 6.6
+        },
+        "68": {
+          "fireCount": 6,
+          "burnedArea": 6.7
+        },
+        "69": {
+          "fireCount": 1,
+          "burnedArea": 0.5
+        },
+        "70": {
+          "fireCount": 4,
+          "burnedArea": 0.3
+        },
+        "71": {
+          "fireCount": 45,
+          "burnedArea": 21.5
+        },
+        "72": {
+          "fireCount": 62,
+          "burnedArea": 434.9
+        },
+        "73": {
+          "fireCount": 3,
+          "burnedArea": 13.1
+        },
+        "74": {
+          "fireCount": 14,
+          "burnedArea": 1.5
+        },
+        "76": {
+          "fireCount": 12,
+          "burnedArea": 88.1
+        },
+        "77": {
+          "fireCount": 35,
+          "burnedArea": 11
+        },
+        "78": {
+          "fireCount": 1,
+          "burnedArea": 4
+        },
+        "79": {
+          "fireCount": 10,
+          "burnedArea": 143.2
+        },
+        "80": {
+          "fireCount": 5,
+          "burnedArea": 10.7
+        },
+        "81": {
+          "fireCount": 34,
+          "burnedArea": 203.4
+        },
+        "82": {
+          "fireCount": 21,
+          "burnedArea": 24.7
+        },
+        "83": {
+          "fireCount": 79,
+          "burnedArea": 2946
+        },
+        "84": {
+          "fireCount": 79,
+          "burnedArea": 62.8
+        },
+        "85": {
+          "fireCount": 13,
+          "burnedArea": 70.9
+        },
+        "86": {
+          "fireCount": 27,
+          "burnedArea": 87.2
+        },
+        "87": {
+          "fireCount": 20,
+          "burnedArea": 26.2
+        },
+        "88": {
+          "fireCount": 65,
+          "burnedArea": 52.6
+        },
+        "89": {
+          "fireCount": 16,
+          "burnedArea": 25.7
+        },
+        "90": {
+          "fireCount": 15,
+          "burnedArea": 3.1
+        },
+        "91": {
+          "fireCount": 10,
+          "burnedArea": 1.9
+        },
+        "95": {
+          "fireCount": 1,
+          "burnedArea": 17.5
+        },
+        "06": {
+          "fireCount": 120,
+          "burnedArea": 208.4
+        },
+        "04": {
+          "fireCount": 72,
+          "burnedArea": 1335.8
+        },
+        "2B": {
+          "fireCount": 213,
+          "burnedArea": 1642.3
+        },
+        "2A": {
+          "fireCount": 184,
+          "burnedArea": 408.2
+        },
+        "07": {
+          "fireCount": 106,
+          "burnedArea": 1906.9
+        },
+        "05": {
+          "fireCount": 43,
+          "burnedArea": 99.5
+        },
+        "09": {
+          "fireCount": 10,
+          "burnedArea": 112
+        },
+        "08": {
+          "fireCount": 32,
+          "burnedArea": 9.8
+        },
+        "01": {
+          "fireCount": 7,
+          "burnedArea": 14.5
+        },
+        "03": {
+          "fireCount": 1,
+          "burnedArea": 0
+        },
+        "02": {
+          "fireCount": 2,
+          "burnedArea": 11
+        }
+      }
+    },
+    "2023": {
+      "source": "BDIFF",
+      "status": "consolidated",
+      "fireCount": 2673,
+      "burnedArea": 5388.3,
+      "departments": {
+        "10": {
+          "fireCount": 1,
+          "burnedArea": 1.5
+        },
+        "11": {
+          "fireCount": 189,
+          "burnedArea": 288.7
+        },
+        "12": {
+          "fireCount": 19,
+          "burnedArea": 54.5
+        },
+        "13": {
+          "fireCount": 286,
+          "burnedArea": 203.8
+        },
+        "14": {
+          "fireCount": 4,
+          "burnedArea": 0
+        },
+        "15": {
+          "fireCount": 6,
+          "burnedArea": 11.5
+        },
+        "16": {
+          "fireCount": 24,
+          "burnedArea": 9.9
+        },
+        "17": {
+          "fireCount": 29,
+          "burnedArea": 18.8
+        },
+        "18": {
+          "fireCount": 2,
+          "burnedArea": 0
+        },
+        "19": {
+          "fireCount": 19,
+          "burnedArea": 1
+        },
+        "21": {
+          "fireCount": 7,
+          "burnedArea": 16
+        },
+        "22": {
+          "fireCount": 3,
+          "burnedArea": 2
+        },
+        "23": {
+          "fireCount": 3,
+          "burnedArea": 1.2
+        },
+        "24": {
+          "fireCount": 37,
+          "burnedArea": 43.7
+        },
+        "26": {
+          "fireCount": 28,
+          "burnedArea": 20.6
+        },
+        "27": {
+          "fireCount": 13,
+          "burnedArea": 14.4
+        },
+        "28": {
+          "fireCount": 4,
+          "burnedArea": 18.7
+        },
+        "29": {
+          "fireCount": 9,
+          "burnedArea": 8.3
+        },
+        "30": {
+          "fireCount": 84,
+          "burnedArea": 124
+        },
+        "31": {
+          "fireCount": 5,
+          "burnedArea": 6.6
+        },
+        "32": {
+          "fireCount": 8,
+          "burnedArea": 10.5
+        },
+        "33": {
+          "fireCount": 103,
+          "burnedArea": 57.4
+        },
+        "34": {
+          "fireCount": 138,
+          "burnedArea": 499.3
+        },
+        "35": {
+          "fireCount": 2,
+          "burnedArea": 0
+        },
+        "36": {
+          "fireCount": 3,
+          "burnedArea": 5.5
+        },
+        "37": {
+          "fireCount": 3,
+          "burnedArea": 2.3
+        },
+        "38": {
+          "fireCount": 26,
+          "burnedArea": 19.7
+        },
+        "40": {
+          "fireCount": 84,
+          "burnedArea": 98.9
+        },
+        "41": {
+          "fireCount": 20,
+          "burnedArea": 26.1
+        },
+        "43": {
+          "fireCount": 11,
+          "burnedArea": 4.3
+        },
+        "44": {
+          "fireCount": 2,
+          "burnedArea": 1.5
+        },
+        "45": {
+          "fireCount": 8,
+          "burnedArea": 8.5
+        },
+        "46": {
+          "fireCount": 5,
+          "burnedArea": 16.5
+        },
+        "47": {
+          "fireCount": 28,
+          "burnedArea": 13.7
+        },
+        "48": {
+          "fireCount": 44,
+          "burnedArea": 138.6
+        },
+        "49": {
+          "fireCount": 8,
+          "burnedArea": 2.7
+        },
+        "52": {
+          "fireCount": 3,
+          "burnedArea": 31.9
+        },
+        "53": {
+          "fireCount": 1,
+          "burnedArea": 1
+        },
+        "54": {
+          "fireCount": 4,
+          "burnedArea": 118.2
+        },
+        "56": {
+          "fireCount": 46,
+          "burnedArea": 43.6
+        },
+        "57": {
+          "fireCount": 6,
+          "burnedArea": 8
+        },
+        "58": {
+          "fireCount": 4,
+          "burnedArea": 6.1
+        },
+        "59": {
+          "fireCount": 1,
+          "burnedArea": 0.5
+        },
+        "60": {
+          "fireCount": 3,
+          "burnedArea": 0.7
+        },
+        "63": {
+          "fireCount": 2,
+          "burnedArea": 0.4
+        },
+        "64": {
+          "fireCount": 9,
+          "burnedArea": 113.4
+        },
+        "66": {
+          "fireCount": 96,
+          "burnedArea": 1266
+        },
+        "67": {
+          "fireCount": 2,
+          "burnedArea": 2
+        },
+        "68": {
+          "fireCount": 4,
+          "burnedArea": 0.2
+        },
+        "69": {
+          "fireCount": 2,
+          "burnedArea": 2.8
+        },
+        "71": {
+          "fireCount": 5,
+          "burnedArea": 8.6
+        },
+        "72": {
+          "fireCount": 31,
+          "burnedArea": 4.7
+        },
+        "73": {
+          "fireCount": 5,
+          "burnedArea": 0.3
+        },
+        "74": {
+          "fireCount": 41,
+          "burnedArea": 5
+        },
+        "76": {
+          "fireCount": 5,
+          "burnedArea": 0.1
+        },
+        "77": {
+          "fireCount": 18,
+          "burnedArea": 4.2
+        },
+        "81": {
+          "fireCount": 6,
+          "burnedArea": 12.7
+        },
+        "82": {
+          "fireCount": 4,
+          "burnedArea": 148.8
+        },
+        "83": {
+          "fireCount": 384,
+          "burnedArea": 91.2
+        },
+        "84": {
+          "fireCount": 56,
+          "burnedArea": 10.7
+        },
+        "85": {
+          "fireCount": 10,
+          "burnedArea": 1.1
+        },
+        "86": {
+          "fireCount": 12,
+          "burnedArea": 9.2
+        },
+        "87": {
+          "fireCount": 5,
+          "burnedArea": 1.6
+        },
+        "88": {
+          "fireCount": 34,
+          "burnedArea": 21
+        },
+        "89": {
+          "fireCount": 5,
+          "burnedArea": 10.6
+        },
+        "90": {
+          "fireCount": 2,
+          "burnedArea": 0
+        },
+        "91": {
+          "fireCount": 17,
+          "burnedArea": 70.5
+        },
+        "2B": {
+          "fireCount": 246,
+          "burnedArea": 702.7
+        },
+        "2A": {
+          "fireCount": 86,
+          "burnedArea": 97.8
+        },
+        "06": {
+          "fireCount": 119,
+          "burnedArea": 251.8
+        },
+        "04": {
+          "fireCount": 29,
+          "burnedArea": 137.4
+        },
+        "05": {
+          "fireCount": 36,
+          "burnedArea": 170.3
+        },
+        "07": {
+          "fireCount": 65,
+          "burnedArea": 249.1
+        },
+        "09": {
+          "fireCount": 3,
+          "burnedArea": 33
+        },
+        "08": {
+          "fireCount": 1,
+          "burnedArea": 0
+        }
+      }
+    },
+    "2024": {
+      "source": "BDIFF",
+      "status": "consolidated",
+      "fireCount": 1350,
+      "burnedArea": 2732.7,
+      "departments": {
+        "10": {
+          "fireCount": 1,
+          "burnedArea": 0
+        },
+        "11": {
+          "fireCount": 152,
+          "burnedArea": 228.4
+        },
+        "12": {
+          "fireCount": 2,
+          "burnedArea": 2.5
+        },
+        "13": {
+          "fireCount": 225,
+          "burnedArea": 20.9
+        },
+        "15": {
+          "fireCount": 7,
+          "burnedArea": 8.5
+        },
+        "16": {
+          "fireCount": 4,
+          "burnedArea": 0.5
+        },
+        "17": {
+          "fireCount": 7,
+          "burnedArea": 3.6
+        },
+        "18": {
+          "fireCount": 1,
+          "burnedArea": 0.4
+        },
+        "19": {
+          "fireCount": 4,
+          "burnedArea": 0.1
+        },
+        "23": {
+          "fireCount": 1,
+          "burnedArea": 0.1
+        },
+        "24": {
+          "fireCount": 10,
+          "burnedArea": 3.2
+        },
+        "25": {
+          "fireCount": 24,
+          "burnedArea": 3.7
+        },
+        "26": {
+          "fireCount": 17,
+          "burnedArea": 4.9
+        },
+        "27": {
+          "fireCount": 3,
+          "burnedArea": 2.2
+        },
+        "29": {
+          "fireCount": 3,
+          "burnedArea": 0
+        },
+        "30": {
+          "fireCount": 38,
+          "burnedArea": 15.5
+        },
+        "31": {
+          "fireCount": 1,
+          "burnedArea": 4
+        },
+        "33": {
+          "fireCount": 29,
+          "burnedArea": 13.4
+        },
+        "34": {
+          "fireCount": 133,
+          "burnedArea": 702.8
+        },
+        "35": {
+          "fireCount": 1,
+          "burnedArea": 0.2
+        },
+        "37": {
+          "fireCount": 1,
+          "burnedArea": 0
+        },
+        "38": {
+          "fireCount": 7,
+          "burnedArea": 0.5
+        },
+        "39": {
+          "fireCount": 1,
+          "burnedArea": 8
+        },
+        "40": {
+          "fireCount": 30,
+          "burnedArea": 14.8
+        },
+        "43": {
+          "fireCount": 2,
+          "burnedArea": 2
+        },
+        "44": {
+          "fireCount": 2,
+          "burnedArea": 0
+        },
+        "46": {
+          "fireCount": 3,
+          "burnedArea": 13.2
+        },
+        "47": {
+          "fireCount": 2,
+          "burnedArea": 38
+        },
+        "48": {
+          "fireCount": 25,
+          "burnedArea": 50.8
+        },
+        "49": {
+          "fireCount": 3,
+          "burnedArea": 0.6
+        },
+        "50": {
+          "fireCount": 3,
+          "burnedArea": 0.8
+        },
+        "51": {
+          "fireCount": 1,
+          "burnedArea": 0
+        },
+        "53": {
+          "fireCount": 2,
+          "burnedArea": 0.1
+        },
+        "56": {
+          "fireCount": 26,
+          "burnedArea": 1.8
+        },
+        "58": {
+          "fireCount": 1,
+          "burnedArea": 0
+        },
+        "59": {
+          "fireCount": 2,
+          "burnedArea": 0
+        },
+        "60": {
+          "fireCount": 1,
+          "burnedArea": 0.1
+        },
+        "63": {
+          "fireCount": 4,
+          "burnedArea": 0.1
+        },
+        "64": {
+          "fireCount": 5,
+          "burnedArea": 24.4
+        },
+        "66": {
+          "fireCount": 55,
+          "burnedArea": 296.4
+        },
+        "67": {
+          "fireCount": 1,
+          "burnedArea": 2
+        },
+        "69": {
+          "fireCount": 2,
+          "burnedArea": 11.2
+        },
+        "72": {
+          "fireCount": 11,
+          "burnedArea": 8.8
+        },
+        "73": {
+          "fireCount": 5,
+          "burnedArea": 0.1
+        },
+        "74": {
+          "fireCount": 24,
+          "burnedArea": 0.1
+        },
+        "77": {
+          "fireCount": 10,
+          "burnedArea": 0.3
+        },
+        "78": {
+          "fireCount": 1,
+          "burnedArea": 0
+        },
+        "81": {
+          "fireCount": 3,
+          "burnedArea": 0
+        },
+        "83": {
+          "fireCount": 3,
+          "burnedArea": 372.1
+        },
+        "84": {
+          "fireCount": 47,
+          "burnedArea": 10.8
+        },
+        "85": {
+          "fireCount": 5,
+          "burnedArea": 0.1
+        },
+        "86": {
+          "fireCount": 3,
+          "burnedArea": 16
+        },
+        "87": {
+          "fireCount": 3,
+          "burnedArea": 0
+        },
+        "88": {
+          "fireCount": 6,
+          "burnedArea": 0
+        },
+        "89": {
+          "fireCount": 1,
+          "burnedArea": 0
+        },
+        "2B": {
+          "fireCount": 119,
+          "burnedArea": 539.8
+        },
+        "06": {
+          "fireCount": 57,
+          "burnedArea": 29.6
+        },
+        "07": {
+          "fireCount": 57,
+          "burnedArea": 90.1
+        },
+        "05": {
+          "fireCount": 12,
+          "burnedArea": 1.4
+        },
+        "2A": {
+          "fireCount": 111,
+          "burnedArea": 88.9
+        },
+        "04": {
+          "fireCount": 25,
+          "burnedArea": 22
+        },
+        "09": {
+          "fireCount": 1,
+          "burnedArea": 68
+        },
+        "03": {
+          "fireCount": 1,
+          "burnedArea": 2
+        },
+        "08": {
+          "fireCount": 1,
+          "burnedArea": 0
+        },
+        "01": {
+          "fireCount": 2,
+          "burnedArea": 3
+        }
+      }
+    },
+    "2025": {
+      "source": "BDIFF",
+      "status": "consolidated",
+      "fireCount": 2514,
+      "burnedArea": 21736.7,
+      "departments": {
+        "10": {
+          "fireCount": 1,
+          "burnedArea": 0.2
+        },
+        "11": {
+          "fireCount": 140,
+          "burnedArea": 13780.5
+        },
+        "12": {
+          "fireCount": 9,
+          "burnedArea": 52.5
+        },
+        "13": {
+          "fireCount": 264,
+          "burnedArea": 1002.5
+        },
+        "14": {
+          "fireCount": 10,
+          "burnedArea": 4.1
+        },
+        "15": {
+          "fireCount": 17,
+          "burnedArea": 8.2
+        },
+        "16": {
+          "fireCount": 48,
+          "burnedArea": 333.6
+        },
+        "17": {
+          "fireCount": 54,
+          "burnedArea": 82.6
+        },
+        "18": {
+          "fireCount": 11,
+          "burnedArea": 130.4
+        },
+        "19": {
+          "fireCount": 17,
+          "burnedArea": 16.5
+        },
+        "21": {
+          "fireCount": 2,
+          "burnedArea": 6.8
+        },
+        "22": {
+          "fireCount": 7,
+          "burnedArea": 85.4
+        },
+        "23": {
+          "fireCount": 11,
+          "burnedArea": 76.1
+        },
+        "24": {
+          "fireCount": 52,
+          "burnedArea": 177.1
+        },
+        "26": {
+          "fireCount": 24,
+          "burnedArea": 30.9
+        },
+        "27": {
+          "fireCount": 12,
+          "burnedArea": 0.7
+        },
+        "29": {
+          "fireCount": 18,
+          "burnedArea": 11.5
+        },
+        "30": {
+          "fireCount": 48,
+          "burnedArea": 454.1
+        },
+        "31": {
+          "fireCount": 4,
+          "burnedArea": 8.6
+        },
+        "32": {
+          "fireCount": 3,
+          "burnedArea": 22.8
+        },
+        "33": {
+          "fireCount": 129,
+          "burnedArea": 130.3
+        },
+        "34": {
+          "fireCount": 162,
+          "burnedArea": 818.7
+        },
+        "35": {
+          "fireCount": 30,
+          "burnedArea": 117.7
+        },
+        "36": {
+          "fireCount": 7,
+          "burnedArea": 93.1
+        },
+        "37": {
+          "fireCount": 5,
+          "burnedArea": 283
+        },
+        "38": {
+          "fireCount": 24,
+          "burnedArea": 37.1
+        },
+        "39": {
+          "fireCount": 5,
+          "burnedArea": 2.1
+        },
+        "40": {
+          "fireCount": 111,
+          "burnedArea": 151.9
+        },
+        "41": {
+          "fireCount": 28,
+          "burnedArea": 107
+        },
+        "42": {
+          "fireCount": 6,
+          "burnedArea": 3.1
+        },
+        "43": {
+          "fireCount": 21,
+          "burnedArea": 85.2
+        },
+        "44": {
+          "fireCount": 11,
+          "burnedArea": 8.9
+        },
+        "45": {
+          "fireCount": 9,
+          "burnedArea": 167.9
+        },
+        "46": {
+          "fireCount": 13,
+          "burnedArea": 74.5
+        },
+        "47": {
+          "fireCount": 15,
+          "burnedArea": 4.7
+        },
+        "48": {
+          "fireCount": 41,
+          "burnedArea": 24.9
+        },
+        "49": {
+          "fireCount": 21,
+          "burnedArea": 8.9
+        },
+        "50": {
+          "fireCount": 4,
+          "burnedArea": 1
+        },
+        "51": {
+          "fireCount": 1,
+          "burnedArea": 30.1
+        },
+        "52": {
+          "fireCount": 1,
+          "burnedArea": 11.7
+        },
+        "53": {
+          "fireCount": 2,
+          "burnedArea": 0.1
+        },
+        "54": {
+          "fireCount": 1,
+          "burnedArea": 0.1
+        },
+        "55": {
+          "fireCount": 3,
+          "burnedArea": 2.1
+        },
+        "56": {
+          "fireCount": 83,
+          "burnedArea": 63.9
+        },
+        "57": {
+          "fireCount": 4,
+          "burnedArea": 0.7
+        },
+        "58": {
+          "fireCount": 11,
+          "burnedArea": 37
+        },
+        "59": {
+          "fireCount": 3,
+          "burnedArea": 0.1
+        },
+        "60": {
+          "fireCount": 9,
+          "burnedArea": 9
+        },
+        "61": {
+          "fireCount": 5,
+          "burnedArea": 0
+        },
+        "62": {
+          "fireCount": 1,
+          "burnedArea": 1.2
+        },
+        "63": {
+          "fireCount": 12,
+          "burnedArea": 218.3
+        },
+        "64": {
+          "fireCount": 7,
+          "burnedArea": 73.1
+        },
+        "65": {
+          "fireCount": 2,
+          "burnedArea": 18.4
+        },
+        "66": {
+          "fireCount": 30,
+          "burnedArea": 20.6
+        },
+        "67": {
+          "fireCount": 11,
+          "burnedArea": 9.6
+        },
+        "68": {
+          "fireCount": 13,
+          "burnedArea": 0.2
+        },
+        "69": {
+          "fireCount": 1,
+          "burnedArea": 6
+        },
+        "70": {
+          "fireCount": 2,
+          "burnedArea": 0.1
+        },
+        "71": {
+          "fireCount": 12,
+          "burnedArea": 1.5
+        },
+        "72": {
+          "fireCount": 56,
+          "burnedArea": 13.4
+        },
+        "73": {
+          "fireCount": 6,
+          "burnedArea": 5.1
+        },
+        "74": {
+          "fireCount": 29,
+          "burnedArea": 0.2
+        },
+        "76": {
+          "fireCount": 10,
+          "burnedArea": 2.2
+        },
+        "77": {
+          "fireCount": 55,
+          "burnedArea": 3.7
+        },
+        "78": {
+          "fireCount": 2,
+          "burnedArea": 0.5
+        },
+        "79": {
+          "fireCount": 4,
+          "burnedArea": 126.1
+        },
+        "81": {
+          "fireCount": 4,
+          "burnedArea": 63.1
+        },
+        "82": {
+          "fireCount": 8,
+          "burnedArea": 6.9
+        },
+        "83": {
+          "fireCount": 175,
+          "burnedArea": 162
+        },
+        "84": {
+          "fireCount": 55,
+          "burnedArea": 39.9
+        },
+        "85": {
+          "fireCount": 12,
+          "burnedArea": 3
+        },
+        "86": {
+          "fireCount": 27,
+          "burnedArea": 195.7
+        },
+        "87": {
+          "fireCount": 9,
+          "burnedArea": 99.1
+        },
+        "88": {
+          "fireCount": 9,
+          "burnedArea": 1.4
+        },
+        "89": {
+          "fireCount": 5,
+          "burnedArea": 21.1
+        },
+        "90": {
+          "fireCount": 6,
+          "burnedArea": 0.9
+        },
+        "91": {
+          "fireCount": 3,
+          "burnedArea": 0.8
+        },
+        "2B": {
+          "fireCount": 84,
+          "burnedArea": 917.7
+        },
+        "06": {
+          "fireCount": 79,
+          "burnedArea": 378.2
+        },
+        "05": {
+          "fireCount": 38,
+          "burnedArea": 7.1
+        },
+        "2A": {
+          "fireCount": 93,
+          "burnedArea": 303.1
+        },
+        "04": {
+          "fireCount": 44,
+          "burnedArea": 45.5
+        },
+        "07": {
+          "fireCount": 64,
+          "burnedArea": 145.8
+        },
+        "09": {
+          "fireCount": 8,
+          "burnedArea": 249.3
+        },
+        "08": {
+          "fireCount": 15,
+          "burnedArea": 3.9
+        },
+        "02": {
+          "fireCount": 1,
+          "burnedArea": 1
+        },
+        "03": {
+          "fireCount": 3,
+          "burnedArea": 20.8
+        },
+        "01": {
+          "fireCount": 2,
+          "burnedArea": 10
+        }
+      }
+    },
+    "2026": {
+      "source": "EFFIS",
+      "status": "provisional",
+      "fireCount": 1560,
+      "burnedArea": 100466,
+      "departments": {
+        "11": {
+          "fireCount": 2,
+          "burnedArea": 819
+        },
+        "12": {
+          "fireCount": 20,
+          "burnedArea": 315
+        },
+        "13": {
+          "fireCount": 8,
+          "burnedArea": 294
+        },
+        "15": {
+          "fireCount": 42,
+          "burnedArea": 289
+        },
+        "16": {
+          "fireCount": 1,
+          "burnedArea": 2
+        },
+        "17": {
+          "fireCount": 3,
+          "burnedArea": 23
+        },
+        "18": {
+          "fireCount": 3,
+          "burnedArea": 67
+        },
+        "19": {
+          "fireCount": 1,
+          "burnedArea": 5
+        },
+        "21": {
+          "fireCount": 2,
+          "burnedArea": 43
+        },
+        "22": {
+          "fireCount": 1,
+          "burnedArea": 27
+        },
+        "23": {
+          "fireCount": 1,
+          "burnedArea": 5
+        },
+        "24": {
+          "fireCount": 5,
+          "burnedArea": 29
+        },
+        "26": {
+          "fireCount": 3,
+          "burnedArea": 4198
+        },
+        "30": {
+          "fireCount": 26,
+          "burnedArea": 992
+        },
+        "31": {
+          "fireCount": 7,
+          "burnedArea": 49
+        },
+        "33": {
+          "fireCount": 8,
+          "burnedArea": 38275
+        },
+        "34": {
+          "fireCount": 42,
+          "burnedArea": 808
+        },
+        "36": {
+          "fireCount": 5,
+          "burnedArea": 527
+        },
+        "37": {
+          "fireCount": 1,
+          "burnedArea": 6
+        },
+        "38": {
+          "fireCount": 2,
+          "burnedArea": 26
+        },
+        "39": {
+          "fireCount": 1,
+          "burnedArea": 17
+        },
+        "40": {
+          "fireCount": 7,
+          "burnedArea": 4485
+        },
+        "41": {
+          "fireCount": 3,
+          "burnedArea": 336
+        },
+        "42": {
+          "fireCount": 4,
+          "burnedArea": 119
+        },
+        "43": {
+          "fireCount": 6,
+          "burnedArea": 205
+        },
+        "45": {
+          "fireCount": 1,
+          "burnedArea": 62
+        },
+        "46": {
+          "fireCount": 4,
+          "burnedArea": 283
+        },
+        "47": {
+          "fireCount": 7,
+          "burnedArea": 224
+        },
+        "48": {
+          "fireCount": 133,
+          "burnedArea": 1928
+        },
+        "49": {
+          "fireCount": 2,
+          "burnedArea": 126
+        },
+        "51": {
+          "fireCount": 6,
+          "burnedArea": 166
+        },
+        "59": {
+          "fireCount": 1,
+          "burnedArea": 6
+        },
+        "60": {
+          "fireCount": 1,
+          "burnedArea": 14
+        },
+        "63": {
+          "fireCount": 3,
+          "burnedArea": 27
+        },
+        "64": {
+          "fireCount": 826,
+          "burnedArea": 27925
+        },
+        "65": {
+          "fireCount": 130,
+          "burnedArea": 2400
+        },
+        "66": {
+          "fireCount": 31,
+          "burnedArea": 4627
+        },
+        "71": {
+          "fireCount": 1,
+          "burnedArea": 24
+        },
+        "72": {
+          "fireCount": 2,
+          "burnedArea": 5
+        },
+        "73": {
+          "fireCount": 2,
+          "burnedArea": 52
+        },
+        "77": {
+          "fireCount": 3,
+          "burnedArea": 1962
+        },
+        "79": {
+          "fireCount": 2,
+          "burnedArea": 10
+        },
+        "81": {
+          "fireCount": 3,
+          "burnedArea": 19
+        },
+        "82": {
+          "fireCount": 1,
+          "burnedArea": 2
+        },
+        "83": {
+          "fireCount": 15,
+          "burnedArea": 4141
+        },
+        "84": {
+          "fireCount": 1,
+          "burnedArea": 2
+        },
+        "86": {
+          "fireCount": 2,
+          "burnedArea": 207
+        },
+        "87": {
+          "fireCount": 2,
+          "burnedArea": 7
+        },
+        "89": {
+          "fireCount": 3,
+          "burnedArea": 56
+        },
+        "09": {
+          "fireCount": 49,
+          "burnedArea": 938
+        },
+        "06": {
+          "fireCount": 12,
+          "burnedArea": 92
+        },
+        "2B": {
+          "fireCount": 23,
+          "burnedArea": 1814
+        },
+        "07": {
+          "fireCount": 69,
+          "burnedArea": 579
+        },
+        "04": {
+          "fireCount": 6,
+          "burnedArea": 58
+        },
+        "2A": {
+          "fireCount": 8,
+          "burnedArea": 111
+        },
+        "03": {
+          "fireCount": 1,
+          "burnedArea": 55
+        },
+        "02": {
+          "fireCount": 1,
+          "burnedArea": 10
+        },
+        "01": {
+          "fireCount": 2,
+          "burnedArea": 17
+        },
+        "05": {
+          "fireCount": 2,
+          "burnedArea": 555
+        },
+        "08": {
+          "fireCount": 1,
+          "burnedArea": 1
+        }
+      }
+    }
+  }
+}
