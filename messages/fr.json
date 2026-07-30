@@ -1,0 +1,49 @@
+{
+  "Home": {
+    "projects": "Projets",
+    "about": "À propos",
+    "kicker": "OUTILS & DATAVISUALISATIONS",
+    "title1": "Des données,",
+    "title2": "des outils,",
+    "title3": "des histoires.",
+    "intro": "Un répertoire d’outils et de visualisations pour explorer, comprendre et mettre en cause les données.",
+    "explore": "↓ Explorer la collection",
+    "index": "INDEX DES PROJETS",
+    "collection": "La collection",
+    "count": "{count, plural, =0 {Aucun projet} one {# projet} other {# projets}}",
+    "filterLabel": "Filtrer les projets par type",
+    "all": "Tous",
+    "tools": "Outils",
+    "dataviz": "Dataviz",
+    "emptyKicker": "COLLECTION EN COURS",
+    "emptyTitle": "Les premiers projets arrivent bientôt.",
+    "emptyText": "Outils et visualisations seront publiés ici au fil de leur création.",
+    "aboutKicker": "À PROPOS DE L’INDEX",
+    "manifestoStart": "Chaque projet part d’une question et choisit",
+    "manifestoEmphasis": " la forme juste",
+    "manifestoEnd": " pour y répondre."
+  },
+  "Footer": {
+    "project": "A creadiv project ↗",
+    "back": "Retour aux projets ↑",
+    "legalNav": "Informations légales",
+    "legal": "Mentions légales",
+    "privacy": "Confidentialité",
+    "terms": "CGU",
+    "preferences": "Gérer mes préférences"
+  },
+  "LocaleSwitcher": {"label": "Langue", "fr": "FR", "en": "EN"},
+  "Consent": {
+    "kicker": "MESURE D’AUDIENCE",
+    "title": "Votre visite, votre choix.",
+    "description": "Avec votre accord, Vercel Analytics et Speed Insights nous aident à comprendre la fréquentation et les performances du site. Aucune mesure n’est chargée avant votre consentement.",
+    "more": "En savoir plus",
+    "deny": "Refuser",
+    "accept": "Accepter"
+  },
+  "LegalShell": {
+    "back": "← Retour à l’accueil",
+    "label": "Informations légales",
+    "updated": "MISE À JOUR · 30 JUILLET 2026"
+  }
+}

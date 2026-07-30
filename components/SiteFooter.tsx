@@ -1,9 +1,12 @@
 "use client";
 
-import Link from "next/link";
+import {useTranslations} from "next-intl";
+import {Link} from "@/i18n/navigation";
+import {LocaleSwitcher} from "@/components/LocaleSwitcher";
 import { openAnalyticsPreferences } from "@/components/privacy/VercelInsightsConsent";
 
 export function SiteFooter() {
+  const t = useTranslations("Footer");
   return (
     <footer className="site-footer">
       <div className="footer-main">
@@ -16,14 +19,14 @@ export function SiteFooter() {
           target="_blank"
           rel="noopener noreferrer"
         >
-          A creadiv project ↗
+          {t("project")}
         </a>
-        <Link href="/#projets">Retour aux projets ↑</Link>
+        <Link href="/#projets">{t("back")}</Link>
       </div>
-      <nav className="legal-links" aria-label="Informations légales">
-        <Link href="/mentions-legales">Mentions légales</Link>
-        <Link href="/confidentialite">Confidentialité</Link>
-        <Link href="/cgu">CGU</Link>
+      <nav className="legal-links" aria-label={t("legalNav")}>
+        <Link href="/mentions-legales">{t("legal")}</Link>
+        <Link href="/confidentialite">{t("privacy")}</Link>
+        <Link href="/cgu">{t("terms")}</Link>
         <a
           href="https://creativecommons.org/licenses/by/4.0/deed.fr"
           target="_blank"
@@ -32,8 +35,9 @@ export function SiteFooter() {
           CC BY 4.0
         </a>
         <button type="button" onClick={openAnalyticsPreferences}>
-          Gérer mes préférences
+          {t("preferences")}
         </button>
+        <LocaleSwitcher />
       </nav>
     </footer>
   );

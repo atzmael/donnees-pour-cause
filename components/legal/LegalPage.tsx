@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
-import Link from "next/link";
+import {useTranslations} from "next-intl";
+import {Link} from "@/i18n/navigation";
 import { SiteFooter } from "@/components/SiteFooter";
 
 export function LegalPage({
@@ -11,17 +12,18 @@ export function LegalPage({
   description: string;
   children: ReactNode;
 }) {
+  const t = useTranslations("LegalShell");
   return (
     <main className="legal-page">
       <header className="story-header">
         <Link className="wordmark" href="/">
           <span className="wordmark-dot" /> données<span>/en cause</span>
         </Link>
-        <Link className="back-link" href="/">← Retour à l’accueil</Link>
-        <span>Informations légales</span>
+        <Link className="back-link" href="/">{t("back")}</Link>
+        <span>{t("label")}</span>
       </header>
       <article className="legal-document">
-        <p className="kicker">MISE À JOUR · 30 JUILLET 2026</p>
+        <p className="kicker">{t("updated")}</p>
         <h1>{title}</h1>
         <p className="legal-lead">{description}</p>
         <div className="legal-content">{children}</div>

@@ -1,19 +1,22 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
+import {useTranslations} from "next-intl";
+import {Link} from "@/i18n/navigation";
 import { Button, Card } from "@/components/ui";
 import { SiteFooter } from "@/components/SiteFooter";
+import {LocaleSwitcher} from "@/components/LocaleSwitcher";
 import { projects } from "./projects";
 
-const filters = ["Tous", "Outils", "Dataviz"] as const;
+const filters = ["all", "tools", "dataviz"] as const;
 
 export default function Home() {
-  const [filter, setFilter] = useState<(typeof filters)[number]>("Tous");
-  const visibleProjects = filter === "Tous"
+  const t = useTranslations("Home");
+  const [filter, setFilter] = useState<(typeof filters)[number]>("all");
+  const visibleProjects = filter === "all"
     ? projects
     : projects.filter((project) =>
-        project.modules.includes(filter === "Outils" ? "Outil" : "Dataviz"),
+        project.modules.includes(filter === "tools" ? "Outil" : "Dataviz"),
       );
 
   return (
@@ -23,22 +26,22 @@ export default function Home() {
           <span className="wordmark-dot" /> index<span>/data</span>
         </Link>
         <nav aria-label="Navigation principale">
-          <a href="#projets">Projets</a>
-          <a href="#a-propos">À propos</a>
+          <a href="#projets">{t("projects")}</a>
+          <a href="#a-propos">{t("about")}</a>
         </nav>
+        <LocaleSwitcher />
       </header>
 
       <section className="intro">
         <div className="intro-copy">
-          <p className="kicker">OUTILS & DATAVISUALISATIONS</p>
-          <h1>Des données,<br />des outils,<br /><em>des histoires.</em></h1>
+          <p className="kicker">{t("kicker")}</p>
+          <h1>{t("title1")}<br />{t("title2")}<br /><em>{t("title3")}</em></h1>
         </div>
         <div className="intro-note">
           <p>
-            Un répertoire d’outils et de visualisations pour explorer,
-            comprendre et mettre en cause les données.
+            {t("intro")}
           </p>
-          <span>↓ Explorer la collection</span>
+          <span>{t("explore")}</span>
         </div>
         <div className="intro-art" aria-hidden="true">
           <div className="sun" />
@@ -51,13 +54,13 @@ export default function Home() {
       <section className="collection" id="projets">
         <div className="collection-head">
           <div>
-            <p className="kicker">INDEX DES PROJETS</p>
-            <h2>La collection</h2>
+            <p className="kicker">{t("index")}</p>
+            <h2>{t("collection")}</h2>
           </div>
-          <p>{String(visibleProjects.length).padStart(2, "0")} projets</p>
+          <p>{t("count", {count: visibleProjects.length})}</p>
         </div>
 
-        <div className="filters" aria-label="Filtrer les projets par type">
+        <div className="filters" aria-label={t("filterLabel")}>
           {filters.map((item) => (
             <Button
               key={item}
@@ -65,7 +68,7 @@ export default function Home() {
               selected={filter === item}
               onClick={() => setFilter(item)}
             >
-              {item}
+              {t(item)}
             </Button>
           ))}
         </div>
@@ -73,11 +76,9 @@ export default function Home() {
         <div className="project-list">
           {visibleProjects.length === 0 && (
             <div className="empty-projects" role="status">
-              <p className="kicker">COLLECTION EN COURS</p>
-              <h3>Les premiers projets arrivent bientôt.</h3>
-              <p>
-                Outils et visualisations seront publiés ici au fil de leur création.
-              </p>
+              <p className="kicker">{t("emptyKicker")}</p>
+              <h3>{t("emptyTitle")}</h3>
+              <p>{t("emptyText")}</p>
             </div>
           )}
           {visibleProjects.map((project, index) => (
@@ -107,10 +108,10 @@ export default function Home() {
       </section>
 
       <section className="manifesto" id="a-propos">
-        <p className="kicker">À PROPOS DE L’INDEX</p>
+        <p className="kicker">{t("aboutKicker")}</p>
         <p className="manifesto-text">
-          Chaque projet part d’une question et choisit
-          <em> la forme juste</em> pour y répondre.
+          {t("manifestoStart")}
+          <em>{t("manifestoEmphasis")}</em>{t("manifestoEnd")}
         </p>
         <div className="manifesto-details">
           <p>Canvas · WebGL · Three.js · D3.js · Mapbox · APIs</p>

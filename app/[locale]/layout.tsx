@@ -1,7 +1,11 @@
 import type { Metadata } from "next";
 import { Roboto } from "next/font/google";
+import {hasLocale, NextIntlClientProvider} from "next-intl";
+import {setRequestLocale} from "next-intl/server";
+import {notFound} from "next/navigation";
 import { VercelInsightsConsent } from "@/components/privacy/VercelInsightsConsent";
-import "./globals.css";
+import {routing} from "@/i18n/routing";
+import "../globals.css";
 
 const roboto = Roboto({
   subsets: ["latin"],
@@ -34,14 +38,25 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export function generateStaticParams() {
+  return routing.locales.map((locale) => ({locale}));
+}
+
+export default async function RootLayout({
   children,
-}: Readonly<{ children: React.ReactNode }>) {
+  params,
+}: Readonly<{ children: React.ReactNode; params: Promise<{locale: string}> }>) {
+  const {locale} = await params;
+  if (!hasLocale(routing.locales, locale)) notFound();
+  setRequestLocale(locale);
+
   return (
-    <html lang="fr">
+    <html lang={locale}>
       <body className={roboto.variable}>
-        {children}
-        <VercelInsightsConsent />
+        <NextIntlClientProvider>
+          {children}
+          <VercelInsightsConsent />
+        </NextIntlClientProvider>
       </body>
     </html>
   );

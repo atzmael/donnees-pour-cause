@@ -1,0 +1,49 @@
+{
+  "Home": {
+    "projects": "Projects",
+    "about": "About",
+    "kicker": "TOOLS & DATA VISUALIZATIONS",
+    "title1": "Data,",
+    "title2": "tools,",
+    "title3": "stories.",
+    "intro": "A directory of tools and visualizations designed to explore, understand and challenge data.",
+    "explore": "↓ Explore the collection",
+    "index": "PROJECT INDEX",
+    "collection": "The collection",
+    "count": "{count, plural, =0 {No projects} one {# project} other {# projects}}",
+    "filterLabel": "Filter projects by type",
+    "all": "All",
+    "tools": "Tools",
+    "dataviz": "Dataviz",
+    "emptyKicker": "COLLECTION IN PROGRESS",
+    "emptyTitle": "The first projects are coming soon.",
+    "emptyText": "Tools and visualizations will be published here as they are created.",
+    "aboutKicker": "ABOUT THE INDEX",
+    "manifestoStart": "Every project starts with a question and chooses",
+    "manifestoEmphasis": " the right form",
+    "manifestoEnd": " to answer it."
+  },
+  "Footer": {
+    "project": "A creadiv project ↗",
+    "back": "Back to projects ↑",
+    "legalNav": "Legal information",
+    "legal": "Legal notice",
+    "privacy": "Privacy",
+    "terms": "Terms",
+    "preferences": "Manage preferences"
+  },
+  "LocaleSwitcher": {"label": "Language", "fr": "FR", "en": "EN"},
+  "Consent": {
+    "kicker": "AUDIENCE MEASUREMENT",
+    "title": "Your visit, your choice.",
+    "description": "With your consent, Vercel Analytics and Speed Insights help us understand traffic and site performance. No measurement is loaded before you consent.",
+    "more": "Learn more",
+    "deny": "Decline",
+    "accept": "Accept"
+  },
+  "LegalShell": {
+    "back": "← Back to home",
+    "label": "Legal information",
+    "updated": "UPDATED · JULY 30, 2026"
+  }
+}

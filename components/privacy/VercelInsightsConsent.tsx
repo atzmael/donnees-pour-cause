@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Link from "next/link";
+import {useTranslations} from "next-intl";
+import {Link} from "@/i18n/navigation";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { Button } from "@/components/ui";
@@ -16,6 +17,7 @@ export function openAnalyticsPreferences() {
 }
 
 export function VercelInsightsConsent() {
+  const t = useTranslations("Consent");
   const [choice, setChoice] = useState<ConsentChoice>(null);
   const [isReady, setIsReady] = useState(false);
   const [preferencesOpen, setPreferencesOpen] = useState(false);
@@ -63,21 +65,19 @@ export function VercelInsightsConsent() {
           aria-describedby="consent-description"
         >
           <div>
-            <p className="kicker">MESURE D’AUDIENCE</p>
-            <h2 id="consent-title">Votre visite, votre choix.</h2>
+            <p className="kicker">{t("kicker")}</p>
+            <h2 id="consent-title">{t("title")}</h2>
             <p id="consent-description">
-              Avec votre accord, Vercel Analytics et Speed Insights nous aident
-              à comprendre la fréquentation et les performances du site. Aucune
-              mesure n’est chargée avant votre consentement.
+              {t("description")}
             </p>
-            <Link href="/confidentialite">En savoir plus</Link>
+            <Link href="/confidentialite">{t("more")}</Link>
           </div>
           <div className="consent-actions">
             <Button variant="outline" onClick={() => saveChoice("denied")}>
-              Refuser
+              {t("deny")}
             </Button>
             <Button variant="primary" onClick={() => saveChoice("granted")}>
-              Accepter
+              {t("accept")}
             </Button>
           </div>
         </aside>
