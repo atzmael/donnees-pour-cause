@@ -5,7 +5,8 @@ import {useEffect, useMemo, useRef, useState} from "react";
 import {Brand} from "@/components/Brand";
 import {SiteFooter} from "@/components/SiteFooter";
 
-type Metric = "burnedArea" | "fireCount";
+type Metric = "burnedArea" | "fireCount" | "forestShare";
+type ViewMode = "map" | "evolution";
 type Position = [number, number];
 type DepartmentFeature = {
   type: "Feature";
@@ -20,7 +21,14 @@ type FireYearData = {
   status: "consolidated" | "provisional";
   fireCount: number;
   burnedArea: number;
-  departments: Record<string, {fireCount: number; burnedArea: number}>;
+  forestBurnedArea: number;
+  forestShare: number;
+  departments: Record<string, {
+    fireCount: number;
+    burnedArea: number;
+    forestBurnedArea: number;
+    forestShare: number;
+  }>;
 };
 type FireDataset = {
   updatedAt: string;
@@ -43,6 +51,11 @@ const METRICS: Record<Metric, {label: string; unit: string; description: string}
     unit: "feux",
     description: "Nombre total d’incendies recensés pendant l’année, quelle que soit leur surface.",
   },
+  forestShare: {
+    label: "Part forestière",
+    unit: "%",
+    description: "Part de la surface brûlée correspondant à des forêts ou autres peuplements ligneux.",
+  },
 };
 
 const METROPOLITAN_CODES = new Set([
@@ -58,6 +71,9 @@ function departmentValue(yearData: FireYearData | undefined, code: string, metri
 }
 
 function formatValue(value: number, metric: Metric) {
+  if (metric === "forestShare") {
+    return `${value.toLocaleString("fr-FR", {maximumFractionDigits: 1})} %`;
+  }
   return `${Math.round(value).toLocaleString("fr-FR")} ${METRICS[metric].unit}`;
 }
 
@@ -95,6 +111,7 @@ export function ForestFiresDataviz() {
   const currentYear = new Date().getFullYear();
   const [year, setYear] = useState(() => new Date().getFullYear());
   const [metric, setMetric] = useState<Metric>("burnedArea");
+  const [view, setView] = useState<ViewMode>("map");
   const [features, setFeatures] = useState<DepartmentFeature[]>([]);
   const [dataset, setDataset] = useState<FireDataset | null>(null);
   const [selectedCode, setSelectedCode] = useState<string | null>(null);
@@ -186,6 +203,24 @@ export function ForestFiresDataviz() {
     ? departmentRows.find((row) => row.code === selectedCode)
     : undefined;
   const selectedRank = departmentRows.findIndex((row) => row.code === selectedDepartment?.code) + 1;
+  const timelineYears = dataset
+    ? Object.entries(dataset.years)
+      .map(([yearKey, value]) => ({year: Number(yearKey), ...value}))
+      .sort((first, second) => first.year - second.year)
+    : [];
+  const evolutionMetrics: Metric[] = ["burnedArea", "fireCount", "forestShare"];
+  const evolutionPoints = (key: Metric) => {
+    const availableYears = timelineYears.filter(
+      (item) => !(key === "fireCount" && item.source === "EFFIS"),
+    );
+    const values = availableYears.map((item) => item[key]);
+    const maximum = Math.max(...values, 1);
+    return availableYears.map((item) => ({
+      ...item,
+      x: 30 + ((item.year - earliestAvailableYear) / Math.max(1, currentYear - earliestAvailableYear)) * 920,
+      y: 128 - (item[key] / maximum) * 98,
+    }));
+  };
   const selectYear = (nextYear: number) => {
     setYear(nextYear);
     if (dataset?.years[String(nextYear)]?.source === "EFFIS" && metric === "fireCount") {
@@ -265,7 +300,29 @@ export function ForestFiresDataviz() {
           {dataset && ` · mise à jour le ${new Date(dataset.updatedAt).toLocaleString("fr-FR", {dateStyle: "long", timeStyle: "short"})}`}
         </p>
 
-        <div className="fire-map-layout">
+        <div className="fire-view-tabs" role="tablist" aria-label="Vue de la dataviz">
+          <button
+            type="button"
+            role="tab"
+            aria-selected={view === "map"}
+            className={view === "map" ? "is-selected" : ""}
+            onClick={() => setView("map")}
+          >
+            Carte
+          </button>
+          <button
+            type="button"
+            role="tab"
+            aria-selected={view === "evolution"}
+            className={view === "evolution" ? "is-selected" : ""}
+            onClick={() => setView("evolution")}
+          >
+            Évolution
+          </button>
+        </div>
+
+        {view === "map" ? (
+          <div className="fire-map-layout" role="tabpanel">
           <div className="fire-map-wrap">
             {!hasDataForYear ? (
               <div className="fire-year-unavailable" role="status">
@@ -359,7 +416,64 @@ export function ForestFiresDataviz() {
                 : "Incendies consolidés par la Base de données sur les incendies de forêt en France."}
             </div>
           </aside>
-        </div>
+          </div>
+        ) : (
+          <div className="fire-evolution" role="tabpanel">
+            <div className="fire-evolution-head">
+              <div>
+                <span>Évolution nationale</span>
+                <strong>{earliestAvailableYear}—{currentYear}</strong>
+              </div>
+              <p>
+                Chaque courbe utilise sa propre échelle. Sélectionnez un point pour
+                reporter l’année dans la carte et les indicateurs.
+              </p>
+            </div>
+            <div className="fire-evolution-charts">
+              {evolutionMetrics.map((key) => {
+                const points = evolutionPoints(key);
+                const selectedPoint = points.find((point) => point.year === year);
+                return (
+                  <article key={key} className={`fire-evolution-row ${metric === key ? "is-selected" : ""}`}>
+                    <button type="button" onClick={() => setMetric(key)}>
+                      <span>{METRICS[key].label}</span>
+                      <strong>
+                        {selectedPoint ? formatValue(selectedPoint[key], key) : "Non comparable"}
+                      </strong>
+                    </button>
+                    <svg viewBox="0 0 980 155" role="img" aria-label={`Évolution de ${METRICS[key].label.toLowerCase()}`}>
+                      <line x1="30" y1="128" x2="950" y2="128" />
+                      <polyline points={points.map((point) => `${point.x},${point.y}`).join(" ")} />
+                      {points.map((point) => (
+                        <circle
+                          key={point.year}
+                          className={point.year === year ? "is-selected" : ""}
+                          cx={point.x}
+                          cy={point.y}
+                          r={point.year === year ? 6 : 3.5}
+                          tabIndex={0}
+                          role="button"
+                          aria-label={`${point.year} : ${formatValue(point[key], key)}`}
+                          onClick={() => selectYear(point.year)}
+                          onKeyDown={(event) => {
+                            if (event.key === "Enter" || event.key === " ") {
+                              event.preventDefault();
+                              selectYear(point.year);
+                            }
+                          }}
+                        >
+                          <title>{point.year} — {formatValue(point[key], key)}</title>
+                        </circle>
+                      ))}
+                      <text x="30" y="149">{earliestAvailableYear}</text>
+                      <text x="950" y="149" textAnchor="end">{currentYear}</text>
+                    </svg>
+                  </article>
+                );
+              })}
+            </div>
+          </div>
+        )}
       </section>
 
       <section className="fire-method">

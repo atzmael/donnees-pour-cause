@@ -83,7 +83,15 @@ function parseDbf(path) {
 }
 
 function emptyYear(source, status) {
-  return {source, status, fireCount: 0, burnedArea: 0, departments: {}};
+  return {
+    source,
+    status,
+    fireCount: 0,
+    burnedArea: 0,
+    forestBurnedArea: 0,
+    forestShare: 0,
+    departments: {},
+  };
 }
 
 const years = {};
@@ -118,12 +126,20 @@ for (let year = START_YEAR; year <= lastConsolidatedYear; year += 1) {
     const code = row[2]?.padStart(2, "0");
     if (!code) continue;
     const burnedArea = Number((row[6] || "0").replace(",", ".")) / 10_000;
-    const department = yearData.departments[code] ?? {fireCount: 0, burnedArea: 0};
+    const forestBurnedArea = Number((row[7] || "0").replace(",", ".")) / 10_000;
+    const department = yearData.departments[code] ?? {
+      fireCount: 0,
+      burnedArea: 0,
+      forestBurnedArea: 0,
+      forestShare: 0,
+    };
     department.fireCount += 1;
     department.burnedArea += burnedArea;
+    department.forestBurnedArea += forestBurnedArea;
     yearData.departments[code] = department;
     yearData.fireCount += 1;
     yearData.burnedArea += burnedArea;
+    yearData.forestBurnedArea += forestBurnedArea;
   }
   years[year] = yearData;
 }
@@ -158,19 +174,37 @@ for (const record of parseDbf(join(effisDirectory, "modis.ba.poly.dbf"))) {
     continue;
   }
   const burnedArea = Number(record.AREA_HA || 0);
-  const department = currentData.departments[code] ?? {fireCount: 0, burnedArea: 0};
+  const forestLandShare = ["BROADLEA", "CONIFER", "MIXED", "SCLEROPH"]
+    .reduce((sum, field) => sum + Number(record[field] || 0), 0);
+  const forestBurnedArea = burnedArea * Math.min(100, forestLandShare) / 100;
+  const department = currentData.departments[code] ?? {
+    fireCount: 0,
+    burnedArea: 0,
+    forestBurnedArea: 0,
+    forestShare: 0,
+  };
   department.fireCount += 1;
   department.burnedArea += burnedArea;
+  department.forestBurnedArea += forestBurnedArea;
   currentData.departments[code] = department;
   currentData.fireCount += 1;
   currentData.burnedArea += burnedArea;
+  currentData.forestBurnedArea += forestBurnedArea;
 }
 years[currentYear] = currentData;
 
 for (const yearData of Object.values(years)) {
   yearData.burnedArea = Math.round(yearData.burnedArea * 10) / 10;
+  yearData.forestBurnedArea = Math.round(yearData.forestBurnedArea * 10) / 10;
+  yearData.forestShare = yearData.burnedArea
+    ? Math.round(yearData.forestBurnedArea / yearData.burnedArea * 1_000) / 10
+    : 0;
   for (const department of Object.values(yearData.departments)) {
     department.burnedArea = Math.round(department.burnedArea * 10) / 10;
+    department.forestBurnedArea = Math.round(department.forestBurnedArea * 10) / 10;
+    department.forestShare = department.burnedArea
+      ? Math.round(department.forestBurnedArea / department.burnedArea * 1_000) / 10
+      : 0;
   }
 }
 
