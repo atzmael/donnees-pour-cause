@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import {useEffect, useMemo, useState} from "react";
+import {useEffect, useMemo, useRef, useState} from "react";
 import {Brand} from "@/components/Brand";
 import {SiteFooter} from "@/components/SiteFooter";
 
@@ -116,58 +116,12 @@ function colorFor(value: number, values: number[], metric: Metric) {
   return `color-mix(in srgb, var(--fire-burn) ${amount}%, var(--fire-map-low))`;
 }
 
-function MiniTimeline({metric, selectedYear, onSelect}: {
-  metric: Metric;
-  selectedYear: number;
-  onSelect: (year: number) => void;
-}) {
-  const width = 920;
-  const height = 88;
-  const values = NATIONAL_DATA.map((item) => item[metric]);
-  const minimum = Math.min(...values);
-  const maximum = Math.max(...values);
-  const x = (index: number) => 16 + (index / (NATIONAL_DATA.length - 1)) * 886;
-  const y = (value: number) => 12 + (1 - (value - minimum) / Math.max(1, maximum - minimum)) * 59;
-  const points = NATIONAL_DATA.map((item, index) => `${x(index)},${y(item[metric])}`).join(" ");
-  const selected = NATIONAL_DATA.find((item) => item.year === selectedYear) ?? NATIONAL_DATA[0];
-
-  return (
-    <div className="fire-timeline-row">
-      <div className="fire-timeline-label">
-        <strong>{METRICS[metric].label}</strong>
-        <span>{formatValue(selected[metric], metric)}</span>
-      </div>
-      <svg viewBox={`0 0 ${width} ${height}`} role="img" aria-label={`${METRICS[metric].label}, de 2006 à 2026`}>
-        <line x1="16" x2="902" y1="71" y2="71" />
-        <polyline points={points} />
-        {NATIONAL_DATA.map((item, index) => (
-          <circle
-            key={item.year}
-            cx={x(index)}
-            cy={y(item[metric])}
-            r={item.year === selectedYear ? 6.5 : 4}
-            className={item.year === selectedYear ? "is-selected" : ""}
-            onClick={() => onSelect(item.year)}
-            onKeyDown={(event) => {
-              if (event.key === "Enter" || event.key === " ") onSelect(item.year);
-            }}
-            role="button"
-            tabIndex={0}
-            aria-label={`${item.year} : ${formatValue(item[metric], metric)}`}
-          />
-        ))}
-        <text x="16" y="87">2006</text>
-        <text x="902" y="87" textAnchor="end">2026</text>
-      </svg>
-    </div>
-  );
-}
-
 export function ForestFiresDataviz() {
   const [year, setYear] = useState(2026);
   const [metric, setMetric] = useState<Metric>("burnedArea");
   const [features, setFeatures] = useState<DepartmentFeature[]>([]);
-  const [selectedCode, setSelectedCode] = useState("33");
+  const [selectedCode, setSelectedCode] = useState<string | null>(null);
+  const overviewRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     let active = true;
@@ -186,6 +140,45 @@ export function ForestFiresDataviz() {
     };
   }, []);
 
+  useEffect(() => {
+    let disposed = false;
+    let context: {revert: () => void} | undefined;
+
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+    void Promise.all([import("gsap"), import("gsap/ScrollTrigger")]).then(
+      ([gsapModule, scrollTriggerModule]) => {
+        if (disposed || !overviewRef.current) return;
+        const gsap = gsapModule.gsap;
+        const ScrollTrigger = scrollTriggerModule.ScrollTrigger;
+        gsap.registerPlugin(ScrollTrigger);
+        context = gsap.context(() => {
+          gsap.fromTo(
+            "[data-animate-number]",
+            {scale: 0.5, opacity: 0.45, transformOrigin: "left center"},
+            {
+              scale: 1,
+              opacity: 1,
+              duration: 0.85,
+              stagger: 0.1,
+              ease: "power3.out",
+              scrollTrigger: {
+                trigger: overviewRef.current,
+                start: "top 88%",
+                once: true,
+              },
+            },
+          );
+        }, overviewRef);
+      },
+    );
+
+    return () => {
+      disposed = true;
+      context?.revert();
+    };
+  }, []);
+
   const selectedNational =
     NATIONAL_DATA.find((item) => item.year === year) ?? NATIONAL_DATA[NATIONAL_DATA.length - 1];
   const departmentRows = useMemo(
@@ -197,8 +190,9 @@ export function ForestFiresDataviz() {
     [features, metric, year],
   );
   const metricValues = departmentRows.map((row) => row.value);
-  const selectedDepartment =
-    departmentRows.find((row) => row.code === selectedCode) ?? departmentRows[0];
+  const selectedDepartment = selectedCode
+    ? departmentRows.find((row) => row.code === selectedCode)
+    : undefined;
   const selectedRank = departmentRows.findIndex((row) => row.code === selectedDepartment?.code) + 1;
 
   return (
@@ -214,17 +208,17 @@ export function ForestFiresDataviz() {
           <p className="kicker">FEUX DE FORÊT · FRANCE MÉTROPOLITAINE · 2006—2026</p>
           <h1 id="fire-title">Quand la France <em>prend feu</em></h1>
           <p className="fire-deck">
-            Vingt et une années d’incendies mises en regard des températures pour comprendre
+            <strong className="fire-inline-number">21</strong> années d’incendies mises en regard des températures pour comprendre
             où les feux se concentrent — et pourquoi certaines saisons laissent une trace hors norme.
           </p>
         </div>
 
-        <div className="fire-overview" aria-label={`Données nationales pour ${year}`}>
+        <div ref={overviewRef} className="fire-overview" aria-label={`Données nationales pour ${year}`}>
           <div className="fire-overview-year">
             <span>Année observée</span>
             <div className="fire-year-control">
               <button type="button" onClick={() => setYear(Math.max(2006, year - 1))} disabled={year === 2006} aria-label="Année précédente">←</button>
-              <strong>{year}</strong>
+              <strong data-animate-number>{year}</strong>
               <button type="button" onClick={() => setYear(Math.min(2026, year + 1))} disabled={year === 2026} aria-label="Année suivante">→</button>
             </div>
             {year === 2026 && <small>Provisoire</small>}
@@ -238,7 +232,7 @@ export function ForestFiresDataviz() {
               onClick={() => setMetric(key)}
             >
               <span>{METRICS[key].label}</span>
-              <strong>{formatValue(selectedNational[key], key)}</strong>
+              <strong data-animate-number>{formatValue(selectedNational[key], key)}</strong>
             </button>
           ))}
         </div>
@@ -275,15 +269,17 @@ export function ForestFiresDataviz() {
           </div>
 
           <aside className="fire-map-aside" aria-live="polite">
-            <p className="kicker">{METRICS[metric].label.toUpperCase()} · {year}</p>
-            <p className="fire-aside-intro">Sélectionnez un département pour suivre sa position dans le classement national.</p>
-
-            {selectedDepartment && (
+            {selectedDepartment ? (
               <div className="fire-department-focus">
                 <span>Département sélectionné</span>
                 <h3>{selectedDepartment.name}</h3>
                 <strong>{formatValue(selectedDepartment.value, metric)}</strong>
                 <p>{selectedRank}<sup>e</sup> département sur {departmentRows.length} pour cet indicateur.</p>
+              </div>
+            ) : (
+              <div className="fire-empty-detail">
+                <span>Détail départemental</span>
+                <p>Sélectionnez un département sur la carte pour voir le détail.</p>
               </div>
             )}
 
@@ -305,40 +301,6 @@ export function ForestFiresDataviz() {
               Valeurs de démonstration. Les données 2026 devront être accompagnées de leur date d’arrêté.
             </div>
           </aside>
-        </div>
-      </section>
-
-      <section className="fire-national" id="chronologie">
-        <div className="fire-section-heading">
-          <p className="kicker">02 · LE TEMPS</p>
-          <h2>Une saison ne ressemble<br />jamais tout à fait à une autre.</h2>
-          <p>
-            Les surfaces brûlées varient beaucoup plus brutalement que le nombre de départs.
-            Sélectionnez une année pour la situer dans l’ensemble de la période.
-          </p>
-        </div>
-        <div className="fire-timelines">
-          <MiniTimeline metric="fireCount" selectedYear={year} onSelect={setYear} />
-          <MiniTimeline metric="burnedArea" selectedYear={year} onSelect={setYear} />
-          <MiniTimeline metric="temperature" selectedYear={year} onSelect={setYear} />
-        </div>
-      </section>
-
-      <section className="fire-local">
-        <div className="fire-section-heading">
-          <p className="kicker">03 · LE RECUL</p>
-          <h2>Comparer sans conclure trop vite.</h2>
-        </div>
-        <div className="fire-local-grid">
-          <p>
-            Une année chaude n’est pas automatiquement une année de grands incendies.
-            Vent, sécheresse, végétation, usages du sol et interventions humaines façonnent
-            également chaque épisode.
-          </p>
-          <blockquote>
-            La mise en regard montre des évolutions communes. Elle ne suffit pas,
-            à elle seule, à établir une relation de cause à effet.
-          </blockquote>
         </div>
       </section>
 
