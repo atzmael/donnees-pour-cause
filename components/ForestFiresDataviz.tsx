@@ -77,7 +77,21 @@ function formatValue(value: number, metric: Metric) {
   return `${Math.round(value).toLocaleString("fr-FR")} ${METRICS[metric].unit}`;
 }
 
-function AnimatedMetricValue({value, metric}: {value: number | null; metric: Metric}) {
+function formatAnimatedValue(value: number, metric?: Metric) {
+  return metric
+    ? formatValue(value, metric)
+    : Math.round(value).toLocaleString("fr-FR", {useGrouping: false});
+}
+
+function AnimatedNumberValue({
+  value,
+  startValue,
+  metric,
+}: {
+  value: number | null;
+  startValue: number;
+  metric?: Metric;
+}) {
   const valueRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
@@ -85,7 +99,7 @@ function AnimatedMetricValue({value, metric}: {value: number | null; metric: Met
     if (!element || value === null) return;
 
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      element.textContent = formatValue(value, metric);
+      element.textContent = formatAnimatedValue(value, metric);
       return;
     }
 
@@ -96,7 +110,7 @@ function AnimatedMetricValue({value, metric}: {value: number | null; metric: Met
         if (disposed || !valueRef.current) return;
         const gsap = gsapModule.gsap;
         const ScrollTrigger = scrollTriggerModule.ScrollTrigger;
-        const counter = {value: value * 0.5};
+        const counter = {value: startValue};
         gsap.registerPlugin(ScrollTrigger);
         const tween = gsap.to(counter, {
           value,
@@ -104,13 +118,13 @@ function AnimatedMetricValue({value, metric}: {value: number | null; metric: Met
           ease: "power3.out",
           paused: true,
           onStart: () => {
-            if (valueRef.current) valueRef.current.textContent = formatValue(value * 0.5, metric);
+            if (valueRef.current) valueRef.current.textContent = formatAnimatedValue(startValue, metric);
           },
           onUpdate: () => {
-            if (valueRef.current) valueRef.current.textContent = formatValue(counter.value, metric);
+            if (valueRef.current) valueRef.current.textContent = formatAnimatedValue(counter.value, metric);
           },
           onComplete: () => {
-            if (valueRef.current) valueRef.current.textContent = formatValue(value, metric);
+            if (valueRef.current) valueRef.current.textContent = formatAnimatedValue(value, metric);
           },
         });
         const trigger = ScrollTrigger.create({
@@ -130,11 +144,11 @@ function AnimatedMetricValue({value, metric}: {value: number | null; metric: Met
       disposed = true;
       cleanup?.();
     };
-  }, [metric, value]);
+  }, [metric, startValue, value]);
 
   return (
     <strong ref={valueRef}>
-      {value === null ? "Pas de données" : formatValue(value, metric)}
+      {value === null ? "Pas de données" : formatAnimatedValue(value, metric)}
     </strong>
   );
 }
@@ -296,7 +310,7 @@ export function ForestFiresDataviz() {
             <span>Année observée</span>
             <div className="fire-year-control">
               <button type="button" onClick={() => selectYear(Math.max(earliestAvailableYear, year - 1))} disabled={year === earliestAvailableYear} aria-label="Année précédente">←</button>
-              <strong>{year}</strong>
+              <AnimatedNumberValue value={year} startValue={earliestAvailableYear} />
               <button type="button" onClick={() => selectYear(Math.min(currentYear, year + 1))} disabled={year === currentYear} aria-label="Année suivante">→</button>
             </div>
             {year === currentYear && <small>{hasDataForYear ? "EFFIS · Provisoire" : "Données insuffisantes"}</small>}
@@ -321,13 +335,14 @@ export function ForestFiresDataviz() {
                 {METRICS[key].label}
                 <i aria-hidden="true">?</i>
               </span>
-              <AnimatedMetricValue
+              <AnimatedNumberValue
                 metric={key}
                 value={
                   !selectedNational || (key === "fireCount" && selectedNational.source === "EFFIS")
                     ? null
                     : selectedNational[key]
                 }
+                startValue={selectedNational ? selectedNational[key] * 0.5 : 0}
               />
               <span
                 className="fire-metric-tooltip"
