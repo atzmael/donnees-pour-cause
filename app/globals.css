@@ -254,6 +254,7 @@ em { color: var(--color-primary); font-style: normal; }
   --fire-hot: #d4663f;
   --fire-cool: #ced9cf;
   --fire-map-low: #e8dfd0;
+  --fire-selection-halo: #fff8ea;
   min-height: 100vh;
   overflow: hidden;
   background: var(--fire-paper);
@@ -723,9 +724,13 @@ em { color: var(--color-primary); font-style: normal; }
   stroke: var(--fire-hot);
   stroke-width: 3.2;
 }
+.fire-map-wrap .fire-map-outlines path.is-selected-halo {
+  stroke: var(--fire-selection-halo);
+  stroke-width: 7;
+}
 .fire-map-wrap .fire-map-outlines path.is-selected {
   stroke: var(--fire-burn);
-  stroke-width: 3.5;
+  stroke-width: 3.3;
 }
 .fire-map-loading { color: color-mix(in srgb, var(--fire-ink) 55%, transparent); }
 .fire-year-unavailable {

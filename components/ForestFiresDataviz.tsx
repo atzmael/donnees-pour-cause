@@ -96,15 +96,15 @@ function AnimatedMetricValue({value, metric}: {value: number | null; metric: Met
         if (disposed || !valueRef.current) return;
         const gsap = gsapModule.gsap;
         const ScrollTrigger = scrollTriggerModule.ScrollTrigger;
-        const counter = {value: 0};
+        const counter = {value: value * 0.5};
         gsap.registerPlugin(ScrollTrigger);
         const tween = gsap.to(counter, {
           value,
-          duration: 1.15,
-          ease: "power2.out",
+          duration: 1.9,
+          ease: "power3.out",
           paused: true,
           onStart: () => {
-            if (valueRef.current) valueRef.current.textContent = formatValue(0, metric);
+            if (valueRef.current) valueRef.current.textContent = formatValue(value * 0.5, metric);
           },
           onUpdate: () => {
             if (valueRef.current) valueRef.current.textContent = formatValue(counter.value, metric);
@@ -411,11 +411,18 @@ export function ForestFiresDataviz() {
                 })}
                 <g className="fire-map-outlines" aria-hidden="true">
                   {selectedFeature && (
-                    <path
-                      className="is-selected"
-                      d={featurePath(selectedFeature)}
-                      fill="none"
-                    />
+                    <>
+                      <path
+                        className="is-selected-halo"
+                        d={featurePath(selectedFeature)}
+                        fill="none"
+                      />
+                      <path
+                        className="is-selected"
+                        d={featurePath(selectedFeature)}
+                        fill="none"
+                      />
+                    </>
                   )}
                   {hoveredFeature && hoveredFeature.properties.code !== selectedFeature?.properties.code && (
                     <path
