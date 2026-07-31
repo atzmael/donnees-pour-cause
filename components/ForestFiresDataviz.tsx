@@ -93,12 +93,19 @@ function AnimatedNumberValue({
   metric?: Metric;
 }) {
   const valueRef = useRef<HTMLElement>(null);
+  const hasAnimatedRef = useRef(false);
 
   useEffect(() => {
     const element = valueRef.current;
     if (!element || value === null) return;
 
+    if (hasAnimatedRef.current) {
+      element.textContent = formatAnimatedValue(value, metric);
+      return;
+    }
+
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      hasAnimatedRef.current = true;
       element.textContent = formatAnimatedValue(value, metric);
       return;
     }
@@ -131,7 +138,10 @@ function AnimatedNumberValue({
           trigger: valueRef.current,
           start: "top 92%",
           once: true,
-          onEnter: () => tween.restart(),
+          onEnter: () => {
+            hasAnimatedRef.current = true;
+            tween.restart();
+          },
         });
         cleanup = () => {
           trigger.kill();
