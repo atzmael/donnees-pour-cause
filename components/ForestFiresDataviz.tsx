@@ -77,6 +77,68 @@ function formatValue(value: number, metric: Metric) {
   return `${Math.round(value).toLocaleString("fr-FR")} ${METRICS[metric].unit}`;
 }
 
+function AnimatedMetricValue({value, metric}: {value: number | null; metric: Metric}) {
+  const valueRef = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    const element = valueRef.current;
+    if (!element || value === null) return;
+
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      element.textContent = formatValue(value, metric);
+      return;
+    }
+
+    let disposed = false;
+    let cleanup: (() => void) | undefined;
+    void Promise.all([import("gsap"), import("gsap/ScrollTrigger")]).then(
+      ([gsapModule, scrollTriggerModule]) => {
+        if (disposed || !valueRef.current) return;
+        const gsap = gsapModule.gsap;
+        const ScrollTrigger = scrollTriggerModule.ScrollTrigger;
+        const counter = {value: 0};
+        gsap.registerPlugin(ScrollTrigger);
+        const tween = gsap.to(counter, {
+          value,
+          duration: 1.15,
+          ease: "power2.out",
+          paused: true,
+          onStart: () => {
+            if (valueRef.current) valueRef.current.textContent = formatValue(0, metric);
+          },
+          onUpdate: () => {
+            if (valueRef.current) valueRef.current.textContent = formatValue(counter.value, metric);
+          },
+          onComplete: () => {
+            if (valueRef.current) valueRef.current.textContent = formatValue(value, metric);
+          },
+        });
+        const trigger = ScrollTrigger.create({
+          trigger: valueRef.current,
+          start: "top 92%",
+          once: true,
+          onEnter: () => tween.restart(),
+        });
+        cleanup = () => {
+          trigger.kill();
+          tween.kill();
+        };
+      },
+    );
+
+    return () => {
+      disposed = true;
+      cleanup?.();
+    };
+  }, [metric, value]);
+
+  return (
+    <strong ref={valueRef}>
+      {value === null ? "Pas de données" : formatValue(value, metric)}
+    </strong>
+  );
+}
+
 function project([longitude, latitude]: Position): Position {
   return [((longitude + 5.6) / 15.4) * 620 + 12, ((51.3 - latitude) / 10.4) * 590 + 8];
 }
@@ -117,12 +179,10 @@ export function ForestFiresDataviz() {
   const [selectedCode, setSelectedCode] = useState<string | null>(null);
   const [hoveredCode, setHoveredCode] = useState<string | null>(null);
   const [hoveredEvolutionYear, setHoveredEvolutionYear] = useState<number | null>(null);
-  const overviewRef = useRef<HTMLDivElement>(null);
-
   useEffect(() => {
     let active = true;
     Promise.all([
-      fetch("/data/departements-detail.geojson").then((response) => response.json() as Promise<DepartmentCollection>),
+      fetch("/data/departements-1000m.geojson").then((response) => response.json() as Promise<DepartmentCollection>),
       fetch("/data/forest-fires.json").then((response) => response.json() as Promise<FireDataset>),
     ])
       .then(([collection, fireDataset]) => {
@@ -139,45 +199,6 @@ export function ForestFiresDataviz() {
       });
     return () => {
       active = false;
-    };
-  }, []);
-
-  useEffect(() => {
-    let disposed = false;
-    let context: {revert: () => void} | undefined;
-
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-
-    void Promise.all([import("gsap"), import("gsap/ScrollTrigger")]).then(
-      ([gsapModule, scrollTriggerModule]) => {
-        if (disposed || !overviewRef.current) return;
-        const gsap = gsapModule.gsap;
-        const ScrollTrigger = scrollTriggerModule.ScrollTrigger;
-        gsap.registerPlugin(ScrollTrigger);
-        context = gsap.context(() => {
-          gsap.fromTo(
-            "[data-animate-number]",
-            {scale: 0.5, opacity: 0.45, transformOrigin: "left center"},
-            {
-              scale: 1,
-              opacity: 1,
-              duration: 0.85,
-              stagger: 0.1,
-              ease: "power3.out",
-              scrollTrigger: {
-                trigger: overviewRef.current,
-                start: "top 88%",
-                once: true,
-              },
-            },
-          );
-        }, overviewRef);
-      },
-    );
-
-    return () => {
-      disposed = true;
-      context?.revert();
     };
   }, []);
 
@@ -270,12 +291,12 @@ export function ForestFiresDataviz() {
           </p>
         </div>
 
-        <div ref={overviewRef} className="fire-overview" aria-label={`Données nationales pour ${year}`}>
+        <div className="fire-overview" aria-label={`Données nationales pour ${year}`}>
           <div className="fire-overview-year">
             <span>Année observée</span>
             <div className="fire-year-control">
               <button type="button" onClick={() => selectYear(Math.max(earliestAvailableYear, year - 1))} disabled={year === earliestAvailableYear} aria-label="Année précédente">←</button>
-              <strong data-animate-number>{year}</strong>
+              <strong>{year}</strong>
               <button type="button" onClick={() => selectYear(Math.min(currentYear, year + 1))} disabled={year === currentYear} aria-label="Année suivante">→</button>
             </div>
             {year === currentYear && <small>{hasDataForYear ? "EFFIS · Provisoire" : "Données insuffisantes"}</small>}
@@ -300,13 +321,14 @@ export function ForestFiresDataviz() {
                 {METRICS[key].label}
                 <i aria-hidden="true">?</i>
               </span>
-              <strong data-animate-number>
-                {key === "fireCount" && selectedNational?.source === "EFFIS"
-                  ? "Pas de données"
-                  : selectedNational
-                    ? formatValue(selectedNational[key], key)
-                    : "—"}
-              </strong>
+              <AnimatedMetricValue
+                metric={key}
+                value={
+                  !selectedNational || (key === "fireCount" && selectedNational.source === "EFFIS")
+                    ? null
+                    : selectedNational[key]
+                }
+              />
               <span
                 className="fire-metric-tooltip"
                 id={`fire-metric-help-${key}`}
@@ -373,10 +395,11 @@ export function ForestFiresDataviz() {
                 {features.map((feature) => {
                   const value = departmentValue(selectedNational, feature.properties.code, metric);
                   const hovered = hoveredCode === feature.properties.code;
+                  const selected = selectedCode === feature.properties.code;
                   const baseColor = colorFor(value, metricValues);
                   return (
                     <path key={feature.properties.code} d={featurePath(feature)}
-                      fill={hovered ? `color-mix(in srgb, ${baseColor} 68%, var(--fire-burn))` : baseColor}
+                      fill={hovered || selected ? `color-mix(in srgb, ${baseColor} 68%, var(--fire-burn))` : baseColor}
                       onClick={() => setSelectedCode(feature.properties.code)}
                       onMouseEnter={() => setHoveredCode(feature.properties.code)}
                       onMouseLeave={() => setHoveredCode(null)}

@@ -724,7 +724,7 @@ em { color: var(--color-primary); font-style: normal; }
   stroke-width: 3.2;
 }
 .fire-map-wrap .fire-map-outlines path.is-selected {
-  stroke: var(--fire-ink);
+  stroke: var(--fire-burn);
   stroke-width: 3.5;
 }
 .fire-map-loading { color: color-mix(in srgb, var(--fire-ink) 55%, transparent); }
