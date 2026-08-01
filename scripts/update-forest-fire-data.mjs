@@ -2,6 +2,7 @@ import {execFileSync} from "node:child_process";
 import {mkdtempSync, readFileSync, rmSync, writeFileSync} from "node:fs";
 import {tmpdir} from "node:os";
 import {join} from "node:path";
+import {fileURLToPath} from "node:url";
 
 const START_YEAR = 2006;
 const currentYear = new Date().getFullYear();
@@ -12,9 +13,18 @@ const heatwaveDataset = JSON.parse(
 const workspace = mkdtempSync(join(tmpdir(), "forest-fire-data-"));
 const outputPath = new URL("../public/data/forest-fires.json", import.meta.url);
 const departmentsPath = new URL("../public/data/departements-detail.geojson", import.meta.url);
+// BD Diff omits its issuing intermediate certificate. Keep verification enabled
+// with the official HARICA intermediate + root bundle instead of using curl -k.
+const bdiffCaPath = fileURLToPath(
+  new URL("../certs/harica-geant-tls-chain.pem", import.meta.url),
+);
 
-function curl(args) {
-  execFileSync("curl", ["-L", "--fail", "--silent", "--show-error", ...args], {stdio: "inherit"});
+function curl(args, {caPath} = {}) {
+  execFileSync(
+    "curl",
+    ["-L", "--fail", "--silent", "--show-error", ...(caPath ? ["--cacert", caPath] : []), ...args],
+    {stdio: "inherit"},
+  );
 }
 
 function parseDelimited(text, delimiter = ";") {
@@ -120,13 +130,13 @@ for (let year = START_YEAR; year <= lastConsolidatedYear; year += 1) {
     "--data-urlencode", "if[submit]=",
     "https://bdiff.agriculture.gouv.fr/incendies",
     "-o", pagePath,
-  ]);
+  ], {caPath: bdiffCaPath});
   curl([
     "-c", cookiePath,
     "-b", cookiePath,
     "https://bdiff.agriculture.gouv.fr/incendies/zip",
     "-o", zipPath,
-  ]);
+  ], {caPath: bdiffCaPath});
 
   const csv = execFileSync("unzip", ["-p", zipPath, "Incendies.csv"], {encoding: "utf8"});
   const rows = parseDelimited(csv);
