@@ -393,9 +393,15 @@ em { color: var(--color-primary); font-style: normal; }
   aspect-ratio: 1;
   border: 1px solid currentColor;
   border-radius: 50%;
-  font-size: 9px;
+  font-size: 0;
   font-style: normal;
   line-height: 1;
+}
+.fire-metric-label i::before {
+  content: "?";
+  font-size: 9px;
+  line-height: 1;
+  transform: translateY(-.5px);
 }
 .fire-overview-stat .fire-metric-tooltip {
   position: absolute;
