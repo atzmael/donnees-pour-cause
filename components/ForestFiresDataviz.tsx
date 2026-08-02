@@ -625,24 +625,6 @@ export function ForestFiresDataviz() {
                 </label>
               </div>
             </div>
-            <div className="fire-evolution-comparison" aria-live="polite">
-              <span>{copy.synced} · {comparisonYear}</span>
-              {evolutionMetrics.map((key) => (
-                <strong
-                  key={key}
-                  title={key === "populationExposure" && populationExposure?.years[String(comparisonYear)]?.documentedImpact
-                    ? populationExposure.years[String(comparisonYear)].documentedImpact?.note
-                    : undefined}
-                >
-                  {metrics[key].label}{" "}
-                  <em>
-                    {nationalMetricValue(key, comparisonYear) === null
-                      ? copy.noData
-                      : formatMetricValue(nationalMetricValue(key, comparisonYear)!, key)}
-                  </em>
-                </strong>
-              ))}
-            </div>
             <div
               className="fire-evolution-charts"
               onPointerLeave={() => setHoveredEvolutionYear(null)}
