@@ -24,11 +24,13 @@ concurrency:
 jobs:
   update:
     runs-on: ubuntu-latest
+    env:
+      TARGET_BRANCH: ${{ github.event_name == 'workflow_dispatch' && inputs.target_branch || 'main' }}
     steps:
       - name: Récupérer la branche cible
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.event_name == 'workflow_dispatch' && inputs.target_branch || 'preprod' }}
+          ref: ${{ env.TARGET_BRANCH }}
 
       - name: Installer Node
         uses: actions/setup-node@v4
@@ -54,4 +56,4 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add public/data/forest-fires.json public/data/population-exposure.json
           git commit -m "data: actualise les feux de forêt"
-          git push origin HEAD:${{ github.event_name == 'workflow_dispatch' && inputs.target_branch || 'preprod' }}
+          git push origin HEAD:${TARGET_BRANCH}
