@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Image from "next/image";
-import {useTranslations} from "next-intl";
+import {useLocale, useTranslations} from "next-intl";
 import { Button, Card } from "@/components/ui";
 import { SiteFooter } from "@/components/SiteFooter";
 import {LocaleSwitcher} from "@/components/LocaleSwitcher";
@@ -13,6 +13,7 @@ const filters = ["all", "tools", "dataviz"] as const;
 
 export default function Home() {
   const t = useTranslations("Home");
+  const locale = useLocale() as "fr" | "en";
   const [filter, setFilter] = useState<(typeof filters)[number]>("all");
   const visibleProjects = filter === "all"
     ? projects
@@ -24,7 +25,7 @@ export default function Home() {
     <main>
       <header className="site-header">
         <Brand />
-        <nav aria-label="Navigation principale">
+        <nav aria-label={t("navigationLabel")}>
           <a href="#projets">{t("projects")}</a>
           <a href="#a-propos">{t("about")}</a>
         </nav>
@@ -91,7 +92,7 @@ export default function Home() {
                 {project.socialImage ? (
                   <Image
                     src={project.socialImage}
-                    alt=""
+                    alt={project.title[locale]}
                     fill
                     sizes="(max-width: 680px) 100vw, 38vw"
                   />
@@ -105,13 +106,13 @@ export default function Home() {
                 )}
               </div>
               <div className="project-copy">
-                <div className="project-modules" aria-label={`Type : ${project.modules.join(" et ")}`}>
-                  {project.modules.map((module) => <span key={module}>{module}</span>)}
+                <div className="project-modules" aria-label={`${t("typeLabel")} : ${project.modules.join(", ")}`}>
+                  {project.modules.map((module) => <span key={module}>{locale === "en" && module === "Outil" ? "Tool" : module}</span>)}
                 </div>
-                <div className="project-meta"><span>{project.format}</span><span>{project.year}</span></div>
-                <h3>{project.title}</h3>
-                <p>{project.description}</p>
-                <div className="project-tags">{project.tags.map((tag) => <span key={tag}>{tag}</span>)}</div>
+                <div className="project-meta"><span>{project.format[locale]}</span><span>{project.year}</span></div>
+                <h3>{project.title[locale]}</h3>
+                <p>{project.description[locale]}</p>
+                <div className="project-tags">{project.tags[locale].map((tag) => <span key={tag}>{tag}</span>)}</div>
               </div>
               <span className="project-arrow">↗</span>
             </Card>

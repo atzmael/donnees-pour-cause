@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import {useEffect, useMemo, useRef, useState} from "react";
+import {useLocale} from "next-intl";
 import {Brand} from "@/components/Brand";
 import {SiteFooter} from "@/components/SiteFooter";
 
@@ -43,23 +44,62 @@ type FireDataset = {
 
 const FALLBACK_EARLIEST_YEAR = 2006;
 
-const METRICS: Record<Metric, {label: string; unit: string; description: string}> = {
-  burnedArea: {
-    label: "Surface brûlée",
-    unit: "ha",
-    description: "Surface totale parcourue par les incendies recensés pendant l’année, exprimée en hectares.",
+const COPY = {
+  fr: {
+    back: "← Tous les projets", meta: "Dataviz · Cartographie · Données publiques",
+    kicker: "FEUX DE FORÊT · FRANCE MÉTROPOLITAINE", titleStart: "Quand la France", titleEmphasis: "prend feu",
+    deck: "années d’incendies cartographiées pour comprendre où les feux se concentrent — et pourquoi certaines saisons laissent une trace hors norme.",
+    observedYear: "Année observée", previousYear: "Année précédente", nextYear: "Année suivante",
+    provisional: "EFFIS · Provisoire", insufficient: "Données insuffisantes", noData: "Pas de données",
+    unavailable: "Données indisponibles", consolidated: "données consolidées", provisionalData: "données provisoires",
+    cutoff: "données arrêtées au", importDate: "import du", heatwaveFreshness: "Météo-France · vagues de chaleur nationales",
+    observed: "observées", provisionalPlural: "provisoires", viewLabel: "Vue de la dataviz", map: "Carte", evolution: "Évolution",
+    yearUnavailable: "Nous n’avons pas encore assez de données pour cette année, merci de sélectionner une année antérieure.",
+    seeYear: "Voir", loading: "Chargement du fond de carte…", less: "Moins", more: "Plus",
+    chooseDepartment: "Choisir un département", select: "Sélectionner…", selectedDepartment: "Département sélectionné",
+    rank: "département sur {count} pour cet indicateur.", detail: "Détail départemental",
+    selectDetail: "Sélectionnez un département sur la carte pour voir le détail.", mostAffected: "Les plus touchés",
+    effisNote: "Estimation satellitaire provisoire EFFIS, susceptible d’évoluer avec les nouveaux périmètres détectés.",
+    effisCountNote: "EFFIS publie des périmètres brûlés satellitaires, mais pas un décompte de feux directement comparable à celui de la BDIFF. Cette valeur n’est donc pas affichée pour l’année en cours.",
+    bdiffNote: "Incendies consolidés par la Base de données sur les incendies de forêt en France.",
+    nationalEvolution: "Évolution nationale", chartHelp: "Chaque courbe utilise sa propre échelle. Survolez-les pour comparer une même année, ou utilisez le curseur au clavier et sur mobile.",
+    comparedYear: "Année comparée", synced: "Lecture synchronisée", sources: "SOURCES & MÉTHODE",
+    methodTitle: "Une première structure, avec des données traçables.",
+    method: "Les années 2006 à {year} sont calculées depuis les incendies publiés par la BDIFF. L’année {currentYear} repose sur les périmètres satellitaires EFFIS disponibles au moment de la mise à jour. Les deux sources n’ont pas le même niveau de consolidation : cette rupture est indiquée directement dans l’interface. Les jours de canicule correspondent aux vagues de chaleur nationales identifiées par Météo-France ; leur rapprochement avec les incendies décrit une corrélation et non un lien de causalité.",
+    metrics: {
+      burnedArea: {label: "Surface brûlée", unit: "ha", description: "Surface totale parcourue par les incendies recensés pendant l’année, exprimée en hectares."},
+      fireCount: {label: "Nombre de feux", unit: "feux", description: "Nombre total d’incendies recensés pendant l’année, quelle que soit leur surface."},
+      heatwaveDays: {label: "Jours en vague de chaleur", unit: "jours", description: "Nombre de jours appartenant à une vague de chaleur nationale selon l’indicateur thermique de Météo-France. La mise en regard avec les incendies montre une corrélation, pas une causalité."},
+    },
   },
-  fireCount: {
-    label: "Nombre de feux",
-    unit: "feux",
-    description: "Nombre total d’incendies recensés pendant l’année, quelle que soit leur surface.",
+  en: {
+    back: "← All projects", meta: "Dataviz · Mapping · Open data",
+    kicker: "WILDFIRES · METROPOLITAN FRANCE", titleStart: "When France", titleEmphasis: "catches fire",
+    deck: "years of mapped wildfires reveal where fires concentrate — and why some seasons leave an exceptional mark.",
+    observedYear: "Observed year", previousYear: "Previous year", nextYear: "Next year",
+    provisional: "EFFIS · Provisional", insufficient: "Insufficient data", noData: "No data",
+    unavailable: "Data unavailable", consolidated: "consolidated data", provisionalData: "provisional data",
+    cutoff: "data through", importDate: "imported on", heatwaveFreshness: "Météo-France · national heatwaves",
+    observed: "observed", provisionalPlural: "provisional", viewLabel: "Visualization view", map: "Map", evolution: "Trends",
+    yearUnavailable: "We do not have enough data for this year yet. Please select an earlier year.",
+    seeYear: "View", loading: "Loading map…", less: "Less", more: "More",
+    chooseDepartment: "Choose a department", select: "Select…", selectedDepartment: "Selected department",
+    rank: "department out of {count} for this indicator.", detail: "Department details",
+    selectDetail: "Select a department on the map to view its details.", mostAffected: "Most affected",
+    effisNote: "Provisional EFFIS satellite estimate, subject to change as new perimeters are detected.",
+    effisCountNote: "EFFIS publishes satellite-derived burned perimeters, but not a fire count directly comparable with BDIFF. This value is therefore not shown for the current year.",
+    bdiffNote: "Wildfires consolidated by the French forest fire database.",
+    nationalEvolution: "National trends", chartHelp: "Each line uses its own scale. Hover to compare the same year, or use the slider with a keyboard or on mobile.",
+    comparedYear: "Compared year", synced: "Synchronized reading", sources: "SOURCES & METHOD",
+    methodTitle: "An initial framework built on traceable data.",
+    method: "The years 2006 to {year} are calculated from wildfires published by BDIFF. The year {currentYear} is based on EFFIS satellite perimeters available when the data was updated. These sources have different consolidation levels, and this break is shown directly in the interface. Heatwave days are based on national heatwaves identified by Météo-France; comparing them with wildfires describes correlation, not causation.",
+    metrics: {
+      burnedArea: {label: "Burned area", unit: "ha", description: "Total area affected by recorded wildfires during the year, in hectares."},
+      fireCount: {label: "Number of fires", unit: "fires", description: "Total number of recorded wildfires during the year, regardless of their area."},
+      heatwaveDays: {label: "Heatwave days", unit: "days", description: "Days within a national heatwave according to Météo-France’s thermal indicator. Comparison with wildfires shows correlation, not causation."},
+    },
   },
-  heatwaveDays: {
-    label: "Jours en vague de chaleur",
-    unit: "jours",
-    description: "Nombre de jours appartenant à une vague de chaleur nationale selon l’indicateur thermique de Météo-France. La mise en regard avec les incendies montre une corrélation, pas une causalité.",
-  },
-};
+} as const;
 
 const METROPOLITAN_CODES = new Set([
   ...Array.from({length: 19}, (_, index) => String(index + 1).padStart(2, "0")),
@@ -73,24 +113,30 @@ function departmentValue(yearData: FireYearData | undefined, code: string, metri
   return yearData.departments[code]?.[metric] ?? 0;
 }
 
-function formatValue(value: number, metric: Metric) {
-  return `${Math.round(value).toLocaleString("fr-FR")} ${METRICS[metric].unit}`;
+function formatValue(value: number, metric: Metric, locale: "fr" | "en", metrics: typeof COPY.fr.metrics | typeof COPY.en.metrics) {
+  return `${Math.round(value).toLocaleString(locale === "fr" ? "fr-FR" : "en-GB")} ${metrics[metric].unit}`;
 }
 
-function formatAnimatedValue(value: number, metric?: Metric) {
+function formatAnimatedValue(value: number, locale: "fr" | "en", metrics: typeof COPY.fr.metrics | typeof COPY.en.metrics, metric?: Metric) {
   return metric
-    ? formatValue(value, metric)
-    : Math.round(value).toLocaleString("fr-FR", {useGrouping: false});
+    ? formatValue(value, metric, locale, metrics)
+    : Math.round(value).toLocaleString(locale === "fr" ? "fr-FR" : "en-GB", {useGrouping: false});
 }
 
 function AnimatedNumberValue({
   value,
   startValue,
   metric,
+  locale,
+  metrics,
+  noData,
 }: {
   value: number | null;
   startValue: number;
   metric?: Metric;
+  locale: "fr" | "en";
+  metrics: typeof COPY.fr.metrics | typeof COPY.en.metrics;
+  noData: string;
 }) {
   const valueRef = useRef<HTMLElement>(null);
   const hasAnimatedRef = useRef(false);
@@ -100,13 +146,13 @@ function AnimatedNumberValue({
     if (!element || value === null) return;
 
     if (hasAnimatedRef.current) {
-      element.textContent = formatAnimatedValue(value, metric);
+      element.textContent = formatAnimatedValue(value, locale, metrics, metric);
       return;
     }
 
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
       hasAnimatedRef.current = true;
-      element.textContent = formatAnimatedValue(value, metric);
+      element.textContent = formatAnimatedValue(value, locale, metrics, metric);
       return;
     }
 
@@ -125,13 +171,13 @@ function AnimatedNumberValue({
           ease: "power3.out",
           paused: true,
           onStart: () => {
-            if (valueRef.current) valueRef.current.textContent = formatAnimatedValue(startValue, metric);
+            if (valueRef.current) valueRef.current.textContent = formatAnimatedValue(startValue, locale, metrics, metric);
           },
           onUpdate: () => {
-            if (valueRef.current) valueRef.current.textContent = formatAnimatedValue(counter.value, metric);
+            if (valueRef.current) valueRef.current.textContent = formatAnimatedValue(counter.value, locale, metrics, metric);
           },
           onComplete: () => {
-            if (valueRef.current) valueRef.current.textContent = formatAnimatedValue(value, metric);
+            if (valueRef.current) valueRef.current.textContent = formatAnimatedValue(value, locale, metrics, metric);
           },
         });
         const trigger = ScrollTrigger.create({
@@ -154,11 +200,11 @@ function AnimatedNumberValue({
       disposed = true;
       cleanup?.();
     };
-  }, [metric, startValue, value]);
+  }, [locale, metric, metrics, startValue, value]);
 
   return (
     <strong ref={valueRef}>
-      {value === null ? "Pas de données" : formatAnimatedValue(value, metric)}
+      {value === null ? noData : formatAnimatedValue(value, locale, metrics, metric)}
     </strong>
   );
 }
@@ -194,6 +240,10 @@ function colorFor(value: number, values: number[]) {
 }
 
 export function ForestFiresDataviz() {
+  const locale = useLocale() as "fr" | "en";
+  const copy = COPY[locale];
+  const metrics = copy.metrics;
+  const formatMetricValue = (value: number, metric: Metric) => formatValue(value, metric, locale, metrics);
   const currentYear = new Date().getFullYear();
   const [year, setYear] = useState(() => new Date().getFullYear());
   const [metric, setMetric] = useState<Metric>("burnedArea");
@@ -294,38 +344,37 @@ export function ForestFiresDataviz() {
     const parsed = new Date(value);
     return Number.isNaN(parsed.getTime())
       ? value
-      : parsed.toLocaleDateString("fr-FR", {dateStyle: "long"});
+      : parsed.toLocaleDateString(locale === "fr" ? "fr-FR" : "en-GB", {dateStyle: "long"});
   };
 
   return (
     <main className="fire-story">
       <header className="story-header fire-header">
         <Brand />
-        <Link className="back-link" href="/">← Tous les projets</Link>
-        <span>Dataviz · Cartographie · Données publiques</span>
+        <Link className="back-link" href="/">{copy.back}</Link>
+        <span>{copy.meta}</span>
       </header>
 
       <section className="fire-opening" id="carte" aria-labelledby="fire-title">
         <div className="fire-opening-copy">
-          <p className="kicker">FEUX DE FORÊT · FRANCE MÉTROPOLITAINE · {earliestAvailableYear}—{currentYear}</p>
-          <h1 id="fire-title">Quand la France <em>prend feu</em></h1>
+          <p className="kicker">{copy.kicker} · {earliestAvailableYear}—{currentYear}</p>
+          <h1 id="fire-title">{copy.titleStart} <em>{copy.titleEmphasis}</em></h1>
           <p className="fire-deck">
-            <strong className="fire-inline-number">{currentYear - earliestAvailableYear + 1}</strong> années d’incendies cartographiées pour comprendre
-            où les feux se concentrent — et pourquoi certaines saisons laissent une trace hors norme.
+            <strong className="fire-inline-number">{currentYear - earliestAvailableYear + 1}</strong> {copy.deck}
           </p>
         </div>
 
-        <div className="fire-overview" aria-label={`Données nationales pour ${year}`}>
+        <div className="fire-overview" aria-label={`${copy.observedYear} · ${year}`}>
           <div className="fire-overview-year">
-            <span>Année observée</span>
+            <span>{copy.observedYear}</span>
             <div className="fire-year-control">
-              <button type="button" onClick={() => selectYear(Math.max(earliestAvailableYear, year - 1))} disabled={year === earliestAvailableYear} aria-label="Année précédente">←</button>
-              <AnimatedNumberValue value={year} startValue={earliestAvailableYear} />
-              <button type="button" onClick={() => selectYear(Math.min(currentYear, year + 1))} disabled={year === currentYear} aria-label="Année suivante">→</button>
+              <button type="button" onClick={() => selectYear(Math.max(earliestAvailableYear, year - 1))} disabled={year === earliestAvailableYear} aria-label={copy.previousYear}>←</button>
+              <AnimatedNumberValue value={year} startValue={earliestAvailableYear} locale={locale} metrics={metrics} noData={copy.noData} />
+              <button type="button" onClick={() => selectYear(Math.min(currentYear, year + 1))} disabled={year === currentYear} aria-label={copy.nextYear}>→</button>
             </div>
-            {year === currentYear && <small>{hasDataForYear ? "EFFIS · Provisoire" : "Données insuffisantes"}</small>}
+            {year === currentYear && <small>{hasDataForYear ? copy.provisional : copy.insufficient}</small>}
           </div>
-          {(Object.keys(METRICS) as Metric[]).map((key) => (
+          {(Object.keys(metrics) as Metric[]).map((key) => (
             <button
               key={key}
               type="button"
@@ -343,7 +392,7 @@ export function ForestFiresDataviz() {
               }}
             >
               <span className="fire-metric-label">
-                {METRICS[key].label}
+                {metrics[key].label}
                 <i aria-hidden="true">?</i>
               </span>
               <AnimatedNumberValue
@@ -354,6 +403,9 @@ export function ForestFiresDataviz() {
                     : selectedNational[key]
                 }
                 startValue={selectedNational ? selectedNational[key] * 0.5 : 0}
+                locale={locale}
+                metrics={metrics}
+                noData={copy.noData}
               />
               <span
                 className="fire-metric-tooltip"
@@ -361,8 +413,8 @@ export function ForestFiresDataviz() {
                 role="tooltip"
               >
                 {key === "fireCount" && selectedNational?.source === "EFFIS"
-                  ? "EFFIS publie des périmètres brûlés satellitaires, mais pas un décompte de feux directement comparable à celui de la BDIFF. Cette valeur n’est donc pas affichée pour l’année en cours."
-                  : METRICS[key].description}
+                  ? copy.effisCountNote
+                  : metrics[key].description}
               </span>
             </button>
           ))}
@@ -370,16 +422,16 @@ export function ForestFiresDataviz() {
         <p className="fire-freshness">
           <i aria-hidden="true" />
           {metric === "heatwaveDays"
-            ? `Météo-France · vagues de chaleur nationales ${year === currentYear ? "provisoires" : "observées"}`
+            ? `${copy.heatwaveFreshness} ${year === currentYear ? copy.provisionalPlural : copy.observed}`
             : selectedNational
-              ? `${selectedNational.source} · ${selectedNational.status === "provisional" ? "données provisoires" : "données consolidées"}`
-              : "Données indisponibles"}
+              ? `${selectedNational.source} · ${selectedNational.status === "provisional" ? copy.provisionalData : copy.consolidated}`
+              : copy.unavailable}
           {selectedNational?.source === "EFFIS" && dataset?.effisCutoffAt
-            ? ` · données arrêtées au ${formatEffisCutoff(dataset.effisCutoffAt)}`
-            : dataset && ` · import du ${new Date(dataset.updatedAt).toLocaleString("fr-FR", {dateStyle: "long", timeStyle: "short"})}`}
+            ? ` · ${copy.cutoff} ${formatEffisCutoff(dataset.effisCutoffAt)}`
+            : dataset && ` · ${copy.importDate} ${new Date(dataset.updatedAt).toLocaleString(locale === "fr" ? "fr-FR" : "en-GB", {dateStyle: "long", timeStyle: "short"})}`}
         </p>
 
-        <div className="fire-view-tabs" role="tablist" aria-label="Vue de la dataviz">
+        <div className="fire-view-tabs" role="tablist" aria-label={copy.viewLabel}>
           <button
             id="fire-tab-map"
             type="button"
@@ -392,7 +444,7 @@ export function ForestFiresDataviz() {
               setView("map");
             }}
           >
-            Carte
+            {copy.map}
           </button>
           <button
             id="fire-tab-evolution"
@@ -403,7 +455,7 @@ export function ForestFiresDataviz() {
             className={view === "evolution" ? "is-selected" : ""}
             onClick={() => setView("evolution")}
           >
-            Évolution
+            {copy.evolution}
           </button>
         </div>
 
@@ -413,13 +465,13 @@ export function ForestFiresDataviz() {
             {!hasDataForYear ? (
               <div className="fire-year-unavailable" role="status">
                 <strong>{year}</strong>
-                <p>Nous n’avons pas encore assez de données pour l’année {year}, merci de sélectionner une année antérieure.</p>
+                <p>{copy.yearUnavailable}</p>
                 <button type="button" onClick={() => selectYear(latestAvailableYear)}>
-                  Voir {latestAvailableYear}
+                  {copy.seeYear} {latestAvailableYear}
                 </button>
               </div>
             ) : features.length ? (
-              <svg viewBox="0 0 650 620" role="img" aria-label={`Carte de ${METRICS[metric].label.toLowerCase()} par département en ${year}`}>
+              <svg viewBox="0 0 650 620" role="img" aria-label={`${metrics[metric].label} · ${year}`}>
                 {features.map((feature) => {
                   const value = departmentValue(selectedNational, feature.properties.code, metric);
                   const hovered = hoveredCode === feature.properties.code;
@@ -433,7 +485,7 @@ export function ForestFiresDataviz() {
                       onMouseLeave={() => setHoveredCode(null)}
                       aria-hidden="true"
                       tabIndex={-1}>
-                      <title>{feature.properties.nom} — {formatValue(value, metric)}</title>
+                      <title>{feature.properties.nom} — {formatMetricValue(value, metric)}</title>
                     </path>
                   );
                 })}
@@ -462,20 +514,20 @@ export function ForestFiresDataviz() {
                 </g>
               </svg>
             ) : (
-              <div className="fire-map-loading">Chargement du fond de carte…</div>
+              <div className="fire-map-loading">{copy.loading}</div>
             )}
-            {hasDataForYear && <div className="fire-legend"><span>Moins</span><i /><span>Plus</span></div>}
+            {hasDataForYear && <div className="fire-legend"><span>{copy.less}</span><i /><span>{copy.more}</span></div>}
           </div>
 
           <aside className="fire-map-aside">
             <label className="fire-department-picker" htmlFor="fire-department-select">
-              <span>Choisir un département</span>
+              <span>{copy.chooseDepartment}</span>
               <select
                 id="fire-department-select"
                 value={selectedCode ?? ""}
                 onChange={(event) => setSelectedCode(event.target.value || null)}
               >
-                <option value="">Sélectionner…</option>
+                <option value="">{copy.select}</option>
                 {[...features]
                   .sort((first, second) => first.properties.nom.localeCompare(second.properties.nom, "fr"))
                   .map((feature) => (
@@ -487,26 +539,26 @@ export function ForestFiresDataviz() {
             </label>
             {selectedDepartment ? (
               <div className="fire-department-focus" aria-live="polite">
-                <span>Département sélectionné</span>
+                <span>{copy.selectedDepartment}</span>
                 <h3>{selectedDepartment.name}</h3>
-                <strong>{formatValue(selectedDepartment.value, metric)}</strong>
-                <p>{selectedRank}<sup>e</sup> département sur {departmentRows.length} pour cet indicateur.</p>
+                <strong>{formatMetricValue(selectedDepartment.value, metric)}</strong>
+                <p>{selectedRank}<sup>{locale === "fr" ? "e" : "th"}</sup> {copy.rank.replace("{count}", String(departmentRows.length))}</p>
               </div>
             ) : (
               <div className="fire-empty-detail">
-                <span>Détail départemental</span>
-                <p>Sélectionnez un département sur la carte pour voir le détail.</p>
+                <span>{copy.detail}</span>
+                <p>{copy.selectDetail}</p>
               </div>
             )}
 
             <div className="fire-ranking">
-              <span>Les plus touchés</span>
+              <span>{copy.mostAffected}</span>
               <ol>
                 {departmentRows.slice(0, 5).map((row) => (
                   <li key={row.code}>
                     <button type="button" onClick={() => setSelectedCode(row.code)}>
                       <span>{row.name}</span>
-                      <strong>{formatValue(row.value, metric)}</strong>
+                      <strong>{formatMetricValue(row.value, metric)}</strong>
                     </button>
                   </li>
                 ))}
@@ -515,8 +567,8 @@ export function ForestFiresDataviz() {
             <div className="fire-demo-note">
               <span>{selectedNational?.source ?? "Source"}</span>
               {selectedNational?.status === "provisional"
-                ? "Estimation satellitaire provisoire EFFIS, susceptible d’évoluer avec les nouveaux périmètres détectés. Son total peut différer des bilans opérationnels en raison du délai de détection et de la méthode satellitaire."
-                : "Incendies consolidés par la Base de données sur les incendies de forêt en France."}
+                ? copy.effisNote
+                : copy.bdiffNote}
             </div>
           </aside>
           </div>
@@ -524,16 +576,15 @@ export function ForestFiresDataviz() {
           <div className="fire-evolution" id="fire-panel-evolution" role="tabpanel" aria-labelledby="fire-tab-evolution">
             <div className="fire-evolution-head">
               <div>
-                <span>Évolution nationale</span>
+                <span>{copy.nationalEvolution}</span>
                 <strong>{earliestAvailableYear}—{currentYear}</strong>
               </div>
               <div>
                 <p>
-                  Chaque courbe utilise sa propre échelle. Survolez-les pour comparer
-                  une même année, ou utilisez le curseur au clavier et sur mobile.
+                  {copy.chartHelp}
                 </p>
                 <label className="fire-evolution-scrubber" htmlFor="fire-evolution-year">
-                  <span>Année comparée</span>
+                  <span>{copy.comparedYear}</span>
                   <input
                     id="fire-evolution-year"
                     type="range"
@@ -548,16 +599,16 @@ export function ForestFiresDataviz() {
               </div>
             </div>
             <div className="fire-evolution-comparison" aria-live="polite">
-              <span>Lecture synchronisée · {comparisonYear}</span>
+              <span>{copy.synced} · {comparisonYear}</span>
               {evolutionMetrics.map((key) => (
                 <strong key={key}>
-                  {METRICS[key].label}{" "}
+                  {metrics[key].label}{" "}
                   <em>
                     {key === "fireCount" && comparisonData?.source === "EFFIS"
-                      ? "Pas de données"
+                      ? copy.noData
                       : comparisonData
-                        ? formatValue(comparisonData[key], key)
-                        : "Pas de données"}
+                        ? formatMetricValue(comparisonData[key], key)
+                        : copy.noData}
                   </em>
                 </strong>
               ))}
@@ -576,9 +627,9 @@ export function ForestFiresDataviz() {
                 return (
                   <article key={key} className={`fire-evolution-row ${metric === key ? "is-selected" : ""}`}>
                     <button type="button" onClick={() => setMetric(key)}>
-                      <span>{METRICS[key].label}</span>
+                      <span>{metrics[key].label}</span>
                       <strong>
-                        {selectedPoint ? formatValue(selectedPoint[key], key) : "Pas de données"}
+                        {selectedPoint ? formatMetricValue(selectedPoint[key], key) : copy.noData}
                       </strong>
                     </button>
                     <svg
@@ -598,7 +649,7 @@ export function ForestFiresDataviz() {
                           cy={point.y}
                           r={point.year === comparisonYear ? 6 : 3.5}
                         >
-                          <title>{point.year} — {formatValue(point[key], key)}</title>
+                          <title>{point.year} — {formatMetricValue(point[key], key)}</title>
                         </circle>
                       ))}
                       <text x="30" y="149">{earliestAvailableYear}</text>
@@ -613,49 +664,43 @@ export function ForestFiresDataviz() {
       </section>
 
       <section className="fire-method">
-        <p className="kicker">SOURCES & MÉTHODE</p>
+        <p className="kicker">{copy.sources}</p>
         <div>
-          <h2>Des données publiques,<br />documentées et actualisées.</h2>
+          <h2>{copy.methodTitle}</h2>
           <p>
-            Les années 2006 à {dataset?.latestConsolidatedYear ?? currentYear - 1} sont calculées
-            depuis les incendies publiés par la BDIFF. L’année {currentYear} repose sur les
-            périmètres satellitaires EFFIS disponibles au moment de la mise à jour.
-            Les deux sources n’ont pas le même niveau de consolidation : cette rupture est
-            indiquée directement dans l’interface. Les estimations EFFIS peuvent également
-            différer des bilans opérationnels en raison de leur méthode satellitaire et de leur
-            date d’arrêté. Les jours en vague de chaleur correspondent aux
-            vagues de chaleur nationales identifiées par Météo-France ; leur rapprochement
-            avec les incendies décrit une corrélation et non un lien de causalité.
+            {copy.method
+              .replace("{year}", String(dataset?.latestConsolidatedYear ?? currentYear - 1))
+              .replace("{currentYear}", String(currentYear))}
           </p>
           <ul className="fire-source-links">
             <li>
               <a href="https://bdiff.agriculture.gouv.fr/incendies/zip" target="_blank" rel="noreferrer">
-                BDIFF — incendies consolidés 2006–2025, export CSV ↗
+                {locale === "fr" ? "BDIFF — incendies consolidés 2006–2025, export CSV ↗" : "BDIFF — consolidated wildfires 2006–2025, CSV export ↗"}
               </a>
             </li>
             <li>
               <a href="https://forest-fire.emergency.copernicus.eu/applications/data-and-services" target="_blank" rel="noreferrer">
-                EFFIS — périmètres satellitaires provisoires 2026 ↗
+                {locale === "fr" ? "EFFIS — périmètres satellitaires provisoires 2026 ↗" : "EFFIS — provisional satellite perimeters 2026 ↗"}
               </a>
             </li>
             <li>
               <a href="https://indicateurs-snbc.developpement-durable.gouv.fr/duree-et-severite-des-vagues-de-chaleur-a8.html?lang=fr" target="_blank" rel="noreferrer">
-                Météo-France / Ministère de la Transition écologique — série 2006–2019 ↗
+                {locale === "fr" ? "Météo-France / Ministère de la Transition écologique — série 2006–2019 ↗" : "Météo-France / French Ministry for Ecological Transition — 2006–2019 series ↗"}
               </a>
             </li>
             <li>
               <a href="https://education.meteofrance.fr/le-changement-climatique/quel-climat-futur/changement-climatique-quel-impact-sur-les-vagues-de" target="_blank" rel="noreferrer">
-                Météo-France — recensement des vagues de chaleur 2020–2026 ↗
+                {locale === "fr" ? "Météo-France — recensement des vagues de chaleur 2020–2026 ↗" : "Météo-France — heatwave inventory 2020–2026 ↗"}
               </a>
             </li>
             <li>
               <a href="/data/heatwave-days.json" target="_blank" rel="noreferrer">
-                Série utilisée — valeurs et liens officiels année par année ↗
+                {locale === "fr" ? "Série utilisée — valeurs et liens officiels année par année ↗" : "Dataset used — yearly values and official links ↗"}
               </a>
             </li>
             <li>
               <a href="https://geoservices.ign.fr/adminexpress#telechargement" target="_blank" rel="noreferrer">
-                IGN ADMIN EXPRESS — limites départementales ↗
+                {locale === "fr" ? "IGN ADMIN EXPRESS — limites départementales ↗" : "IGN ADMIN EXPRESS — department boundaries ↗"}
               </a>
             </li>
           </ul>

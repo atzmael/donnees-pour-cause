@@ -16,7 +16,23 @@ export async function generateMetadata(): Promise<Metadata> {
   });
 }
 
-export default function ConfidentialitePage() {
+export default async function ConfidentialitePage() {
+  const locale = await getUserLocale();
+  if (locale === "en") {
+    return (
+      <LegalPage title="Privacy policy" description="This page describes the data that may be processed when visiting the website and the choices available to visitors.">
+        <section><h2>Data controller</h2><p>The data controller is Maël Maltete, a sole trader who can be contacted at <a href="mailto:creadiv.tech+dpc@gmail.com">creadiv.tech+dpc@gmail.com</a>.</p></section>
+        <section><h2>Data provided directly</h2><p>Données en cause currently offers no user accounts, forms, newsletters, comments or file uploads. It therefore collects no personal data directly from visitors.</p></section>
+        <section><h2>Language preference</h2><p>The functional <code>site-locale</code> cookie stores the visitor’s French or English selection for one year. It is strictly necessary for the requested language preference, is not used for tracking and does not require consent.</p></section>
+        <section><h2>Audience measurement</h2><p>The website uses Vercel Web Analytics, a cookie-free audience measurement service. It sends Vercel aggregate information about viewed pages: URL and route, date and time, referrer, filtered parameters, approximate country, browser, operating system, device type and Analytics script version.</p><p>According to Vercel’s documentation, these measurements are not linked to an identity or IP address and cannot reconstruct an individual journey across websites.</p><dl><div><dt>Purpose</dt><dd>Understand traffic and viewed content in order to improve the website.</dd></div><div><dt>Legal basis</dt><dd>The publisher’s legitimate interest in measuring website traffic.</dd></div><div><dt>Recipients</dt><dd>Maël Maltete and Vercel Inc., the technical provider.</dd></div><div><dt>Tracker</dt><dd>Vercel Web Analytics does not use cookies.</dd></div></dl></section>
+        <section><h2>Retention periods</h2><p>Statistics availability depends on the active Vercel plan. At the date of this policy, Vercel announces one month for Hobby, twelve months for Pro and up to twenty-four months for certain higher plans. Vercel may retain data longer to support plan changes.</p></section>
+        <section><h2>Technical logs and security</h2><p>Like any hosting provider, Vercel may process technical logs needed for delivery, security and abuse prevention. This processing is based on the legitimate interest in maintaining service security and availability. Retention depends on the hosting plan and configuration.</p></section>
+        <section><h2>Transfers outside the European Union</h2><p>Vercel Inc. is based in the United States. Vercel states that transfers are governed by its data processing agreement, applicable contractual clauses and certification under the EU–US Data Privacy Framework.</p></section>
+        <section><h2>Your choices and rights</h2><p>Within the limits of the GDPR, anyone may request access, correction, deletion or restriction of their data and may object to processing, including audience measurement. Requests should be sent to <a href="mailto:creadiv.tech+dpc@gmail.com">creadiv.tech+dpc@gmail.com</a>.</p><p>A complaint may also be lodged with the French <a href="https://www.cnil.fr/en" target="_blank" rel="noopener noreferrer">data protection authority (CNIL)</a>.</p></section>
+        <section><h2>Changes to this policy</h2><p>This policy will be updated if the website’s features, providers or processing activities change. The update date appears at the top of the page.</p></section>
+      </LegalPage>
+    );
+  }
   return (
     <LegalPage
       title="Politique de confidentialité"

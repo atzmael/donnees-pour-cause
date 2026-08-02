@@ -22,16 +22,19 @@ export async function generateMetadata({
   const {slug} = await params;
   const project = projects.find((item) => item.slug === slug);
   if (!project) return {};
+  const locale = await getUserLocale();
 
   return buildMetadata({
-    locale: await getUserLocale(),
+    locale,
     path: `/dataviz/${slug}`,
-    title: `${project.title} — Données en cause`,
-    description: project.description,
+    title: `${project.title[locale]} — Données en cause`,
+    description: project.description[locale],
     image: project.slug === "feux-de-foret" ? "/og-feux-de-foret-2026.png" : undefined,
     imageAlt:
       project.slug === "feux-de-foret"
-        ? "Quand la France prend feu — carte des incendies en France de 2006 à 2026"
+        ? locale === "fr"
+          ? "Quand la France prend feu — carte des incendies en France de 2006 à 2026"
+          : "France on fire — a map of wildfires in France from 2006 to 2026"
         : undefined,
   });
 }
@@ -40,6 +43,7 @@ export default async function DatavizPage({ params }: { params: Promise<{ slug: 
   const { slug } = await params;
   const project = projects.find((item) => item.slug === slug);
   if (!project) notFound();
+  const locale = await getUserLocale();
 
   if (project.slug === "feux-de-foret") {
     return <ForestFiresDataviz />;
@@ -50,19 +54,19 @@ export default async function DatavizPage({ params }: { params: Promise<{ slug: 
       <header className="story-header">
         <Brand />
         <Link className="back-link" href="/">← Tous les projets</Link>
-        <span>{project.modules.join(" + ")} · {project.format} · {project.year}</span>
+        <span>{project.modules.join(" + ")} · {project.format[locale]} · {project.year}</span>
       </header>
 
       <section className="story-intro">
-        <p className="kicker">{project.tags.join(" · ").toUpperCase()}</p>
-        <h1>{project.title}</h1>
-        <p>{project.description}</p>
+        <p className="kicker">{project.tags[locale].join(" · ").toUpperCase()}</p>
+        <h1>{project.title[locale]}</h1>
+        <p>{project.description[locale]}</p>
       </section>
 
-      <section className="dataviz-stage" aria-label={`Visualisation : ${project.title}`}>
+      <section className="dataviz-stage" aria-label={`Visualisation : ${project.title[locale]}`}>
         <div className="stage-grid" />
         <div className="stage-label">APERÇU DE LA DATAVIZ</div>
-        <div className="big-stat"><strong>{project.stat}</strong><span>{project.statLabel}</span></div>
+        <div className="big-stat"><strong>{project.stat[locale]}</strong><span>{project.statLabel[locale]}</span></div>
 
         {project.visual === "map" && (
           <div className="full-map"><i /><i /><i /><i /><b /><b /><span /></div>
@@ -87,7 +91,7 @@ export default async function DatavizPage({ params }: { params: Promise<{ slug: 
       <section className="story-caption">
         <p>Cette page est le canevas éditorial de la visualisation. Le composant interactif final viendra prendre toute la place dans cette scène.</p>
         <div><span>Source</span><strong>Données de démonstration</strong></div>
-        <div><span>Format</span><strong>{project.format}</strong></div>
+        <div><span>Format</span><strong>{project.format[locale]}</strong></div>
         <div><span>Type</span><strong>{project.modules.join(" + ")}</strong></div>
       </section>
       <SiteFooter />

@@ -16,7 +16,19 @@ export async function generateMetadata(): Promise<Metadata> {
   });
 }
 
-export default function MentionsLegalesPage() {
+export default async function MentionsLegalesPage() {
+  const locale = await getUserLocale();
+  if (locale === "en") {
+    return (
+      <LegalPage title="Legal notice" description="Information about the publisher, publication director and hosting of the Données en cause website.">
+        <section><h2>Website publisher</h2><p><strong>Données en cause</strong> is published by Maël Maltete, a French sole trader (EI) operating under the micro-enterprise scheme.</p><dl><div><dt>Address</dt><dd>73 rue de Malnoue, 93160 Noisy-le-Grand, France</dd></div><div><dt>Registration</dt><dd>Bobigny Trade and Companies Register — Bobigny A 953 748 159</dd></div><div><dt>Email</dt><dd><a href="mailto:creadiv.tech+dpc@gmail.com">creadiv.tech+dpc@gmail.com</a></dd></div></dl><p>The publisher can be contacted by email only.</p></section>
+        <section><h2>Publication director</h2><p>The publication director is Maël Maltete.</p></section>
+        <section><h2>Hosting</h2><p>The website is hosted by:</p><address>Vercel Inc.<br />440 N Barranca Avenue #4133<br />Covina, CA 91723<br />United States<br />Phone: +1 559-288-7060</address><p>Hosting provider: <a href="https://vercel.com" target="_blank" rel="noopener noreferrer">vercel.com</a></p></section>
+        <section><h2>Intellectual property and licence</h2><p>Unless otherwise stated, original texts, analyses, tools and visualizations published on Données en cause are licensed under <a href="https://creativecommons.org/licenses/by/4.0/deed.en" target="_blank" rel="license noopener noreferrer">Creative Commons Attribution 4.0 International (CC BY 4.0)</a>.</p><p>Reuse must clearly credit “Données en cause — Maël Maltete”, identify the source, link to the licence and indicate any changes.</p><p>This licence does not apply to trademarks, third-party content, external datasets or material carrying a different licence. Source code is covered only by the licence stated in its repository, if any.</p></section>
+        <section><h2>Sources and credits</h2><p>Sources for each tool or visualization are listed on its page. The data producers’ rights and reuse conditions continue to apply.</p><p>Design and development: <a href="https://creadiv.fr" target="_blank" rel="noopener noreferrer">Creadiv</a>.</p></section>
+      </LegalPage>
+    );
+  }
   return (
     <LegalPage
       title="Mentions légales"
