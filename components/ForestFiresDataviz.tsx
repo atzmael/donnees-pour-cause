@@ -702,6 +702,15 @@ export function ForestFiresDataviz() {
               .replace("{year}", String(dataset?.latestConsolidatedYear ?? currentYear - 1))
               .replace("{currentYear}", String(currentYear))}
           </p>
+          <p className="fire-method-why">
+            <strong>{locale === "fr" ? "Pourquoi commencer en 2006 ?" : "Why start in 2006?"}</strong>{" "}
+            {locale === "fr"
+              ? "La BDIFF couvre l’ensemble du territoire français selon un modèle national commun à partir de 2006. Des archives plus anciennes existent dès 1973, mais seulement pour certains départements méditerranéens : les intégrer créerait un biais géographique dans la comparaison nationale."
+              : "BDIFF covers the whole of France using a common national data model from 2006 onward. Earlier records exist from 1973, but only for some Mediterranean departments; including them would introduce a geographic bias into the national comparison."}{" "}
+            <a href="https://bdiff.agriculture.gouv.fr/aide/recherche" target="_blank" rel="noreferrer">
+              {locale === "fr" ? "Voir la documentation BDIFF ↗" : "See BDIFF documentation ↗"}
+            </a>
+          </p>
           <ul className="fire-source-links">
             <li>
               <a href="https://bdiff.agriculture.gouv.fr/incendies/zip" target="_blank" rel="noreferrer">

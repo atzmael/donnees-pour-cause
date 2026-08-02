@@ -861,6 +861,16 @@ em { color: var(--color-primary); font-style: normal; }
 }
 .fire-method h2 { margin: 0; font-size: clamp(36px, 4.6vw, 62px); line-height: 1.05; letter-spacing: -2px; }
 .fire-method div p { max-width: 730px; margin: 38px 0 0; font-size: 17px; line-height: 1.7; }
+.fire-method div .fire-method-why {
+  margin-top: 22px;
+  padding: 18px 20px;
+  border-left: 3px solid var(--fire-burn);
+  background: color-mix(in srgb, var(--fire-burn) 6%, var(--fire-paper));
+  font-size: 14px;
+  line-height: 1.55;
+}
+.fire-method-why strong { color: var(--fire-burn); }
+.fire-method-why a { color: inherit; font-weight: 700; text-underline-offset: 3px; }
 .fire-source-links {
   max-width: 730px;
   margin: 34px 0 0;
