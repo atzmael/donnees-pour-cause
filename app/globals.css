@@ -386,8 +386,11 @@ em { color: var(--color-primary); font-style: normal; }
 .fire-metric-label i {
   display: inline-grid;
   place-items: center;
+  flex: 0 0 15px;
+  box-sizing: border-box;
   width: 15px;
   height: 15px;
+  aspect-ratio: 1;
   border: 1px solid currentColor;
   border-radius: 50%;
   font-size: 9px;
@@ -399,7 +402,9 @@ em { color: var(--color-primary); font-style: normal; }
   z-index: 10;
   left: 18px;
   bottom: calc(100% - 8px);
+  box-sizing: border-box;
   width: min(360px, calc(100vw - 48px));
+  max-width: calc(100vw - 48px);
   padding: 12px 14px;
   border-radius: 4px;
   background: var(--fire-ink);
@@ -410,6 +415,7 @@ em { color: var(--color-primary); font-style: normal; }
   letter-spacing: 0;
   text-transform: none;
   white-space: pre-line;
+  overflow-wrap: anywhere;
   opacity: 0;
   pointer-events: none;
   transform: translateY(6px);
@@ -419,6 +425,13 @@ em { color: var(--color-primary); font-style: normal; }
 .fire-overview-stat:focus-visible .fire-metric-tooltip {
   opacity: 1;
   transform: translateY(0);
+}
+.fire-overview-stat:last-child .fire-metric-tooltip {
+  right: 18px;
+  left: auto;
+}
+.fire-overview-stat[aria-disabled="true"] .fire-metric-tooltip {
+  display: none;
 }
 .fire-overview .fire-year-control { margin-top: 8px; gap: 9px; }
 .fire-overview .fire-year-control button { width: auto; height: auto; }
@@ -916,6 +929,15 @@ em { color: var(--color-primary); font-style: normal; }
   .fire-overview { grid-template-columns: 1fr 1fr; margin-top: 40px; }
   .fire-overview-year, .fire-overview-stat { min-height: 104px; border-bottom: 1px solid color-mix(in srgb, var(--fire-ink) 20%, transparent); }
   .fire-overview-stat:nth-child(2) { border-right: 0; }
+  .fire-overview-stat .fire-metric-tooltip {
+    left: 12px;
+    width: min(360px, calc(100vw - 40px));
+    max-width: calc(100vw - 40px);
+  }
+  .fire-overview-stat:nth-child(even) .fire-metric-tooltip {
+    right: 12px;
+    left: auto;
+  }
   .fire-overview-stat strong { margin-top: 21px; font-size: 28px; }
   .fire-national, .fire-local, .fire-method { padding-left: 20px; padding-right: 20px; }
   .fire-section-heading, .fire-local .fire-section-heading { display: block; }
@@ -935,8 +957,13 @@ em { color: var(--color-primary); font-style: normal; }
   .fire-evolution-row { grid-template-columns: 1fr; gap: 0; padding: 18px 0; }
   .fire-evolution-row > button { padding: 0; }
   .fire-evolution-row svg { margin-top: 10px; }
-  .fire-map-wrap { min-height: 520px; border-right: 0; border-bottom: 1px solid color-mix(in srgb, var(--fire-ink) 16%, transparent); }
-  .fire-map-wrap > svg { max-height: 520px; }
+  .fire-map-wrap {
+    min-height: 430px;
+    padding-bottom: 36px;
+    border-right: 0;
+    border-bottom: 1px solid color-mix(in srgb, var(--fire-ink) 16%, transparent);
+  }
+  .fire-map-wrap > svg { max-height: 380px; }
   .fire-map-aside { padding: 42px 0 0; }
   .fire-map-aside { display: block; }
   .fire-ranking { margin-top: 34px; }
