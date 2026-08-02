@@ -966,6 +966,11 @@ em { color: var(--color-primary); font-style: normal; }
   .fire-overview-stat strong { font-size: 23px; letter-spacing: -1px; }
   .fire-evolution-comparison > strong { flex-wrap: wrap; }
 }
+@media (hover: none), (pointer: coarse) {
+  .fire-overview-stat[aria-disabled="true"] .fire-metric-tooltip {
+    display: none;
+  }
+}
 @media (prefers-reduced-motion: reduce) {
   .fire-story *,
   .fire-story *::before,
