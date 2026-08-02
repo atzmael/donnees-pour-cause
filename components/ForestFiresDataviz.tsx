@@ -5,6 +5,11 @@ import {useEffect, useMemo, useRef, useState} from "react";
 import {useLocale} from "next-intl";
 import {Brand} from "@/components/Brand";
 import {SiteFooter} from "@/components/SiteFooter";
+import {
+  EVOLUTION_PLOT_END,
+  EVOLUTION_PLOT_START,
+  evolutionYearFromRelativeX,
+} from "@/lib/evolution-scale";
 
 type Metric = "burnedArea" | "fireCount" | "populationExposure";
 type ViewMode = "map" | "evolution";
@@ -333,7 +338,9 @@ export function ForestFiresDataviz() {
     const maximum = Math.max(...values, 1);
     return availableYears.map((item) => ({
       ...item,
-      x: 30 + ((item.year - earliestAvailableYear) / Math.max(1, currentYear - earliestAvailableYear)) * 920,
+      x: EVOLUTION_PLOT_START + (
+        (item.year - earliestAvailableYear) / Math.max(1, currentYear - earliestAvailableYear)
+      ) * (EVOLUTION_PLOT_END - EVOLUTION_PLOT_START),
       y: 128 - (item.value / maximum) * 98,
     }));
   };
@@ -346,13 +353,13 @@ export function ForestFiresDataviz() {
   const exposureDetails = (value: PopulationExposureYear) => {
     const numberLocale = locale === "fr" ? "fr-FR" : "en-GB";
     const upperBound = value.intersectedGridPopulation.toLocaleString(numberLocale);
-    const evacuation = value.documentedImpact ? ` ${value.documentedImpact.note}` : "";
+    const evacuation = value.documentedImpact ? `\nÉvacuations : ${value.documentedImpact.note}` : "";
     const smoke = locale === "fr"
-      ? " Exposition aux fumées : pas encore de donnée comparable."
-      : " Smoke exposure: no comparable data yet.";
+      ? "\nFumées : pas encore de donnée comparable."
+      : "\nSmoke: no comparable data yet.";
     return locale === "fr"
       ? `Borne haute : ${upperBound} habitants vivent dans des carreaux au moins partiellement touchés.${evacuation}${smoke}`
-      : `Upper bound: ${upperBound} residents live in grid cells touched at least partially.${evacuation}${smoke}`;
+      : `Upper bound: ${upperBound} residents live in grid cells touched at least partially.${value.documentedImpact ? `\nEvacuations: ${value.documentedImpact.note}` : ""}${smoke}`;
   };
   const selectYear = (nextYear: number) => {
     setYear(nextYear);
@@ -367,10 +374,7 @@ export function ForestFiresDataviz() {
   ) => {
     const bounds = event.currentTarget.getBoundingClientRect();
     const relativeX = Math.max(0, Math.min(1, (event.clientX - bounds.left) / bounds.width));
-    const nearestYear = Math.round(
-      earliestAvailableYear + relativeX * (currentYear - earliestAvailableYear),
-    );
-    return Math.max(earliestAvailableYear, Math.min(currentYear, nearestYear));
+    return evolutionYearFromRelativeX(relativeX, earliestAvailableYear, currentYear);
   };
   const handleEvolutionPointer = (event: React.PointerEvent<SVGSVGElement>) => {
     setHoveredEvolutionYear(evolutionYearAtPointer(event));
@@ -645,10 +649,10 @@ export function ForestFiresDataviz() {
               {evolutionMetrics.map((key) => {
                 const points = evolutionPoints(key);
                 const selectedPoint = points.find((point) => point.year === comparisonYear);
-                const guideX = 30 + (
+                const guideX = EVOLUTION_PLOT_START + (
                   (comparisonYear - earliestAvailableYear)
                   / Math.max(1, currentYear - earliestAvailableYear)
-                ) * 920;
+                ) * (EVOLUTION_PLOT_END - EVOLUTION_PLOT_START);
                 return (
                   <article key={key} className={`fire-evolution-row ${metric === key ? "is-selected" : ""}`}>
                     <button type="button" onClick={() => setMetric(key)}>
@@ -663,7 +667,7 @@ export function ForestFiresDataviz() {
                       onPointerMove={handleEvolutionPointer}
                       onClick={(event) => selectYear(evolutionYearAtPointer(event))}
                     >
-                      <line x1="30" y1="128" x2="950" y2="128" />
+                      <line x1={EVOLUTION_PLOT_START} y1="128" x2={EVOLUTION_PLOT_END} y2="128" />
                       <polyline points={points.map((point) => `${point.x},${point.y}`).join(" ")} />
                       <line className="fire-evolution-guide" x1={guideX} y1="18" x2={guideX} y2="128" />
                       {points.map((point) => (
@@ -682,8 +686,8 @@ export function ForestFiresDataviz() {
                           </title>
                         </circle>
                       ))}
-                      <text x="30" y="149">{earliestAvailableYear}</text>
-                      <text x="950" y="149" textAnchor="end">{currentYear}</text>
+                      <text x={EVOLUTION_PLOT_START} y="149">{earliestAvailableYear}</text>
+                      <text x={EVOLUTION_PLOT_END} y="149" textAnchor="end">{currentYear}</text>
                     </svg>
                   </article>
                 );

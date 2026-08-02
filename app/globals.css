@@ -376,7 +376,7 @@ em { color: var(--color-primary); font-style: normal; }
   z-index: 10;
   left: 18px;
   bottom: calc(100% - 8px);
-  width: min(270px, calc(100vw - 48px));
+  width: min(360px, calc(100vw - 48px));
   padding: 12px 14px;
   border-radius: 4px;
   background: var(--fire-ink);
@@ -386,6 +386,7 @@ em { color: var(--color-primary); font-style: normal; }
   line-height: 1.45;
   letter-spacing: 0;
   text-transform: none;
+  white-space: pre-line;
   opacity: 0;
   pointer-events: none;
   transform: translateY(6px);
