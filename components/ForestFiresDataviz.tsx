@@ -6,7 +6,7 @@ import {useLocale} from "next-intl";
 import {Brand} from "@/components/Brand";
 import {SiteFooter} from "@/components/SiteFooter";
 
-type Metric = "burnedArea" | "fireCount" | "humanImpact";
+type Metric = "burnedArea" | "fireCount" | "populationExposure";
 type ViewMode = "map" | "evolution";
 type Position = [number, number];
 type DepartmentFeature = {
@@ -39,17 +39,16 @@ type FireDataset = {
   currentYear: number;
   years: Record<string, FireYearData>;
 };
-type HumanImpactYear = {
-  total: number;
+type PopulationExposureYear = {
+  exposedPopulation: number;
   status: "consolidated" | "provisional";
-  breakdown: {label: string; value: number}[];
-  note: string;
-  sources: {label: string; url: string}[];
+  documentedImpact?: {evacuations: number; note: string};
 };
-type HumanImpactDataset = {
+type PopulationExposureDataset = {
   updatedAt: string;
+  populationReferenceYear: number;
   methodology: string;
-  years: Record<string, HumanImpactYear>;
+  years: Record<string, PopulationExposureYear>;
 };
 
 const FALLBACK_EARLIEST_YEAR = 2006;
@@ -62,7 +61,7 @@ const COPY = {
     observedYear: "Année observée", previousYear: "Année précédente", nextYear: "Année suivante",
     provisional: "EFFIS · Provisoire", insufficient: "Données insuffisantes", noData: "Pas de données",
     unavailable: "Données indisponibles", consolidated: "données consolidées", provisionalData: "données provisoires",
-    cutoff: "données arrêtées au", importDate: "import du", humanFreshness: "IDMC · déplacements documentés",
+    cutoff: "données arrêtées au", importDate: "import du", exposureFreshness: "EFFIS × Insee · estimation géographique",
     observed: "observées", provisionalPlural: "provisoires", viewLabel: "Vue de la dataviz", map: "Carte", evolution: "Évolution",
     yearUnavailable: "Nous n’avons pas encore assez de données pour cette année, merci de sélectionner une année antérieure.",
     seeYear: "Voir", loading: "Chargement du fond de carte…", less: "Moins", more: "Plus",
@@ -75,11 +74,11 @@ const COPY = {
     nationalEvolution: "Évolution nationale", chartHelp: "Chaque courbe utilise sa propre échelle. Survolez-les pour comparer une même année, ou utilisez le curseur au clavier et sur mobile.",
     comparedYear: "Année comparée", synced: "Lecture synchronisée", sources: "SOURCES & MÉTHODE",
     methodTitle: "Une première structure, avec des données traçables.",
-    method: "Les années 2006 à {year} sont calculées depuis les incendies publiés par la BDIFF. L’année {currentYear} repose sur les périmètres satellitaires EFFIS disponibles au moment de la mise à jour. Les deux sources n’ont pas le même niveau de consolidation : cette rupture est indiquée directement dans l’interface. Les impacts humains proviennent de l’IDMC et ne sont affichés que lorsqu’un bilan documenté est disponible.",
+    method: "Les années 2006 à {year} sont calculées depuis les incendies publiés par la BDIFF. L’année {currentYear} repose sur les périmètres satellitaires EFFIS disponibles au moment de la mise à jour. La population potentiellement exposée croise, année par année, ces périmètres EFFIS avec la grille de population 2021 de l’Insee. Elle mesure une proximité géographique avec les zones brûlées, pas un bilan de victimes.",
     metrics: {
       burnedArea: {label: "Surface brûlée", unit: "ha", description: "Surface totale parcourue par les incendies recensés pendant l’année, exprimée en hectares."},
       fireCount: {label: "Nombre de feux", unit: "feux", description: "Nombre total d’incendies recensés pendant l’année, quelle que soit leur surface."},
-      humanImpact: {label: "Évacuations documentées", unit: "déplacements", description: "Mouvements d’évacuation ou de déplacement documentés à la suite de feux de forêt. Une même personne peut être comptée plusieurs fois et le recensement n’est pas exhaustif : il ne s’agit pas d’un nombre de personnes uniques."},
+      populationExposure: {label: "Population potentiellement exposée", unit: "personnes", description: "Estimation du nombre d’habitants dont le carreau de résidence Insee de 1 km a son centre dans un périmètre brûlé EFFIS. Une personne n’est comptée qu’une fois dans l’année. Il s’agit d’une exposition géographique potentielle, pas d’un nombre de victimes ou d’évacuations."},
     },
   },
   en: {
@@ -89,7 +88,7 @@ const COPY = {
     observedYear: "Observed year", previousYear: "Previous year", nextYear: "Next year",
     provisional: "EFFIS · Provisional", insufficient: "Insufficient data", noData: "No data",
     unavailable: "Data unavailable", consolidated: "consolidated data", provisionalData: "provisional data",
-    cutoff: "data through", importDate: "imported on", humanFreshness: "IDMC · documented displacements",
+    cutoff: "data through", importDate: "imported on", exposureFreshness: "EFFIS × Insee · geographic estimate",
     observed: "observed", provisionalPlural: "provisional", viewLabel: "Visualization view", map: "Map", evolution: "Trends",
     yearUnavailable: "We do not have enough data for this year yet. Please select an earlier year.",
     seeYear: "View", loading: "Loading map…", less: "Less", more: "More",
@@ -102,11 +101,11 @@ const COPY = {
     nationalEvolution: "National trends", chartHelp: "Each line uses its own scale. Hover to compare the same year, or use the slider with a keyboard or on mobile.",
     comparedYear: "Compared year", synced: "Synchronized reading", sources: "SOURCES & METHOD",
     methodTitle: "An initial framework built on traceable data.",
-    method: "The years 2006 to {year} are calculated from wildfires published by BDIFF. The year {currentYear} is based on EFFIS satellite perimeters available when the data was updated. These sources have different consolidation levels, and this break is shown directly in the interface. Human impacts come from IDMC and are only shown when a documented estimate is available.",
+    method: "The years 2006 to {year} are calculated from wildfires published by BDIFF. The year {currentYear} is based on EFFIS satellite perimeters available when the data was updated. Potentially exposed population is estimated yearly by intersecting EFFIS perimeters with Insee’s 2021 population grid. It measures geographic proximity to burnt areas, not casualties.",
     metrics: {
       burnedArea: {label: "Burned area", unit: "ha", description: "Total area affected by recorded wildfires during the year, in hectares."},
       fireCount: {label: "Number of fires", unit: "fires", description: "Total number of recorded wildfires during the year, regardless of their area."},
-      humanImpact: {label: "Documented evacuations", unit: "displacements", description: "Documented evacuation or displacement movements caused by wildfires. The same person may be counted more than once and reporting is not exhaustive: this is not a count of unique people."},
+      populationExposure: {label: "Exposed population", unit: "people", description: "Estimated residents whose 1 km Insee residential grid-cell centre lies within an EFFIS burnt perimeter. A resident is counted once per year. This is potential geographic exposure, not a casualty or evacuation count."},
     },
   },
 } as const;
@@ -119,7 +118,7 @@ const METROPOLITAN_CODES = new Set([
 ]);
 
 function departmentValue(yearData: FireYearData | undefined, code: string, metric: Metric) {
-  if (!yearData || metric === "humanImpact") return 0;
+  if (!yearData || metric === "populationExposure") return 0;
   return yearData.departments[code]?.[metric] ?? 0;
 }
 
@@ -260,7 +259,7 @@ export function ForestFiresDataviz() {
   const [view, setView] = useState<ViewMode>("map");
   const [features, setFeatures] = useState<DepartmentFeature[]>([]);
   const [dataset, setDataset] = useState<FireDataset | null>(null);
-  const [humanImpact, setHumanImpact] = useState<HumanImpactDataset | null>(null);
+  const [populationExposure, setPopulationExposure] = useState<PopulationExposureDataset | null>(null);
   const [selectedCode, setSelectedCode] = useState<string | null>(null);
   const [hoveredCode, setHoveredCode] = useState<string | null>(null);
   const [hoveredEvolutionYear, setHoveredEvolutionYear] = useState<number | null>(null);
@@ -269,13 +268,13 @@ export function ForestFiresDataviz() {
     Promise.all([
       fetch("/data/departements-1000m.geojson").then((response) => response.json() as Promise<DepartmentCollection>),
       fetch("/data/forest-fires.json").then((response) => response.json() as Promise<FireDataset>),
-      fetch("/data/human-impact.json").then((response) => response.json() as Promise<HumanImpactDataset>),
+      fetch("/data/population-exposure.json").then((response) => response.json() as Promise<PopulationExposureDataset>),
     ])
-      .then(([collection, fireDataset, humanImpactDataset]) => {
+      .then(([collection, fireDataset, populationExposureDataset]) => {
         if (active) {
           setFeatures(collection.features.filter((feature) => METROPOLITAN_CODES.has(feature.properties.code)));
           setDataset(fireDataset);
-          setHumanImpact(humanImpactDataset);
+          setPopulationExposure(populationExposureDataset);
         }
       })
       .catch(() => {
@@ -294,7 +293,7 @@ export function ForestFiresDataviz() {
     ? Math.max(...Object.keys(dataset.years).map(Number))
     : currentYear;
   const selectedNational = dataset?.years[String(year)];
-  const selectedHumanImpact = humanImpact?.years[String(year)];
+  const selectedExposure = populationExposure?.years[String(year)];
   const hasDataForYear = Boolean(selectedNational);
   const departmentRows = useMemo(
     () => hasDataForYear
@@ -318,12 +317,12 @@ export function ForestFiresDataviz() {
       .map(([yearKey, value]) => ({year: Number(yearKey), ...value}))
       .sort((first, second) => first.year - second.year)
     : [];
-  const evolutionMetrics: Metric[] = ["burnedArea", "fireCount", "humanImpact"];
+  const evolutionMetrics: Metric[] = ["burnedArea", "fireCount", "populationExposure"];
   const comparisonYear = hoveredEvolutionYear ?? year;
   const evolutionPoints = (key: Metric) => {
-    const availableYears = key === "humanImpact"
-      ? Object.entries(humanImpact?.years ?? {}).map(([yearKey, value]) => ({
-        year: Number(yearKey), value: value.total,
+    const availableYears = key === "populationExposure"
+      ? Object.entries(populationExposure?.years ?? {}).map(([yearKey, value]) => ({
+        year: Number(yearKey), value: value.exposedPopulation,
       })).sort((first, second) => first.year - second.year)
       : timelineYears
         .filter((item) => !(key === "fireCount" && item.source === "EFFIS"))
@@ -337,7 +336,7 @@ export function ForestFiresDataviz() {
     }));
   };
   const nationalMetricValue = (key: Metric, targetYear = year): number | null => {
-    if (key === "humanImpact") return humanImpact?.years[String(targetYear)]?.total ?? null;
+    if (key === "populationExposure") return populationExposure?.years[String(targetYear)]?.exposedPopulation ?? null;
     const target = dataset?.years[String(targetYear)];
     if (!target || (key === "fireCount" && target.source === "EFFIS")) return null;
     return target[key];
@@ -406,17 +405,17 @@ export function ForestFiresDataviz() {
               aria-disabled={
                 !selectedNational
                 || (key === "fireCount" && selectedNational.source === "EFFIS")
-                || (key === "humanImpact" && !selectedHumanImpact)
+                || (key === "populationExposure" && !selectedExposure)
               }
               aria-describedby={`fire-metric-help-${key}`}
               onClick={() => {
                 if (
                   !selectedNational
                   || (key === "fireCount" && selectedNational.source === "EFFIS")
-                  || (key === "humanImpact" && !selectedHumanImpact)
+                  || (key === "populationExposure" && !selectedExposure)
                 ) return;
                 setMetric(key);
-                if (key === "humanImpact") setView("evolution");
+                if (key === "populationExposure") setView("evolution");
               }}
             >
               <span className="fire-metric-label">
@@ -440,8 +439,8 @@ export function ForestFiresDataviz() {
               >
                 {key === "fireCount" && selectedNational?.source === "EFFIS"
                   ? copy.effisCountNote
-                  : key === "humanImpact" && selectedHumanImpact
-                    ? `${metrics[key].description} ${selectedHumanImpact.note} ${selectedHumanImpact.breakdown.map((item) => `${item.label} : ${item.value.toLocaleString(locale === "fr" ? "fr-FR" : "en-GB")}`).join(" · ")}`
+                  : key === "populationExposure" && selectedExposure?.documentedImpact
+                    ? `${metrics[key].description} ${selectedExposure.documentedImpact.note}`
                     : metrics[key].description}
               </span>
             </button>
@@ -449,8 +448,8 @@ export function ForestFiresDataviz() {
         </div>
         <p className="fire-freshness">
           <i aria-hidden="true" />
-          {metric === "humanImpact"
-            ? `${copy.humanFreshness} · ${selectedHumanImpact ? (selectedHumanImpact.status === "provisional" ? copy.provisionalData : copy.consolidated) : copy.noData}`
+          {metric === "populationExposure"
+            ? `${copy.exposureFreshness} · ${selectedExposure ? (selectedExposure.status === "provisional" ? copy.provisionalData : copy.consolidated) : copy.noData}`
             : selectedNational
               ? `${selectedNational.source} · ${selectedNational.status === "provisional" ? copy.provisionalData : copy.consolidated}`
               : copy.unavailable}
@@ -468,7 +467,7 @@ export function ForestFiresDataviz() {
             aria-selected={view === "map"}
             className={view === "map" ? "is-selected" : ""}
             onClick={() => {
-              if (metric === "humanImpact") setMetric("burnedArea");
+              if (metric === "populationExposure") setMetric("burnedArea");
               setView("map");
             }}
           >
@@ -631,8 +630,8 @@ export function ForestFiresDataviz() {
               {evolutionMetrics.map((key) => (
                 <strong
                   key={key}
-                  title={key === "humanImpact" && humanImpact?.years[String(comparisonYear)]
-                    ? `${humanImpact.years[String(comparisonYear)].note} ${humanImpact.years[String(comparisonYear)].breakdown.map((item) => `${item.label} : ${item.value.toLocaleString(locale === "fr" ? "fr-FR" : "en-GB")}`).join(" · ")}`
+                  title={key === "populationExposure" && populationExposure?.years[String(comparisonYear)]?.documentedImpact
+                    ? populationExposure.years[String(comparisonYear)].documentedImpact?.note
                     : undefined}
                 >
                   {metrics[key].label}{" "}
@@ -670,7 +669,7 @@ export function ForestFiresDataviz() {
                       onClick={(event) => selectYear(evolutionYearAtPointer(event))}
                     >
                       <line x1="30" y1="128" x2="950" y2="128" />
-                      {key !== "humanImpact" && <polyline points={points.map((point) => `${point.x},${point.y}`).join(" ")} />}
+                      <polyline points={points.map((point) => `${point.x},${point.y}`).join(" ")} />
                       <line className="fire-evolution-guide" x1={guideX} y1="18" x2={guideX} y2="128" />
                       {points.map((point) => (
                         <circle
@@ -715,12 +714,22 @@ export function ForestFiresDataviz() {
               </a>
             </li>
             <li>
-              <a href="https://www.internal-displacement.org/database/displacement-data/" target="_blank" rel="noreferrer">
-                {locale === "fr" ? "IDMC — base mondiale des déplacements internes ↗" : "IDMC — Global Internal Displacement Database ↗"}
+              <a href="https://www.insee.fr/fr/statistiques/8272002" target="_blank" rel="noreferrer">
+                {locale === "fr" ? "Insee — grille de population 2021 à 1 km ↗" : "Insee — 2021 population grid at 1 km ↗"}
               </a>
             </li>
             <li>
-              <a href="/data/human-impact.json" target="_blank" rel="noreferrer">
+              <a href="https://climate-adapt.eea.europa.eu/en/observatory/publications-data/analysis-data/exposure-to-burnt-areas" target="_blank" rel="noreferrer">
+                {locale === "fr" ? "EEA — méthode européenne d’exposition aux zones brûlées ↗" : "EEA — European burnt-area exposure methodology ↗"}
+              </a>
+            </li>
+            <li>
+              <a href="https://www.internal-displacement.org/database/displacement-data/" target="_blank" rel="noreferrer">
+                {locale === "fr" ? "IDMC — évacuations et déplacements documentés ↗" : "IDMC — documented evacuations and displacements ↗"}
+              </a>
+            </li>
+            <li>
+              <a href="/data/population-exposure.json" target="_blank" rel="noreferrer">
                 {locale === "fr" ? "Série utilisée — valeurs, définitions et sources année par année ↗" : "Dataset used — yearly values, definitions and sources ↗"}
               </a>
             </li>

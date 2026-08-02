@@ -18,16 +18,19 @@ Le champ `effisCutoffAt` du fichier généré correspond à la date la plus réc
 dans `LASTUPDATE`, ou à défaut dans `FINALDATE` puis `FIREDATE`. `updatedAt` indique
 uniquement l’heure à laquelle l’import a été exécuté.
 
-## Évacuations et déplacements documentés
+## Population potentiellement exposée
 
-La série versionnée dans `public/data/human-impact.json` reprend les déplacements internes
-provoqués par les feux de forêt et documentés par l’IDMC. Elle inclut notamment les
-évacuations temporaires lorsqu’elles sont recensées par l’organisme.
+La série versionnée dans `public/data/population-exposure.json` est calculée en croisant les
+périmètres brûlés EFFIS MODIS avec les carreaux de population 2021 de 1 km publiés par
+l’Insee. Un habitant est compté lorsque le centre de son carreau de résidence se trouve dans
+un périmètre brûlé. Il n’est compté qu’une fois par année, même si plusieurs feux recouvrent
+le même carreau.
 
-Ces valeurs comptent des mouvements, pas nécessairement des personnes uniques : une même
-personne peut être déplacée plusieurs fois. La couverture n’est pas exhaustive. Une année
-absente est donc affichée « Pas de données » et jamais interprétée comme zéro. La série est
-maintenue séparément de l’import horaire des incendies afin de préserver les bilans validés.
+Cet indicateur estime une exposition géographique potentielle. Il ne signifie pas que toutes
+les personnes ont été directement atteintes, évacuées ou exposées aux fumées. Les évacuations
+documentées par l’IDMC sont conservées séparément dans le détail des années disponibles.
+La couverture EFFIS utilisée commence en 2016 ; les années antérieures sont affichées sans
+donnée plutôt qu’avec une valeur nulle.
 
 ## Fréquence
 

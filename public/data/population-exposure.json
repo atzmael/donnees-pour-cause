@@ -1,0 +1,69 @@
+{
+  "updatedAt": "2026-08-02T21:22:07.181Z",
+  "populationReferenceYear": 2021,
+  "methodology": "Estimation du nombre d’habitants dont le carreau de résidence Insee de 1 km a son centre dans un périmètre brûlé EFFIS MODIS. Une personne n’est comptée qu’une fois par année. Il s’agit d’une exposition géographique potentielle, pas d’un bilan de victimes ni d’évacuations.",
+  "sources": [
+    {"label": "EFFIS — périmètres brûlés MODIS", "url": "https://forest-fire.emergency.copernicus.eu/applications/data-and-services"},
+    {"label": "Insee — données carroyées 2021 à 1 km", "url": "https://www.insee.fr/fr/statistiques/8272002"},
+    {"label": "EEA — méthode d’exposition aux zones brûlées", "url": "https://climate-adapt.eea.europa.eu/en/observatory/publications-data/analysis-data/exposure-to-burnt-areas"},
+    {"label": "IDMC — déplacements internes", "url": "https://www.internal-displacement.org/database/displacement-data/"}
+  ],
+  "years": {
+    "2016": {
+      "exposedPopulation": 9016,
+      "status": "consolidated"
+    },
+    "2017": {
+      "exposedPopulation": 3023,
+      "status": "consolidated"
+    },
+    "2018": {
+      "exposedPopulation": 795,
+      "status": "consolidated"
+    },
+    "2019": {
+      "exposedPopulation": 885,
+      "status": "consolidated",
+      "documentedImpact": {
+        "evacuations": 548,
+        "note": "Déplacements liés aux feux de forêt en France métropolitaine documentés par l’IDMC."
+      }
+    },
+    "2020": {
+      "exposedPopulation": 2926,
+      "status": "consolidated"
+    },
+    "2021": {
+      "exposedPopulation": 1478,
+      "status": "consolidated"
+    },
+    "2022": {
+      "exposedPopulation": 7454,
+      "status": "consolidated",
+      "documentedImpact": {
+        "evacuations": 45000,
+        "note": "Déplacements documentés par l’IDMC, dont 30 000 évacuations en juillet et 8 000 lors d’une reprise en août en Gironde."
+      }
+    },
+    "2023": {
+      "exposedPopulation": 1502,
+      "status": "consolidated",
+      "documentedImpact": {
+        "evacuations": 3300,
+        "note": "Déplacements liés aux feux de forêt en France documentés par l’IDMC."
+      }
+    },
+    "2024": {
+      "exposedPopulation": 1422,
+      "status": "consolidated"
+    },
+    "2025": {
+      "exposedPopulation": 9160,
+      "status": "consolidated"
+    },
+    "2026": {
+      "exposedPopulation": 10358,
+      "status": "provisional"
+    }
+  }
+}
