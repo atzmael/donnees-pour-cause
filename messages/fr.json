@@ -1,6 +1,8 @@
 {
   "Home": {
     "projects": "Projets",
+    "navigationLabel": "Navigation principale",
+    "typeLabel": "Type",
     "about": "À propos",
     "kicker": "OUTILS & DATAVISUALISATIONS",
     "title1": "Des données,",

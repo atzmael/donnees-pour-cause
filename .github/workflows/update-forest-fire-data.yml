@@ -4,6 +4,15 @@ on:
   schedule:
     - cron: "17 * * * *"
   workflow_dispatch:
+    inputs:
+      target_branch:
+        description: "Branche à actualiser"
+        required: true
+        default: preprod
+        type: choice
+        options:
+          - preprod
+          - main
 
 permissions:
   contents: write
@@ -15,11 +24,13 @@ concurrency:
 jobs:
   update:
     runs-on: ubuntu-latest
+    env:
+      TARGET_BRANCH: ${{ github.event_name == 'workflow_dispatch' && inputs.target_branch || 'main' }}
     steps:
-      - name: Récupérer preprod
+      - name: Récupérer la branche cible
         uses: actions/checkout@v4
         with:
-          ref: preprod
+          ref: ${{ env.TARGET_BRANCH }}
 
       - name: Installer Node
         uses: actions/setup-node@v4
@@ -37,12 +48,12 @@ jobs:
 
       - name: Publier uniquement si les données ont changé
         run: |
-          if git diff --quiet -- public/data/forest-fires.json; then
+          if git diff --quiet -- public/data/forest-fires.json public/data/population-exposure.json; then
             echo "Aucune nouvelle donnée."
             exit 0
           fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add public/data/forest-fires.json
+          git add public/data/forest-fires.json public/data/population-exposure.json
           git commit -m "data: actualise les feux de forêt"
-          git push origin HEAD:preprod
+          git push origin HEAD:${TARGET_BRANCH}

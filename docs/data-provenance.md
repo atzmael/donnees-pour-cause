@@ -18,17 +18,19 @@ Le champ `effisCutoffAt` du fichier généré correspond à la date la plus réc
 dans `LASTUPDATE`, ou à défaut dans `FINALDATE` puis `FIREDATE`. `updatedAt` indique
 uniquement l’heure à laquelle l’import a été exécuté.
 
-## Jours en vague de chaleur
+## Population potentiellement exposée
 
-La série versionnée dans `public/data/heatwave-days.json` compte les jours appartenant à une
-vague de chaleur nationale selon l’indicateur thermique national de Météo-France. Chaque
-valeur est reliée à une publication officielle. Elle est maintenue séparément du script
-d’import afin qu’une modification soit lisible et vérifiable dans l’historique Git.
+La série versionnée dans `public/data/population-exposure.json` est calculée en croisant les
+périmètres brûlés EFFIS MODIS avec les carreaux de population 2021 de 1 km publiés par
+l’Insee. Un habitant est compté lorsque le centre de son carreau de résidence se trouve dans
+un périmètre brûlé. Il n’est compté qu’une fois par année, même si plusieurs feux recouvrent
+le même carreau.
 
-La comparaison avec les surfaces brûlées et le nombre de feux met en évidence une
-corrélation temporelle, pas une causalité. Les incendies dépendent aussi notamment de
-la sécheresse des sols et de la végétation, du vent, de l’humidité, des départs de feu
-et des politiques de prévention.
+Cet indicateur estime une exposition géographique potentielle. Il ne signifie pas que toutes
+les personnes ont été directement atteintes, évacuées ou exposées aux fumées. Les évacuations
+documentées par l’IDMC sont conservées séparément dans le détail des années disponibles.
+La couverture EFFIS utilisée commence en 2016 ; les années antérieures sont affichées sans
+donnée plutôt qu’avec une valeur nulle.
 
 ## Fréquence
 

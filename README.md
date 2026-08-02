@@ -139,6 +139,12 @@ NEXT_PUBLIC_SITE_URL=https://votre-domaine.fr
 
 Ne jamais placer une clé privée dans une variable `NEXT_PUBLIC_*`.
 
+`NEXT_PUBLIC_SITE_URL` est l’origine publique utilisée pour les URL canoniques,
+le sitemap, `robots.txt` et les aperçus sociaux. Sur Vercel, la plateforme sert
+de repli automatiquement, mais la variable doit être définie avec le domaine
+personnalisé dès qu’il est connu afin que les moteurs n’indexent qu’une seule
+origine.
+
 ## Cycle de publication
 
 - `preprod` reçoit les développements et alimente l’environnement de
@@ -146,6 +152,12 @@ Ne jamais placer une clé privée dans une variable `NEXT_PUBLIC_*`.
 - `main` représente la version de production ;
 - une modification est validée sur `preprod`, puis fusionnée dans `main` par
   pull request.
+
+Le workflow « Actualiser les feux de forêt » met à jour `preprod` toutes les
+heures. Son lancement manuel permet de choisir `main` après validation pour
+actualiser immédiatement les données de production. Le choix de `main` reste
+une action explicite : le robot ne publie jamais automatiquement une donnée non
+validée en production.
 
 Avant toute fusion :
 
