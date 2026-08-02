@@ -65,6 +65,7 @@ const COPY = {
     back: "← Tous les projets", meta: "Dataviz · Cartographie · Données publiques",
     kicker: "FEUX DE FORÊT · FRANCE MÉTROPOLITAINE", titleStart: "Quand la France", titleEmphasis: "prend feu",
     deck: "années d’incendies cartographiées pour comprendre où les feux se concentrent — et pourquoi certaines saisons laissent une trace hors norme.",
+    sourcesLink: "Sources ↓",
     observedYear: "Année observée", previousYear: "Année précédente", nextYear: "Année suivante",
     provisional: "EFFIS · Provisoire", insufficient: "Données insuffisantes", noData: "Pas de données",
     unavailable: "Données indisponibles", consolidated: "données consolidées", provisionalData: "données provisoires",
@@ -92,6 +93,7 @@ const COPY = {
     back: "← All projects", meta: "Dataviz · Mapping · Open data",
     kicker: "WILDFIRES · METROPOLITAN FRANCE", titleStart: "When France", titleEmphasis: "catches fire",
     deck: "years of mapped wildfires reveal where fires concentrate — and why some seasons leave an exceptional mark.",
+    sourcesLink: "Sources ↓",
     observedYear: "Observed year", previousYear: "Previous year", nextYear: "Next year",
     provisional: "EFFIS · Provisional", insufficient: "Insufficient data", noData: "No data",
     unavailable: "Data unavailable", consolidated: "consolidated data", provisionalData: "provisional data",
@@ -400,6 +402,8 @@ export function ForestFiresDataviz() {
           <h1 id="fire-title">{copy.titleStart} <em>{copy.titleEmphasis}</em></h1>
           <p className="fire-deck">
             <strong className="fire-inline-number">{currentYear - earliestAvailableYear + 1}</strong> {copy.deck}
+            {" "}
+            <a className="fire-sources-jump" href="#sources">{copy.sourcesLink}</a>
           </p>
         </div>
 
@@ -457,7 +461,7 @@ export function ForestFiresDataviz() {
                 {key === "fireCount" && selectedNational?.source === "EFFIS"
                   ? copy.effisCountNote
                   : key === "populationExposure" && selectedExposure
-                    ? `${metrics[key].description} ${exposureDetails(selectedExposure)}`
+                    ? `${metrics[key].description}\n\n${exposureDetails(selectedExposure)}`
                     : metrics[key].description}
               </span>
             </button>
@@ -697,7 +701,7 @@ export function ForestFiresDataviz() {
         )}
       </section>
 
-      <section className="fire-method">
+      <section className="fire-method" id="sources">
         <p className="kicker">{copy.sources}</p>
         <div>
           <h2>{copy.methodTitle}</h2>
