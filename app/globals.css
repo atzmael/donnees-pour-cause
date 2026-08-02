@@ -386,8 +386,11 @@ em { color: var(--color-primary); font-style: normal; }
 .fire-metric-label i {
   display: inline-grid;
   place-items: center;
+  flex: 0 0 15px;
+  box-sizing: border-box;
   width: 15px;
   height: 15px;
+  aspect-ratio: 1;
   border: 1px solid currentColor;
   border-radius: 50%;
   font-size: 9px;
