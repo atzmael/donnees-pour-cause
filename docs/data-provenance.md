@@ -18,7 +18,7 @@ Le champ `effisCutoffAt` du fichier généré correspond à la date la plus réc
 dans `LASTUPDATE`, ou à défaut dans `FINALDATE` puis `FIREDATE`. `updatedAt` indique
 uniquement l’heure à laquelle l’import a été exécuté.
 
-## Jours de canicule
+## Jours en vague de chaleur
 
 La série versionnée dans `public/data/heatwave-days.json` compte les jours appartenant à une
 vague de chaleur nationale selon l’indicateur thermique national de Météo-France. Chaque

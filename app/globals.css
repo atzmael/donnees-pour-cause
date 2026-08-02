@@ -348,7 +348,7 @@ em { color: var(--color-primary); font-style: normal; }
 .fire-overview-stat:hover,
 .fire-overview-stat.is-selected { background: color-mix(in srgb, var(--fire-burn) 8%, transparent); }
 .fire-overview-stat.is-selected { box-shadow: inset 0 -4px 0 var(--fire-burn); }
-.fire-overview-stat:disabled { cursor: not-allowed; opacity: .48; }
+.fire-overview-stat[aria-disabled="true"] { cursor: not-allowed; opacity: .48; }
 .fire-overview-stat strong {
   display: block;
   margin-top: 10px;

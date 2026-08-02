@@ -55,9 +55,9 @@ const METRICS: Record<Metric, {label: string; unit: string; description: string}
     description: "Nombre total d’incendies recensés pendant l’année, quelle que soit leur surface.",
   },
   heatwaveDays: {
-    label: "Jours de canicule",
+    label: "Jours en vague de chaleur",
     unit: "jours",
-    description: "Nombre national de jours appartenant à une vague de chaleur selon Météo-France. La mise en regard avec les incendies montre une corrélation, pas une causalité.",
+    description: "Nombre de jours appartenant à une vague de chaleur nationale selon l’indicateur thermique de Météo-France. La mise en regard avec les incendies montre une corrélation, pas une causalité.",
   },
 };
 
@@ -302,7 +302,7 @@ export function ForestFiresDataviz() {
       <header className="story-header fire-header">
         <Brand />
         <Link className="back-link" href="/">← Tous les projets</Link>
-        <span>Dataviz · Cartographie · Prototype</span>
+        <span>Dataviz · Cartographie · Données publiques</span>
       </header>
 
       <section className="fire-opening" id="carte" aria-labelledby="fire-title">
@@ -331,15 +331,16 @@ export function ForestFiresDataviz() {
               type="button"
               className={`fire-overview-stat ${metric === key ? "is-selected" : ""}`}
               aria-pressed={metric === key}
-              aria-describedby={`fire-metric-help-${key}`}
-              onClick={() => {
-                setMetric(key);
-                if (key === "heatwaveDays") setView("evolution");
-              }}
-              disabled={
+              aria-disabled={
                 !selectedNational
                 || (key === "fireCount" && selectedNational.source === "EFFIS")
               }
+              aria-describedby={`fire-metric-help-${key}`}
+              onClick={() => {
+                if (!selectedNational || (key === "fireCount" && selectedNational.source === "EFFIS")) return;
+                setMetric(key);
+                if (key === "heatwaveDays") setView("evolution");
+              }}
             >
               <span className="fire-metric-label">
                 {METRICS[key].label}
@@ -359,7 +360,9 @@ export function ForestFiresDataviz() {
                 id={`fire-metric-help-${key}`}
                 role="tooltip"
               >
-                {METRICS[key].description}
+                {key === "fireCount" && selectedNational?.source === "EFFIS"
+                  ? "EFFIS publie des périmètres brûlés satellitaires, mais pas un décompte de feux directement comparable à celui de la BDIFF. Cette valeur n’est donc pas affichée pour l’année en cours."
+                  : METRICS[key].description}
               </span>
             </button>
           ))}
@@ -512,7 +515,7 @@ export function ForestFiresDataviz() {
             <div className="fire-demo-note">
               <span>{selectedNational?.source ?? "Source"}</span>
               {selectedNational?.status === "provisional"
-                ? "Estimation satellitaire provisoire EFFIS, susceptible d’évoluer avec les nouveaux périmètres détectés."
+                ? "Estimation satellitaire provisoire EFFIS, susceptible d’évoluer avec les nouveaux périmètres détectés. Son total peut différer des bilans opérationnels en raison du délai de détection et de la méthode satellitaire."
                 : "Incendies consolidés par la Base de données sur les incendies de forêt en France."}
             </div>
           </aside>
@@ -612,13 +615,15 @@ export function ForestFiresDataviz() {
       <section className="fire-method">
         <p className="kicker">SOURCES & MÉTHODE</p>
         <div>
-          <h2>Une première structure,<br />avec des données traçables.</h2>
+          <h2>Des données publiques,<br />documentées et actualisées.</h2>
           <p>
             Les années 2006 à {dataset?.latestConsolidatedYear ?? currentYear - 1} sont calculées
             depuis les incendies publiés par la BDIFF. L’année {currentYear} repose sur les
             périmètres satellitaires EFFIS disponibles au moment de la mise à jour.
             Les deux sources n’ont pas le même niveau de consolidation : cette rupture est
-            indiquée directement dans l’interface. Les jours de canicule correspondent aux
+            indiquée directement dans l’interface. Les estimations EFFIS peuvent également
+            différer des bilans opérationnels en raison de leur méthode satellitaire et de leur
+            date d’arrêté. Les jours en vague de chaleur correspondent aux
             vagues de chaleur nationales identifiées par Météo-France ; leur rapprochement
             avec les incendies décrit une corrélation et non un lien de causalité.
           </p>
