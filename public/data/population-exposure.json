@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-08-02T21:27:52.460Z",
+  "updatedAt": "2026-08-02T21:35:21.202Z",
   "populationReferenceYear": 2021,
   "methodology": "Estimation du nombre d’habitants dont le carreau de résidence Insee de 1 km a son centre dans un périmètre brûlé EFFIS MODIS. Une personne n’est comptée qu’une fois par année. Il s’agit d’une exposition géographique potentielle, pas d’un bilan de victimes ni d’évacuations.",
   "sources": [
