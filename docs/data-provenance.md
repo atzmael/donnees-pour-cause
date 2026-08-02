@@ -26,9 +26,13 @@ l’Insee. Un habitant est compté lorsque le centre de son carreau de résidenc
 un périmètre brûlé. Il n’est compté qu’une fois par année, même si plusieurs feux recouvrent
 le même carreau.
 
-Cet indicateur estime une exposition géographique potentielle. Il ne signifie pas que toutes
-les personnes ont été directement atteintes, évacuées ou exposées aux fumées. Les évacuations
-documentées par l’IDMC sont conservées séparément dans le détail des années disponibles.
+Cet indicateur estime les habitants des zones brûlées, pas l’ensemble des personnes touchées.
+Il ne couvre ni les zones évacuées préventivement autour des feux, ni l’exposition aux fumées,
+ni les victimes. La résolution de 1 km implique également qu’un carreau partiellement brûlé
+n’est pas compté lorsque son centre reste hors du périmètre. EFFIS détecte principalement les
+feux d’environ 30 hectares ou plus. Les évacuations documentées par l’IDMC sont conservées
+séparément dans le détail des années disponibles et comptent des mouvements, pas toujours des
+personnes uniques.
 La couverture EFFIS utilisée commence en 2016 ; les années antérieures sont affichées sans
 donnée plutôt qu’avec une valeur nulle.
 

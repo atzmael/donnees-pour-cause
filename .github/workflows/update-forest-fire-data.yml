@@ -46,6 +46,9 @@ jobs:
       - name: Actualiser les données
         run: pnpm data:forest-fires
 
+      - name: Vérifier le calcul d’exposition
+        run: pnpm data:population-exposure:check
+
       - name: Publier uniquement si les données ont changé
         run: |
           if git diff --quiet -- public/data/forest-fires.json public/data/population-exposure.json; then

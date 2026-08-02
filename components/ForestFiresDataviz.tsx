@@ -61,7 +61,7 @@ const COPY = {
     observedYear: "Année observée", previousYear: "Année précédente", nextYear: "Année suivante",
     provisional: "EFFIS · Provisoire", insufficient: "Données insuffisantes", noData: "Pas de données",
     unavailable: "Données indisponibles", consolidated: "données consolidées", provisionalData: "données provisoires",
-    cutoff: "données arrêtées au", importDate: "import du", exposureFreshness: "EFFIS × Insee · estimation géographique",
+    cutoff: "données arrêtées au", importDate: "import du", exposureFreshness: "EFFIS × Insee · habitants estimés dans les zones brûlées",
     observed: "observées", provisionalPlural: "provisoires", viewLabel: "Vue de la dataviz", map: "Carte", evolution: "Évolution",
     yearUnavailable: "Nous n’avons pas encore assez de données pour cette année, merci de sélectionner une année antérieure.",
     seeYear: "Voir", loading: "Chargement du fond de carte…", less: "Moins", more: "Plus",
@@ -78,7 +78,7 @@ const COPY = {
     metrics: {
       burnedArea: {label: "Surface brûlée", unit: "ha", description: "Surface totale parcourue par les incendies recensés pendant l’année, exprimée en hectares."},
       fireCount: {label: "Nombre de feux", unit: "feux", description: "Nombre total d’incendies recensés pendant l’année, quelle que soit leur surface."},
-      populationExposure: {label: "Population potentiellement exposée", unit: "personnes", description: "Estimation du nombre d’habitants dont le carreau de résidence Insee de 1 km a son centre dans un périmètre brûlé EFFIS. Une personne n’est comptée qu’une fois dans l’année. Il s’agit d’une exposition géographique potentielle, pas d’un nombre de victimes ou d’évacuations."},
+      populationExposure: {label: "Habitants en zone brûlée", unit: "personnes", description: "Estimation des habitants dont le centre du carreau de résidence Insee de 1 km se trouve dans un périmètre brûlé détecté par EFFIS. La méthode couvre surtout les feux d’environ 30 ha ou plus et ne mesure ni les fumées, ni les zones évacuées préventivement, ni les victimes. Un carreau partiellement touché dont le centre reste hors du feu n’est pas compté."},
     },
   },
   en: {
@@ -105,7 +105,7 @@ const COPY = {
     metrics: {
       burnedArea: {label: "Burned area", unit: "ha", description: "Total area affected by recorded wildfires during the year, in hectares."},
       fireCount: {label: "Number of fires", unit: "fires", description: "Total number of recorded wildfires during the year, regardless of their area."},
-      populationExposure: {label: "Exposed population", unit: "people", description: "Estimated residents whose 1 km Insee residential grid-cell centre lies within an EFFIS burnt perimeter. A resident is counted once per year. This is potential geographic exposure, not a casualty or evacuation count."},
+      populationExposure: {label: "Residents in burnt areas", unit: "people", description: "Estimated residents whose 1 km Insee residential grid-cell centre lies within an EFFIS-detected burnt perimeter. The method mainly covers fires of about 30 ha or more and does not measure smoke exposure, precautionary evacuation zones or casualties. A partially affected cell is excluded when its centre remains outside the fire perimeter."},
     },
   },
 } as const;
@@ -661,7 +661,12 @@ export function ForestFiresDataviz() {
                           cy={point.y}
                           r={point.year === comparisonYear ? 6 : 3.5}
                         >
-                          <title>{point.year} — {formatMetricValue(point.value, key)}</title>
+                          <title>
+                            {point.year} — {formatMetricValue(point.value, key)}
+                            {key === "populationExposure" && populationExposure?.years[String(point.year)]?.documentedImpact
+                              ? ` · ${populationExposure.years[String(point.year)].documentedImpact?.note}`
+                              : ""}
+                          </title>
                         </circle>
                       ))}
                       <text x="30" y="149">{earliestAvailableYear}</text>
