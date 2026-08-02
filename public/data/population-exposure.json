@@ -1,12 +1,24 @@
 {
-  "updatedAt": "2026-08-02T21:22:07.181Z",
+  "updatedAt": "2026-08-02T21:27:52.460Z",
   "populationReferenceYear": 2021,
   "methodology": "Estimation du nombre d’habitants dont le carreau de résidence Insee de 1 km a son centre dans un périmètre brûlé EFFIS MODIS. Une personne n’est comptée qu’une fois par année. Il s’agit d’une exposition géographique potentielle, pas d’un bilan de victimes ni d’évacuations.",
   "sources": [
-    {"label": "EFFIS — périmètres brûlés MODIS", "url": "https://forest-fire.emergency.copernicus.eu/applications/data-and-services"},
-    {"label": "Insee — données carroyées 2021 à 1 km", "url": "https://www.insee.fr/fr/statistiques/8272002"},
-    {"label": "EEA — méthode d’exposition aux zones brûlées", "url": "https://climate-adapt.eea.europa.eu/en/observatory/publications-data/analysis-data/exposure-to-burnt-areas"},
-    {"label": "IDMC — déplacements internes", "url": "https://www.internal-displacement.org/database/displacement-data/"}
+    {
+      "label": "EFFIS — périmètres brûlés MODIS",
+      "url": "https://forest-fire.emergency.copernicus.eu/applications/data-and-services"
+    },
+    {
+      "label": "Insee — données carroyées 2021 à 1 km",
+      "url": "https://www.insee.fr/fr/statistiques/8272002"
+    },
+    {
+      "label": "EEA — méthode d’exposition aux zones brûlées",
+      "url": "https://climate-adapt.eea.europa.eu/en/observatory/publications-data/analysis-data/exposure-to-burnt-areas"
+    },
+    {
+      "label": "IDMC — déplacements internes",
+      "url": "https://www.internal-displacement.org/database/displacement-data/"
+    }
   ],
   "years": {
     "2016": {
