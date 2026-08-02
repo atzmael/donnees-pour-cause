@@ -427,6 +427,9 @@ em { color: var(--color-primary); font-style: normal; }
   right: 18px;
   left: auto;
 }
+.fire-overview-stat[aria-disabled="true"] .fire-metric-tooltip {
+  display: none;
+}
 .fire-overview .fire-year-control { margin-top: 8px; gap: 9px; }
 .fire-overview .fire-year-control button { width: auto; height: auto; }
 .fire-overview .fire-year-control strong { min-width: 76px; font-size: 30px; }
@@ -965,11 +968,6 @@ em { color: var(--color-primary); font-style: normal; }
   .fire-overview-stat { padding-right: 10px; padding-left: 10px; }
   .fire-overview-stat strong { font-size: 23px; letter-spacing: -1px; }
   .fire-evolution-comparison > strong { flex-wrap: wrap; }
-}
-@media (hover: none), (pointer: coarse) {
-  .fire-overview-stat[aria-disabled="true"] .fire-metric-tooltip {
-    display: none;
-  }
 }
 @media (prefers-reduced-motion: reduce) {
   .fire-story *,
