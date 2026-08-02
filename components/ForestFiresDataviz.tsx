@@ -6,7 +6,7 @@ import {useLocale} from "next-intl";
 import {Brand} from "@/components/Brand";
 import {SiteFooter} from "@/components/SiteFooter";
 
-type Metric = "burnedArea" | "fireCount" | "heatwaveDays";
+type Metric = "burnedArea" | "fireCount" | "humanImpact";
 type ViewMode = "map" | "evolution";
 type Position = [number, number];
 type DepartmentFeature = {
@@ -24,7 +24,6 @@ type FireYearData = {
   burnedArea: number;
   forestBurnedArea: number;
   forestShare: number;
-  heatwaveDays: number;
   departments: Record<string, {
     fireCount: number;
     burnedArea: number;
@@ -38,8 +37,19 @@ type FireDataset = {
   earliestYear: number;
   latestConsolidatedYear: number;
   currentYear: number;
-  heatwaveSource: string;
   years: Record<string, FireYearData>;
+};
+type HumanImpactYear = {
+  total: number;
+  status: "consolidated" | "provisional";
+  breakdown: {label: string; value: number}[];
+  note: string;
+  sources: {label: string; url: string}[];
+};
+type HumanImpactDataset = {
+  updatedAt: string;
+  methodology: string;
+  years: Record<string, HumanImpactYear>;
 };
 
 const FALLBACK_EARLIEST_YEAR = 2006;
@@ -52,7 +62,7 @@ const COPY = {
     observedYear: "Année observée", previousYear: "Année précédente", nextYear: "Année suivante",
     provisional: "EFFIS · Provisoire", insufficient: "Données insuffisantes", noData: "Pas de données",
     unavailable: "Données indisponibles", consolidated: "données consolidées", provisionalData: "données provisoires",
-    cutoff: "données arrêtées au", importDate: "import du", heatwaveFreshness: "Météo-France · vagues de chaleur nationales",
+    cutoff: "données arrêtées au", importDate: "import du", humanFreshness: "IDMC · déplacements documentés",
     observed: "observées", provisionalPlural: "provisoires", viewLabel: "Vue de la dataviz", map: "Carte", evolution: "Évolution",
     yearUnavailable: "Nous n’avons pas encore assez de données pour cette année, merci de sélectionner une année antérieure.",
     seeYear: "Voir", loading: "Chargement du fond de carte…", less: "Moins", more: "Plus",
@@ -65,11 +75,11 @@ const COPY = {
     nationalEvolution: "Évolution nationale", chartHelp: "Chaque courbe utilise sa propre échelle. Survolez-les pour comparer une même année, ou utilisez le curseur au clavier et sur mobile.",
     comparedYear: "Année comparée", synced: "Lecture synchronisée", sources: "SOURCES & MÉTHODE",
     methodTitle: "Une première structure, avec des données traçables.",
-    method: "Les années 2006 à {year} sont calculées depuis les incendies publiés par la BDIFF. L’année {currentYear} repose sur les périmètres satellitaires EFFIS disponibles au moment de la mise à jour. Les deux sources n’ont pas le même niveau de consolidation : cette rupture est indiquée directement dans l’interface. Les jours de canicule correspondent aux vagues de chaleur nationales identifiées par Météo-France ; leur rapprochement avec les incendies décrit une corrélation et non un lien de causalité.",
+    method: "Les années 2006 à {year} sont calculées depuis les incendies publiés par la BDIFF. L’année {currentYear} repose sur les périmètres satellitaires EFFIS disponibles au moment de la mise à jour. Les deux sources n’ont pas le même niveau de consolidation : cette rupture est indiquée directement dans l’interface. Les impacts humains proviennent de l’IDMC et ne sont affichés que lorsqu’un bilan documenté est disponible.",
     metrics: {
       burnedArea: {label: "Surface brûlée", unit: "ha", description: "Surface totale parcourue par les incendies recensés pendant l’année, exprimée en hectares."},
       fireCount: {label: "Nombre de feux", unit: "feux", description: "Nombre total d’incendies recensés pendant l’année, quelle que soit leur surface."},
-      heatwaveDays: {label: "Jours en vague de chaleur", unit: "jours", description: "Nombre de jours appartenant à une vague de chaleur nationale selon l’indicateur thermique de Météo-France. La mise en regard avec les incendies montre une corrélation, pas une causalité."},
+      humanImpact: {label: "Évacuations documentées", unit: "déplacements", description: "Mouvements d’évacuation ou de déplacement documentés à la suite de feux de forêt. Une même personne peut être comptée plusieurs fois et le recensement n’est pas exhaustif : il ne s’agit pas d’un nombre de personnes uniques."},
     },
   },
   en: {
@@ -79,7 +89,7 @@ const COPY = {
     observedYear: "Observed year", previousYear: "Previous year", nextYear: "Next year",
     provisional: "EFFIS · Provisional", insufficient: "Insufficient data", noData: "No data",
     unavailable: "Data unavailable", consolidated: "consolidated data", provisionalData: "provisional data",
-    cutoff: "data through", importDate: "imported on", heatwaveFreshness: "Météo-France · national heatwaves",
+    cutoff: "data through", importDate: "imported on", humanFreshness: "IDMC · documented displacements",
     observed: "observed", provisionalPlural: "provisional", viewLabel: "Visualization view", map: "Map", evolution: "Trends",
     yearUnavailable: "We do not have enough data for this year yet. Please select an earlier year.",
     seeYear: "View", loading: "Loading map…", less: "Less", more: "More",
@@ -92,11 +102,11 @@ const COPY = {
     nationalEvolution: "National trends", chartHelp: "Each line uses its own scale. Hover to compare the same year, or use the slider with a keyboard or on mobile.",
     comparedYear: "Compared year", synced: "Synchronized reading", sources: "SOURCES & METHOD",
     methodTitle: "An initial framework built on traceable data.",
-    method: "The years 2006 to {year} are calculated from wildfires published by BDIFF. The year {currentYear} is based on EFFIS satellite perimeters available when the data was updated. These sources have different consolidation levels, and this break is shown directly in the interface. Heatwave days are based on national heatwaves identified by Météo-France; comparing them with wildfires describes correlation, not causation.",
+    method: "The years 2006 to {year} are calculated from wildfires published by BDIFF. The year {currentYear} is based on EFFIS satellite perimeters available when the data was updated. These sources have different consolidation levels, and this break is shown directly in the interface. Human impacts come from IDMC and are only shown when a documented estimate is available.",
     metrics: {
       burnedArea: {label: "Burned area", unit: "ha", description: "Total area affected by recorded wildfires during the year, in hectares."},
       fireCount: {label: "Number of fires", unit: "fires", description: "Total number of recorded wildfires during the year, regardless of their area."},
-      heatwaveDays: {label: "Heatwave days", unit: "days", description: "Days within a national heatwave according to Météo-France’s thermal indicator. Comparison with wildfires shows correlation, not causation."},
+      humanImpact: {label: "Documented evacuations", unit: "displacements", description: "Documented evacuation or displacement movements caused by wildfires. The same person may be counted more than once and reporting is not exhaustive: this is not a count of unique people."},
     },
   },
 } as const;
@@ -109,7 +119,7 @@ const METROPOLITAN_CODES = new Set([
 ]);
 
 function departmentValue(yearData: FireYearData | undefined, code: string, metric: Metric) {
-  if (!yearData || metric === "heatwaveDays") return 0;
+  if (!yearData || metric === "humanImpact") return 0;
   return yearData.departments[code]?.[metric] ?? 0;
 }
 
@@ -250,6 +260,7 @@ export function ForestFiresDataviz() {
   const [view, setView] = useState<ViewMode>("map");
   const [features, setFeatures] = useState<DepartmentFeature[]>([]);
   const [dataset, setDataset] = useState<FireDataset | null>(null);
+  const [humanImpact, setHumanImpact] = useState<HumanImpactDataset | null>(null);
   const [selectedCode, setSelectedCode] = useState<string | null>(null);
   const [hoveredCode, setHoveredCode] = useState<string | null>(null);
   const [hoveredEvolutionYear, setHoveredEvolutionYear] = useState<number | null>(null);
@@ -258,11 +269,13 @@ export function ForestFiresDataviz() {
     Promise.all([
       fetch("/data/departements-1000m.geojson").then((response) => response.json() as Promise<DepartmentCollection>),
       fetch("/data/forest-fires.json").then((response) => response.json() as Promise<FireDataset>),
+      fetch("/data/human-impact.json").then((response) => response.json() as Promise<HumanImpactDataset>),
     ])
-      .then(([collection, fireDataset]) => {
+      .then(([collection, fireDataset, humanImpactDataset]) => {
         if (active) {
           setFeatures(collection.features.filter((feature) => METROPOLITAN_CODES.has(feature.properties.code)));
           setDataset(fireDataset);
+          setHumanImpact(humanImpactDataset);
         }
       })
       .catch(() => {
@@ -281,6 +294,7 @@ export function ForestFiresDataviz() {
     ? Math.max(...Object.keys(dataset.years).map(Number))
     : currentYear;
   const selectedNational = dataset?.years[String(year)];
+  const selectedHumanImpact = humanImpact?.years[String(year)];
   const hasDataForYear = Boolean(selectedNational);
   const departmentRows = useMemo(
     () => hasDataForYear
@@ -304,20 +318,29 @@ export function ForestFiresDataviz() {
       .map(([yearKey, value]) => ({year: Number(yearKey), ...value}))
       .sort((first, second) => first.year - second.year)
     : [];
-  const evolutionMetrics: Metric[] = ["burnedArea", "fireCount", "heatwaveDays"];
+  const evolutionMetrics: Metric[] = ["burnedArea", "fireCount", "humanImpact"];
   const comparisonYear = hoveredEvolutionYear ?? year;
-  const comparisonData = dataset?.years[String(comparisonYear)];
   const evolutionPoints = (key: Metric) => {
-    const availableYears = timelineYears.filter(
-      (item) => !(key === "fireCount" && item.source === "EFFIS"),
-    );
-    const values = availableYears.map((item) => item[key]);
+    const availableYears = key === "humanImpact"
+      ? Object.entries(humanImpact?.years ?? {}).map(([yearKey, value]) => ({
+        year: Number(yearKey), value: value.total,
+      })).sort((first, second) => first.year - second.year)
+      : timelineYears
+        .filter((item) => !(key === "fireCount" && item.source === "EFFIS"))
+        .map((item) => ({year: item.year, value: item[key]}));
+    const values = availableYears.map((item) => item.value);
     const maximum = Math.max(...values, 1);
     return availableYears.map((item) => ({
       ...item,
       x: 30 + ((item.year - earliestAvailableYear) / Math.max(1, currentYear - earliestAvailableYear)) * 920,
-      y: 128 - (item[key] / maximum) * 98,
+      y: 128 - (item.value / maximum) * 98,
     }));
+  };
+  const nationalMetricValue = (key: Metric, targetYear = year): number | null => {
+    if (key === "humanImpact") return humanImpact?.years[String(targetYear)]?.total ?? null;
+    const target = dataset?.years[String(targetYear)];
+    if (!target || (key === "fireCount" && target.source === "EFFIS")) return null;
+    return target[key];
   };
   const selectYear = (nextYear: number) => {
     setYear(nextYear);
@@ -383,12 +406,17 @@ export function ForestFiresDataviz() {
               aria-disabled={
                 !selectedNational
                 || (key === "fireCount" && selectedNational.source === "EFFIS")
+                || (key === "humanImpact" && !selectedHumanImpact)
               }
               aria-describedby={`fire-metric-help-${key}`}
               onClick={() => {
-                if (!selectedNational || (key === "fireCount" && selectedNational.source === "EFFIS")) return;
+                if (
+                  !selectedNational
+                  || (key === "fireCount" && selectedNational.source === "EFFIS")
+                  || (key === "humanImpact" && !selectedHumanImpact)
+                ) return;
                 setMetric(key);
-                if (key === "heatwaveDays") setView("evolution");
+                if (key === "humanImpact") setView("evolution");
               }}
             >
               <span className="fire-metric-label">
@@ -398,11 +426,9 @@ export function ForestFiresDataviz() {
               <AnimatedNumberValue
                 metric={key}
                 value={
-                  !selectedNational || (key === "fireCount" && selectedNational.source === "EFFIS")
-                    ? null
-                    : selectedNational[key]
+                  nationalMetricValue(key)
                 }
-                startValue={selectedNational ? selectedNational[key] * 0.5 : 0}
+                startValue={(nationalMetricValue(key) ?? 0) * 0.5}
                 locale={locale}
                 metrics={metrics}
                 noData={copy.noData}
@@ -414,15 +440,17 @@ export function ForestFiresDataviz() {
               >
                 {key === "fireCount" && selectedNational?.source === "EFFIS"
                   ? copy.effisCountNote
-                  : metrics[key].description}
+                  : key === "humanImpact" && selectedHumanImpact
+                    ? `${metrics[key].description} ${selectedHumanImpact.note} ${selectedHumanImpact.breakdown.map((item) => `${item.label} : ${item.value.toLocaleString(locale === "fr" ? "fr-FR" : "en-GB")}`).join(" · ")}`
+                    : metrics[key].description}
               </span>
             </button>
           ))}
         </div>
         <p className="fire-freshness">
           <i aria-hidden="true" />
-          {metric === "heatwaveDays"
-            ? `${copy.heatwaveFreshness} ${year === currentYear ? copy.provisionalPlural : copy.observed}`
+          {metric === "humanImpact"
+            ? `${copy.humanFreshness} · ${selectedHumanImpact ? (selectedHumanImpact.status === "provisional" ? copy.provisionalData : copy.consolidated) : copy.noData}`
             : selectedNational
               ? `${selectedNational.source} · ${selectedNational.status === "provisional" ? copy.provisionalData : copy.consolidated}`
               : copy.unavailable}
@@ -440,7 +468,7 @@ export function ForestFiresDataviz() {
             aria-selected={view === "map"}
             className={view === "map" ? "is-selected" : ""}
             onClick={() => {
-              if (metric === "heatwaveDays") setMetric("burnedArea");
+              if (metric === "humanImpact") setMetric("burnedArea");
               setView("map");
             }}
           >
@@ -601,14 +629,17 @@ export function ForestFiresDataviz() {
             <div className="fire-evolution-comparison" aria-live="polite">
               <span>{copy.synced} · {comparisonYear}</span>
               {evolutionMetrics.map((key) => (
-                <strong key={key}>
+                <strong
+                  key={key}
+                  title={key === "humanImpact" && humanImpact?.years[String(comparisonYear)]
+                    ? `${humanImpact.years[String(comparisonYear)].note} ${humanImpact.years[String(comparisonYear)].breakdown.map((item) => `${item.label} : ${item.value.toLocaleString(locale === "fr" ? "fr-FR" : "en-GB")}`).join(" · ")}`
+                    : undefined}
+                >
                   {metrics[key].label}{" "}
                   <em>
-                    {key === "fireCount" && comparisonData?.source === "EFFIS"
+                    {nationalMetricValue(key, comparisonYear) === null
                       ? copy.noData
-                      : comparisonData
-                        ? formatMetricValue(comparisonData[key], key)
-                        : copy.noData}
+                      : formatMetricValue(nationalMetricValue(key, comparisonYear)!, key)}
                   </em>
                 </strong>
               ))}
@@ -629,7 +660,7 @@ export function ForestFiresDataviz() {
                     <button type="button" onClick={() => setMetric(key)}>
                       <span>{metrics[key].label}</span>
                       <strong>
-                        {selectedPoint ? formatMetricValue(selectedPoint[key], key) : copy.noData}
+                        {selectedPoint ? formatMetricValue(selectedPoint.value, key) : copy.noData}
                       </strong>
                     </button>
                     <svg
@@ -639,7 +670,7 @@ export function ForestFiresDataviz() {
                       onClick={(event) => selectYear(evolutionYearAtPointer(event))}
                     >
                       <line x1="30" y1="128" x2="950" y2="128" />
-                      <polyline points={points.map((point) => `${point.x},${point.y}`).join(" ")} />
+                      {key !== "humanImpact" && <polyline points={points.map((point) => `${point.x},${point.y}`).join(" ")} />}
                       <line className="fire-evolution-guide" x1={guideX} y1="18" x2={guideX} y2="128" />
                       {points.map((point) => (
                         <circle
@@ -649,7 +680,7 @@ export function ForestFiresDataviz() {
                           cy={point.y}
                           r={point.year === comparisonYear ? 6 : 3.5}
                         >
-                          <title>{point.year} — {formatMetricValue(point[key], key)}</title>
+                          <title>{point.year} — {formatMetricValue(point.value, key)}</title>
                         </circle>
                       ))}
                       <text x="30" y="149">{earliestAvailableYear}</text>
@@ -684,18 +715,13 @@ export function ForestFiresDataviz() {
               </a>
             </li>
             <li>
-              <a href="https://indicateurs-snbc.developpement-durable.gouv.fr/duree-et-severite-des-vagues-de-chaleur-a8.html?lang=fr" target="_blank" rel="noreferrer">
-                {locale === "fr" ? "Météo-France / Ministère de la Transition écologique — série 2006–2019 ↗" : "Météo-France / French Ministry for Ecological Transition — 2006–2019 series ↗"}
+              <a href="https://www.internal-displacement.org/database/displacement-data/" target="_blank" rel="noreferrer">
+                {locale === "fr" ? "IDMC — base mondiale des déplacements internes ↗" : "IDMC — Global Internal Displacement Database ↗"}
               </a>
             </li>
             <li>
-              <a href="https://education.meteofrance.fr/le-changement-climatique/quel-climat-futur/changement-climatique-quel-impact-sur-les-vagues-de" target="_blank" rel="noreferrer">
-                {locale === "fr" ? "Météo-France — recensement des vagues de chaleur 2020–2026 ↗" : "Météo-France — heatwave inventory 2020–2026 ↗"}
-              </a>
-            </li>
-            <li>
-              <a href="/data/heatwave-days.json" target="_blank" rel="noreferrer">
-                {locale === "fr" ? "Série utilisée — valeurs et liens officiels année par année ↗" : "Dataset used — yearly values and official links ↗"}
+              <a href="/data/human-impact.json" target="_blank" rel="noreferrer">
+                {locale === "fr" ? "Série utilisée — valeurs, définitions et sources année par année ↗" : "Dataset used — yearly values, definitions and sources ↗"}
               </a>
             </li>
             <li>

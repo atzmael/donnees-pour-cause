@@ -1,0 +1,41 @@
+{
+  "updatedAt": "2026-08-02",
+  "methodology": "Mouvements d’évacuation ou de déplacement interne documentés par l’IDMC à la suite de feux de forêt en France métropolitaine. Une même personne peut être comptée plusieurs fois. La couverture n’est pas exhaustive et une année absente ne signifie pas zéro déplacement.",
+  "years": {
+    "2019": {
+      "total": 548,
+      "status": "consolidated",
+      "breakdown": [
+        {"label": "Déplacements liés aux feux de forêt en France métropolitaine", "value": 548}
+      ],
+      "note": "Bilan annuel consolidé de l’IDMC.",
+      "sources": [
+        {"label": "IDMC — analyse France 2019", "url": "https://api.internal-displacement.org/sites/default/files/inline-files/GRID-2019-Disasters-Figure-Analysis-France.pdf"}
+      ]
+    },
+    "2022": {
+      "total": 45000,
+      "status": "consolidated",
+      "breakdown": [
+        {"label": "Deux incendies de Gironde en juillet", "value": 30000},
+        {"label": "Reprise d’un incendie en Gironde en août", "value": 8000},
+        {"label": "Autres déplacements documentés", "value": 7000}
+      ],
+      "note": "Le total national inclut des évacuations répétées et ne correspond pas nécessairement à 45 000 personnes uniques.",
+      "sources": [
+        {"label": "IDMC — Global Report on Internal Displacement 2023", "url": "https://api.internal-displacement.org/sites/default/files/publications/documents/IDMC_GRID_2023_Global_Report_on_Internal_Displacement_LR.pdf"}
+      ]
+    },
+    "2023": {
+      "total": 3300,
+      "status": "consolidated",
+      "breakdown": [
+        {"label": "Déplacements liés aux feux de forêt en France", "value": 3300}
+      ],
+      "note": "Bilan annuel consolidé de l’IDMC.",
+      "sources": [
+        {"label": "IDMC — Global Report on Internal Displacement 2024", "url": "https://api.internal-displacement.org/sites/default/files/publications/documents/IDMC-GRID-2024-Global-Report-on-Internal-Displacement.pdf"}
+      ]
+    }
+  }
+}

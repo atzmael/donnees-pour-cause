@@ -7,9 +7,6 @@ import {fileURLToPath} from "node:url";
 const START_YEAR = 2006;
 const currentYear = new Date().getFullYear();
 const lastConsolidatedYear = currentYear - 1;
-const heatwaveDataset = JSON.parse(
-  readFileSync(new URL("../public/data/heatwave-days.json", import.meta.url), "utf8"),
-);
 const workspace = mkdtempSync(join(tmpdir(), "forest-fire-data-"));
 const outputPath = new URL("../public/data/forest-fires.json", import.meta.url);
 const departmentsPath = new URL("../public/data/departements-detail.geojson", import.meta.url);
@@ -109,7 +106,6 @@ function emptyYear(source, status) {
     burnedArea: 0,
     forestBurnedArea: 0,
     forestShare: 0,
-    heatwaveDays: 0,
     departments: {},
   };
 }
@@ -233,18 +229,12 @@ for (const yearData of Object.values(years)) {
   }
 }
 
-for (const [year, days] of Object.entries(heatwaveDataset.values)) {
-  if (years[year]) years[year].heatwaveDays = days;
-}
-
 writeFileSync(outputPath, `${JSON.stringify({
   updatedAt: new Date().toISOString(),
   effisCutoffAt: normalizeEffisDate(effisCutoffAt),
   earliestYear: START_YEAR,
   latestConsolidatedYear: lastConsolidatedYear,
   currentYear,
-  heatwaveSource: "Météo-France — indicateur thermique national",
-  heatwaveProvenance: "/data/heatwave-days.json",
   years,
 }, null, 2)}\n`);
 

@@ -18,17 +18,16 @@ Le champ `effisCutoffAt` du fichier généré correspond à la date la plus réc
 dans `LASTUPDATE`, ou à défaut dans `FINALDATE` puis `FIREDATE`. `updatedAt` indique
 uniquement l’heure à laquelle l’import a été exécuté.
 
-## Jours en vague de chaleur
+## Évacuations et déplacements documentés
 
-La série versionnée dans `public/data/heatwave-days.json` compte les jours appartenant à une
-vague de chaleur nationale selon l’indicateur thermique national de Météo-France. Chaque
-valeur est reliée à une publication officielle. Elle est maintenue séparément du script
-d’import afin qu’une modification soit lisible et vérifiable dans l’historique Git.
+La série versionnée dans `public/data/human-impact.json` reprend les déplacements internes
+provoqués par les feux de forêt et documentés par l’IDMC. Elle inclut notamment les
+évacuations temporaires lorsqu’elles sont recensées par l’organisme.
 
-La comparaison avec les surfaces brûlées et le nombre de feux met en évidence une
-corrélation temporelle, pas une causalité. Les incendies dépendent aussi notamment de
-la sécheresse des sols et de la végétation, du vent, de l’humidité, des départs de feu
-et des politiques de prévention.
+Ces valeurs comptent des mouvements, pas nécessairement des personnes uniques : une même
+personne peut être déplacée plusieurs fois. La couverture n’est pas exhaustive. Une année
+absente est donc affichée « Pas de données » et jamais interprétée comme zéro. La série est
+maintenue séparément de l’import horaire des incendies afin de préserver les bilans validés.
 
 ## Fréquence
 
