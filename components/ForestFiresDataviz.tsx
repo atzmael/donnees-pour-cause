@@ -64,7 +64,7 @@ const COPY = {
   fr: {
     back: "← Tous les projets", meta: "Dataviz · Cartographie · Données publiques",
     kicker: "FEUX DE FORÊT · FRANCE MÉTROPOLITAINE", titleStart: "Quand la France", titleEmphasis: "prend feu",
-    deck: "années d’incendies cartographiées pour comprendre où les feux se concentrent — et pourquoi certaines saisons laissent une trace hors norme.",
+    deck: "années d’incendies cartographiées pour comprendre où les feux se concentrent et pourquoi certaines saisons laissent une trace hors norme.",
     sourcesLink: "Sources ↓",
     observedYear: "Année observée", previousYear: "Année précédente", nextYear: "Année suivante",
     provisional: "EFFIS · Provisoire", insufficient: "Données insuffisantes", noData: "Pas de données",
@@ -92,7 +92,7 @@ const COPY = {
   en: {
     back: "← All projects", meta: "Dataviz · Mapping · Open data",
     kicker: "WILDFIRES · METROPOLITAN FRANCE", titleStart: "When France", titleEmphasis: "catches fire",
-    deck: "years of mapped wildfires reveal where fires concentrate — and why some seasons leave an exceptional mark.",
+    deck: "years of mapped wildfires reveal where fires concentrate and why some seasons leave an exceptional mark.",
     sourcesLink: "Sources ↓",
     observedYear: "Observed year", previousYear: "Previous year", nextYear: "Next year",
     provisional: "EFFIS · Provisional", insufficient: "Insufficient data", noData: "No data",
