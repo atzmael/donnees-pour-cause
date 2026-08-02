@@ -22,17 +22,23 @@ uniquement l’heure à laquelle l’import a été exécuté.
 
 La série versionnée dans `public/data/population-exposure.json` est calculée en croisant les
 périmètres brûlés EFFIS MODIS avec les carreaux de population 2021 de 1 km publiés par
-l’Insee. Un habitant est compté lorsque le centre de son carreau de résidence se trouve dans
-un périmètre brûlé. Il n’est compté qu’une fois par année, même si plusieurs feux recouvrent
-le même carreau.
+l’Insee. Chaque carreau est échantillonné en 16 points et sa population est répartie
+proportionnellement à la part de points située dans les surfaces brûlées. Une borne haute
+additionne séparément toute la population des carreaux au moins partiellement touchés.
 
-Cet indicateur estime une exposition géographique potentielle. Il ne signifie pas que toutes
-les personnes ont été directement atteintes, évacuées ou exposées aux fumées. Les évacuations
-documentées par l’IDMC sont conservées séparément dans le détail des années disponibles.
+Cet indicateur estime les habitants des zones brûlées, pas l’ensemble des personnes touchées.
+Il ne couvre ni les zones évacuées préventivement autour des feux, ni l’exposition aux fumées,
+ni les victimes. La résolution de 1 km et l’hypothèse d’une population uniformément répartie
+dans chaque carreau impliquent une marge d’incertitude. EFFIS détecte principalement les
+feux d’environ 30 hectares ou plus. Les évacuations documentées par l’IDMC sont conservées
+séparément dans le détail des années disponibles et comptent des mouvements, pas toujours des
+personnes uniques. L’exposition aux fumées sera ajoutée séparément lorsqu’un seuil CAMS et
+une méthode d’attribution aux seuls feux de forêt auront été validés.
 La couverture EFFIS utilisée commence en 2016 ; les années antérieures sont affichées sans
 donnée plutôt qu’avec une valeur nulle.
 
 ## Fréquence
 
-Le workflow `update-forest-fire-data.yml` relance l’import chaque heure et ne crée un
-commit sur `preprod` que si le fichier produit a réellement changé.
+Le workflow `update-forest-fire-data.yml` relance l’import chaque heure sur `main` et ne crée
+un commit que si les fichiers produits ont réellement changé. `preprod` reste disponible
+comme cible lors des déclenchements manuels.

@@ -5,6 +5,11 @@ import {useEffect, useMemo, useRef, useState} from "react";
 import {useLocale} from "next-intl";
 import {Brand} from "@/components/Brand";
 import {SiteFooter} from "@/components/SiteFooter";
+import {
+  EVOLUTION_PLOT_END,
+  EVOLUTION_PLOT_START,
+  evolutionYearFromRelativeX,
+} from "@/lib/evolution-scale";
 
 type Metric = "burnedArea" | "fireCount" | "populationExposure";
 type ViewMode = "map" | "evolution";
@@ -41,6 +46,8 @@ type FireDataset = {
 };
 type PopulationExposureYear = {
   exposedPopulation: number;
+  intersectedGridPopulation: number;
+  smokeExposure: number | null;
   status: "consolidated" | "provisional";
   documentedImpact?: {evacuations: number; note: string};
 };
@@ -58,10 +65,11 @@ const COPY = {
     back: "← Tous les projets", meta: "Dataviz · Cartographie · Données publiques",
     kicker: "FEUX DE FORÊT · FRANCE MÉTROPOLITAINE", titleStart: "Quand la France", titleEmphasis: "prend feu",
     deck: "années d’incendies cartographiées pour comprendre où les feux se concentrent — et pourquoi certaines saisons laissent une trace hors norme.",
+    sourcesLink: "Sources ↓",
     observedYear: "Année observée", previousYear: "Année précédente", nextYear: "Année suivante",
     provisional: "EFFIS · Provisoire", insufficient: "Données insuffisantes", noData: "Pas de données",
     unavailable: "Données indisponibles", consolidated: "données consolidées", provisionalData: "données provisoires",
-    cutoff: "données arrêtées au", importDate: "import du", exposureFreshness: "EFFIS × Insee · estimation géographique",
+    cutoff: "données arrêtées au", importDate: "import du", exposureFreshness: "EFFIS × Insee · habitants estimés dans les zones brûlées",
     observed: "observées", provisionalPlural: "provisoires", viewLabel: "Vue de la dataviz", map: "Carte", evolution: "Évolution",
     yearUnavailable: "Nous n’avons pas encore assez de données pour cette année, merci de sélectionner une année antérieure.",
     seeYear: "Voir", loading: "Chargement du fond de carte…", less: "Moins", more: "Plus",
@@ -78,13 +86,14 @@ const COPY = {
     metrics: {
       burnedArea: {label: "Surface brûlée", unit: "ha", description: "Surface totale parcourue par les incendies recensés pendant l’année, exprimée en hectares."},
       fireCount: {label: "Nombre de feux", unit: "feux", description: "Nombre total d’incendies recensés pendant l’année, quelle que soit leur surface."},
-      populationExposure: {label: "Population potentiellement exposée", unit: "personnes", description: "Estimation du nombre d’habitants dont le carreau de résidence Insee de 1 km a son centre dans un périmètre brûlé EFFIS. Une personne n’est comptée qu’une fois dans l’année. Il s’agit d’une exposition géographique potentielle, pas d’un nombre de victimes ou d’évacuations."},
+      populationExposure: {label: "Habitants des surfaces brûlées", unit: "personnes", description: "Estimation proportionnelle des habitants présents dans les surfaces brûlées EFFIS. Chaque carreau Insee de 1 km est échantillonné en 16 points : sa population est répartie selon la part située dans le feu. La borne haute compte tous les habitants des carreaux au moins partiellement touchés. Les évacuations restent séparées et l’exposition aux fumées n’est pas encore chiffrée sans seuil CAMS validé."},
     },
   },
   en: {
     back: "← All projects", meta: "Dataviz · Mapping · Open data",
     kicker: "WILDFIRES · METROPOLITAN FRANCE", titleStart: "When France", titleEmphasis: "catches fire",
     deck: "years of mapped wildfires reveal where fires concentrate — and why some seasons leave an exceptional mark.",
+    sourcesLink: "Sources ↓",
     observedYear: "Observed year", previousYear: "Previous year", nextYear: "Next year",
     provisional: "EFFIS · Provisional", insufficient: "Insufficient data", noData: "No data",
     unavailable: "Data unavailable", consolidated: "consolidated data", provisionalData: "provisional data",
@@ -105,7 +114,7 @@ const COPY = {
     metrics: {
       burnedArea: {label: "Burned area", unit: "ha", description: "Total area affected by recorded wildfires during the year, in hectares."},
       fireCount: {label: "Number of fires", unit: "fires", description: "Total number of recorded wildfires during the year, regardless of their area."},
-      populationExposure: {label: "Exposed population", unit: "people", description: "Estimated residents whose 1 km Insee residential grid-cell centre lies within an EFFIS burnt perimeter. A resident is counted once per year. This is potential geographic exposure, not a casualty or evacuation count."},
+      populationExposure: {label: "Residents in burnt areas", unit: "people", description: "Proportional estimate of residents within EFFIS burnt areas. Each 1 km Insee cell is sampled at 16 points and its population is allocated according to the share inside the fire. The upper bound counts every resident of cells touched at least partially. Evacuations remain separate and smoke exposure is not quantified without a validated CAMS threshold."},
     },
   },
 } as const;
@@ -331,7 +340,9 @@ export function ForestFiresDataviz() {
     const maximum = Math.max(...values, 1);
     return availableYears.map((item) => ({
       ...item,
-      x: 30 + ((item.year - earliestAvailableYear) / Math.max(1, currentYear - earliestAvailableYear)) * 920,
+      x: EVOLUTION_PLOT_START + (
+        (item.year - earliestAvailableYear) / Math.max(1, currentYear - earliestAvailableYear)
+      ) * (EVOLUTION_PLOT_END - EVOLUTION_PLOT_START),
       y: 128 - (item.value / maximum) * 98,
     }));
   };
@@ -340,6 +351,17 @@ export function ForestFiresDataviz() {
     const target = dataset?.years[String(targetYear)];
     if (!target || (key === "fireCount" && target.source === "EFFIS")) return null;
     return target[key];
+  };
+  const exposureDetails = (value: PopulationExposureYear) => {
+    const numberLocale = locale === "fr" ? "fr-FR" : "en-GB";
+    const upperBound = value.intersectedGridPopulation.toLocaleString(numberLocale);
+    const evacuation = value.documentedImpact ? `\nÉvacuations : ${value.documentedImpact.note}` : "";
+    const smoke = locale === "fr"
+      ? "\nFumées : pas encore de donnée comparable."
+      : "\nSmoke: no comparable data yet.";
+    return locale === "fr"
+      ? `Borne haute : ${upperBound} habitants vivent dans des carreaux au moins partiellement touchés.${evacuation}${smoke}`
+      : `Upper bound: ${upperBound} residents live in grid cells touched at least partially.${value.documentedImpact ? `\nEvacuations: ${value.documentedImpact.note}` : ""}${smoke}`;
   };
   const selectYear = (nextYear: number) => {
     setYear(nextYear);
@@ -354,10 +376,7 @@ export function ForestFiresDataviz() {
   ) => {
     const bounds = event.currentTarget.getBoundingClientRect();
     const relativeX = Math.max(0, Math.min(1, (event.clientX - bounds.left) / bounds.width));
-    const nearestYear = Math.round(
-      earliestAvailableYear + relativeX * (currentYear - earliestAvailableYear),
-    );
-    return Math.max(earliestAvailableYear, Math.min(currentYear, nearestYear));
+    return evolutionYearFromRelativeX(relativeX, earliestAvailableYear, currentYear);
   };
   const handleEvolutionPointer = (event: React.PointerEvent<SVGSVGElement>) => {
     setHoveredEvolutionYear(evolutionYearAtPointer(event));
@@ -383,6 +402,8 @@ export function ForestFiresDataviz() {
           <h1 id="fire-title">{copy.titleStart} <em>{copy.titleEmphasis}</em></h1>
           <p className="fire-deck">
             <strong className="fire-inline-number">{currentYear - earliestAvailableYear + 1}</strong> {copy.deck}
+            {" "}
+            <a className="fire-sources-jump" href="#sources">{copy.sourcesLink}</a>
           </p>
         </div>
 
@@ -439,8 +460,8 @@ export function ForestFiresDataviz() {
               >
                 {key === "fireCount" && selectedNational?.source === "EFFIS"
                   ? copy.effisCountNote
-                  : key === "populationExposure" && selectedExposure?.documentedImpact
-                    ? `${metrics[key].description} ${selectedExposure.documentedImpact.note}`
+                  : key === "populationExposure" && selectedExposure
+                    ? `${metrics[key].description}\n\n${exposureDetails(selectedExposure)}`
                     : metrics[key].description}
               </span>
             </button>
@@ -632,10 +653,10 @@ export function ForestFiresDataviz() {
               {evolutionMetrics.map((key) => {
                 const points = evolutionPoints(key);
                 const selectedPoint = points.find((point) => point.year === comparisonYear);
-                const guideX = 30 + (
+                const guideX = EVOLUTION_PLOT_START + (
                   (comparisonYear - earliestAvailableYear)
                   / Math.max(1, currentYear - earliestAvailableYear)
-                ) * 920;
+                ) * (EVOLUTION_PLOT_END - EVOLUTION_PLOT_START);
                 return (
                   <article key={key} className={`fire-evolution-row ${metric === key ? "is-selected" : ""}`}>
                     <button type="button" onClick={() => setMetric(key)}>
@@ -650,7 +671,7 @@ export function ForestFiresDataviz() {
                       onPointerMove={handleEvolutionPointer}
                       onClick={(event) => selectYear(evolutionYearAtPointer(event))}
                     >
-                      <line x1="30" y1="128" x2="950" y2="128" />
+                      <line x1={EVOLUTION_PLOT_START} y1="128" x2={EVOLUTION_PLOT_END} y2="128" />
                       <polyline points={points.map((point) => `${point.x},${point.y}`).join(" ")} />
                       <line className="fire-evolution-guide" x1={guideX} y1="18" x2={guideX} y2="128" />
                       {points.map((point) => (
@@ -661,11 +682,16 @@ export function ForestFiresDataviz() {
                           cy={point.y}
                           r={point.year === comparisonYear ? 6 : 3.5}
                         >
-                          <title>{point.year} — {formatMetricValue(point.value, key)}</title>
+                          <title>
+                            {point.year} — {formatMetricValue(point.value, key)}
+                            {key === "populationExposure" && populationExposure?.years[String(point.year)]
+                              ? ` · ${exposureDetails(populationExposure.years[String(point.year)])}`
+                              : ""}
+                          </title>
                         </circle>
                       ))}
-                      <text x="30" y="149">{earliestAvailableYear}</text>
-                      <text x="950" y="149" textAnchor="end">{currentYear}</text>
+                      <text x={EVOLUTION_PLOT_START} y="149">{earliestAvailableYear}</text>
+                      <text x={EVOLUTION_PLOT_END} y="149" textAnchor="end">{currentYear}</text>
                     </svg>
                   </article>
                 );
@@ -675,7 +701,7 @@ export function ForestFiresDataviz() {
         )}
       </section>
 
-      <section className="fire-method">
+      <section className="fire-method" id="sources">
         <p className="kicker">{copy.sources}</p>
         <div>
           <h2>{copy.methodTitle}</h2>

@@ -113,6 +113,9 @@ execFileSync("unzip", ["-o", effisZip, "-d", effisDirectory], {stdio: "ignore"})
 
 const records = parseDbf(join(effisDirectory, "modis.ba.poly.dbf"));
 const shapes = parseShapefile(join(effisDirectory, "modis.ba.poly.shp"));
+if (records.length !== shapes.length) {
+  throw new Error(`Intégrité EFFIS invalide : ${records.length} lignes DBF pour ${shapes.length} géométries SHP.`);
+}
 const shapesByYear = new Map();
 for (let index = 0; index < records.length; index += 1) {
   const record = records[index];
@@ -148,28 +151,56 @@ const populationCsv = execFileSync("unzip", ["-p", populationZip, "carreaux_1km_
   maxBuffer: 120 * 1024 * 1024,
 });
 const totals = Object.fromEntries([...shapesByYear.keys()].map((year) => [year, 0]));
+const intersectedCellTotals = Object.fromEntries([...shapesByYear.keys()].map((year) => [year, 0]));
+const samplesPerAxis = 4;
+const samplesPerCell = samplesPerAxis ** 2;
+let populationCells = 0;
+let referencePopulation = 0;
 for (const line of populationCsv.split(/\r?\n/).slice(1)) {
   const [cellId, , , populationValue] = line.split(";");
   if (!cellId || !populationValue) continue;
   const match = cellId.match(/N(\d+)E(\d+)$/);
   if (!match) continue;
-  const [longitude, latitude] = proj4("EPSG:3035", "EPSG:4326", [Number(match[2]) + 500, Number(match[1]) + 500]);
-  const key = bucketKey(longitude, latitude);
-  for (const [year, buckets] of bucketsByYear) {
-    const candidates = buckets.get(key);
-    if (candidates?.some((shape) => pointInShape([longitude, latitude], shape))) {
-      totals[year] += Number(populationValue);
+  populationCells += 1;
+  referencePopulation += Number(populationValue);
+  const originX = Number(match[2]);
+  const originY = Number(match[1]);
+  const burnedSamplesByYear = Object.fromEntries([...shapesByYear.keys()].map((year) => [year, 0]));
+  for (let sampleX = 0; sampleX < samplesPerAxis; sampleX += 1) {
+    for (let sampleY = 0; sampleY < samplesPerAxis; sampleY += 1) {
+      const offsetX = (sampleX + 0.5) * 1000 / samplesPerAxis;
+      const offsetY = (sampleY + 0.5) * 1000 / samplesPerAxis;
+      const [longitude, latitude] = proj4("EPSG:3035", "EPSG:4326", [originX + offsetX, originY + offsetY]);
+      const key = bucketKey(longitude, latitude);
+      for (const [year, buckets] of bucketsByYear) {
+        const candidates = buckets.get(key);
+        if (candidates?.some((shape) => pointInShape([longitude, latitude], shape))) {
+          burnedSamplesByYear[year] += 1;
+        }
+      }
+    }
+  }
+  for (const [year, burnedSamples] of Object.entries(burnedSamplesByYear)) {
+    if (burnedSamples > 0) {
+      const population = Number(populationValue);
+      totals[year] += population * burnedSamples / samplesPerCell;
+      intersectedCellTotals[year] += population;
     }
   }
 }
+if (populationCells < 300_000 || referencePopulation < 60_000_000 || referencePopulation > 75_000_000) {
+  throw new Error(`Grille Insee invalide : ${populationCells} carreaux, ${Math.round(referencePopulation)} habitants.`);
+}
 
 const documentedImpacts = {
-  2019: {evacuations: 548, note: "Déplacements liés aux feux de forêt en France métropolitaine documentés par l’IDMC."},
-  2022: {evacuations: 45000, note: "Déplacements documentés par l’IDMC, dont 30 000 évacuations en juillet et 8 000 lors d’une reprise en août en Gironde."},
-  2023: {evacuations: 3300, note: "Déplacements liés aux feux de forêt en France documentés par l’IDMC."},
+  2019: {evacuations: 548, note: "À comparer avec 548 déplacements documentés par l’IDMC. Les déplacements couvrent des zones d’évacuation plus larges que les seules surfaces finalement brûlées."},
+  2022: {evacuations: 45000, note: "À comparer avec 45 000 déplacements documentés par l’IDMC, dont 30 000 évacuations en juillet et 8 000 lors d’une reprise en août en Gironde. Ce sont des mouvements, pas nécessairement des personnes uniques, et les évacuations préventives dépassent largement les surfaces finalement brûlées."},
+  2023: {evacuations: 3300, note: "À comparer avec 3 300 déplacements documentés par l’IDMC. Les déplacements couvrent des zones d’évacuation plus larges que les seules surfaces finalement brûlées."},
 };
 const years = Object.fromEntries(Object.entries(totals).map(([year, value]) => [year, {
   exposedPopulation: Math.round(value),
+  intersectedGridPopulation: Math.round(intersectedCellTotals[year]),
+  smokeExposure: null,
   status: Number(year) === currentYear ? "provisional" : "consolidated",
   ...(documentedImpacts[year] ? {documentedImpact: documentedImpacts[year]} : {}),
 }]));
@@ -177,7 +208,15 @@ const years = Object.fromEntries(Object.entries(totals).map(([year, value]) => [
 writeFileSync(outputPath, `${JSON.stringify({
   updatedAt: new Date().toISOString(),
   populationReferenceYear: 2021,
-  methodology: "Estimation du nombre d’habitants dont le carreau de résidence Insee de 1 km a son centre dans un périmètre brûlé EFFIS MODIS. Une personne n’est comptée qu’une fois par année. Il s’agit d’une exposition géographique potentielle, pas d’un bilan de victimes ni d’évacuations.",
+  methodology: "Estimation des habitants présents dans les surfaces brûlées EFFIS MODIS. Chaque carreau de population Insee de 1 km est échantillonné en 16 points et sa population est affectée proportionnellement à la part de points situés dans un périmètre brûlé. La borne haute additionne toute la population des carreaux au moins partiellement touchés. La méthode couvre principalement les feux d’environ 30 hectares ou plus. Les évacuations documentées restent séparées et l’exposition aux fumées n’est pas chiffrée sans seuil CAMS validé.",
+  audit: {
+    effisRecords: records.length,
+    frenchPerimeters: [...shapesByYear.values()].reduce((sum, values) => sum + values.length, 0),
+    populationCells,
+    referencePopulation: Math.round(referencePopulation),
+    coverageStartYear: Math.min(...shapesByYear.keys()),
+    samplesPerCell,
+  },
   sources: [
     {label: "EFFIS — périmètres brûlés MODIS", url: "https://forest-fire.emergency.copernicus.eu/applications/data-and-services"},
     {label: "Insee — données carroyées 2021 à 1 km", url: "https://www.insee.fr/fr/statistiques/8272002"},

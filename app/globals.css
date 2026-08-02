@@ -284,6 +284,29 @@ em { color: var(--color-primary); font-style: normal; }
   font-size: clamp(17px, 1.55vw, 21px);
   line-height: 1.5;
 }
+.fire-sources-jump {
+  display: inline-flex;
+  align-items: center;
+  margin-left: 8px;
+  padding: 3px 10px;
+  border: 1px solid color-mix(in srgb, var(--fire-ink) 35%, transparent);
+  border-radius: 999px;
+  color: var(--fire-ink);
+  font-size: .58em;
+  font-weight: 800;
+  letter-spacing: .7px;
+  text-decoration: none;
+  text-transform: uppercase;
+  vertical-align: .18em;
+  transition: background-color 180ms ease, border-color 180ms ease, color 180ms ease;
+}
+.fire-sources-jump:hover,
+.fire-sources-jump:focus-visible {
+  border-color: var(--fire-burn);
+  background: var(--fire-burn);
+  color: var(--fire-paper);
+  outline: none;
+}
 .fire-inline-number { color: var(--fire-burn); font-size: 1.08em; font-weight: 700; }
 .fire-demo-note {
   max-width: 480px;
@@ -376,7 +399,7 @@ em { color: var(--color-primary); font-style: normal; }
   z-index: 10;
   left: 18px;
   bottom: calc(100% - 8px);
-  width: min(270px, calc(100vw - 48px));
+  width: min(360px, calc(100vw - 48px));
   padding: 12px 14px;
   border-radius: 4px;
   background: var(--fire-ink);
@@ -386,6 +409,7 @@ em { color: var(--color-primary); font-style: normal; }
   line-height: 1.45;
   letter-spacing: 0;
   text-transform: none;
+  white-space: pre-line;
   opacity: 0;
   pointer-events: none;
   transform: translateY(6px);
@@ -827,6 +851,7 @@ em { color: var(--color-primary); font-style: normal; }
   grid-template-columns: minmax(180px, .5fr) 1.5fr;
   gap: clamp(40px, 8vw, 130px);
   padding: 100px clamp(24px, 9vw, 135px) 120px;
+  scroll-margin-top: 24px;
   background: var(--fire-paper);
 }
 .fire-method h2 { margin: 0; font-size: clamp(36px, 4.6vw, 62px); line-height: 1.05; letter-spacing: -2px; }
