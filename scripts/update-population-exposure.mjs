@@ -151,6 +151,9 @@ const populationCsv = execFileSync("unzip", ["-p", populationZip, "carreaux_1km_
   maxBuffer: 120 * 1024 * 1024,
 });
 const totals = Object.fromEntries([...shapesByYear.keys()].map((year) => [year, 0]));
+const intersectedCellTotals = Object.fromEntries([...shapesByYear.keys()].map((year) => [year, 0]));
+const samplesPerAxis = 4;
+const samplesPerCell = samplesPerAxis ** 2;
 let populationCells = 0;
 let referencePopulation = 0;
 for (const line of populationCsv.split(/\r?\n/).slice(1)) {
@@ -160,12 +163,28 @@ for (const line of populationCsv.split(/\r?\n/).slice(1)) {
   if (!match) continue;
   populationCells += 1;
   referencePopulation += Number(populationValue);
-  const [longitude, latitude] = proj4("EPSG:3035", "EPSG:4326", [Number(match[2]) + 500, Number(match[1]) + 500]);
-  const key = bucketKey(longitude, latitude);
-  for (const [year, buckets] of bucketsByYear) {
-    const candidates = buckets.get(key);
-    if (candidates?.some((shape) => pointInShape([longitude, latitude], shape))) {
-      totals[year] += Number(populationValue);
+  const originX = Number(match[2]);
+  const originY = Number(match[1]);
+  const burnedSamplesByYear = Object.fromEntries([...shapesByYear.keys()].map((year) => [year, 0]));
+  for (let sampleX = 0; sampleX < samplesPerAxis; sampleX += 1) {
+    for (let sampleY = 0; sampleY < samplesPerAxis; sampleY += 1) {
+      const offsetX = (sampleX + 0.5) * 1000 / samplesPerAxis;
+      const offsetY = (sampleY + 0.5) * 1000 / samplesPerAxis;
+      const [longitude, latitude] = proj4("EPSG:3035", "EPSG:4326", [originX + offsetX, originY + offsetY]);
+      const key = bucketKey(longitude, latitude);
+      for (const [year, buckets] of bucketsByYear) {
+        const candidates = buckets.get(key);
+        if (candidates?.some((shape) => pointInShape([longitude, latitude], shape))) {
+          burnedSamplesByYear[year] += 1;
+        }
+      }
+    }
+  }
+  for (const [year, burnedSamples] of Object.entries(burnedSamplesByYear)) {
+    if (burnedSamples > 0) {
+      const population = Number(populationValue);
+      totals[year] += population * burnedSamples / samplesPerCell;
+      intersectedCellTotals[year] += population;
     }
   }
 }
@@ -180,6 +199,8 @@ const documentedImpacts = {
 };
 const years = Object.fromEntries(Object.entries(totals).map(([year, value]) => [year, {
   exposedPopulation: Math.round(value),
+  intersectedGridPopulation: Math.round(intersectedCellTotals[year]),
+  smokeExposure: null,
   status: Number(year) === currentYear ? "provisional" : "consolidated",
   ...(documentedImpacts[year] ? {documentedImpact: documentedImpacts[year]} : {}),
 }]));
@@ -187,13 +208,14 @@ const years = Object.fromEntries(Object.entries(totals).map(([year, value]) => [
 writeFileSync(outputPath, `${JSON.stringify({
   updatedAt: new Date().toISOString(),
   populationReferenceYear: 2021,
-  methodology: "Estimation du nombre d’habitants dont le carreau de résidence Insee de 1 km a son centre dans un périmètre brûlé EFFIS MODIS. Un habitant n’est compté qu’une fois par année. La méthode couvre principalement les feux d’environ 30 hectares ou plus. Elle ne mesure ni l’exposition aux fumées, ni les zones évacuées préventivement, ni les victimes. Un carreau partiellement touché dont le centre est hors du périmètre n’est pas compté.",
+  methodology: "Estimation des habitants présents dans les surfaces brûlées EFFIS MODIS. Chaque carreau de population Insee de 1 km est échantillonné en 16 points et sa population est affectée proportionnellement à la part de points situés dans un périmètre brûlé. La borne haute additionne toute la population des carreaux au moins partiellement touchés. La méthode couvre principalement les feux d’environ 30 hectares ou plus. Les évacuations documentées restent séparées et l’exposition aux fumées n’est pas chiffrée sans seuil CAMS validé.",
   audit: {
     effisRecords: records.length,
     frenchPerimeters: [...shapesByYear.values()].reduce((sum, values) => sum + values.length, 0),
     populationCells,
     referencePopulation: Math.round(referencePopulation),
     coverageStartYear: Math.min(...shapesByYear.keys()),
+    samplesPerCell,
   },
   sources: [
     {label: "EFFIS — périmètres brûlés MODIS", url: "https://forest-fire.emergency.copernicus.eu/applications/data-and-services"},

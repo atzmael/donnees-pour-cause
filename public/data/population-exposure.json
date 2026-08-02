@@ -1,13 +1,14 @@
 {
-  "updatedAt": "2026-08-02T21:39:01.655Z",
+  "updatedAt": "2026-08-02T21:55:18.895Z",
   "populationReferenceYear": 2021,
-  "methodology": "Estimation du nombre d’habitants dont le carreau de résidence Insee de 1 km a son centre dans un périmètre brûlé EFFIS MODIS. Un habitant n’est compté qu’une fois par année. La méthode couvre principalement les feux d’environ 30 hectares ou plus. Elle ne mesure ni l’exposition aux fumées, ni les zones évacuées préventivement, ni les victimes. Un carreau partiellement touché dont le centre est hors du périmètre n’est pas compté.",
+  "methodology": "Estimation des habitants présents dans les surfaces brûlées EFFIS MODIS. Chaque carreau de population Insee de 1 km est échantillonné en 16 points et sa population est affectée proportionnellement à la part de points situés dans un périmètre brûlé. La borne haute additionne toute la population des carreaux au moins partiellement touchés. La méthode couvre principalement les feux d’environ 30 hectares ou plus. Les évacuations documentées restent séparées et l’exposition aux fumées n’est pas chiffrée sans seuil CAMS validé.",
   "audit": {
     "effisRecords": 11793,
     "frenchPerimeters": 6607,
     "populationCells": 374622,
     "referencePopulation": 65384445,
-    "coverageStartYear": 2016
+    "coverageStartYear": 2016,
+    "samplesPerCell": 16
   },
   "sources": [
     {
@@ -29,19 +30,27 @@
   ],
   "years": {
     "2016": {
-      "exposedPopulation": 9016,
+      "exposedPopulation": 11966,
+      "intersectedGridPopulation": 35522,
+      "smokeExposure": null,
       "status": "consolidated"
     },
     "2017": {
-      "exposedPopulation": 3023,
+      "exposedPopulation": 7307,
+      "intersectedGridPopulation": 32544,
+      "smokeExposure": null,
       "status": "consolidated"
     },
     "2018": {
-      "exposedPopulation": 795,
+      "exposedPopulation": 754,
+      "intersectedGridPopulation": 1959,
+      "smokeExposure": null,
       "status": "consolidated"
     },
     "2019": {
-      "exposedPopulation": 885,
+      "exposedPopulation": 2281,
+      "intersectedGridPopulation": 11614,
+      "smokeExposure": null,
       "status": "consolidated",
       "documentedImpact": {
         "evacuations": 548,
@@ -49,15 +58,21 @@
       }
     },
     "2020": {
-      "exposedPopulation": 2926,
+      "exposedPopulation": 2943,
+      "intersectedGridPopulation": 14359,
+      "smokeExposure": null,
       "status": "consolidated"
     },
     "2021": {
-      "exposedPopulation": 1478,
+      "exposedPopulation": 2220,
+      "intersectedGridPopulation": 12565,
+      "smokeExposure": null,
       "status": "consolidated"
     },
     "2022": {
-      "exposedPopulation": 7454,
+      "exposedPopulation": 7872,
+      "intersectedGridPopulation": 31945,
+      "smokeExposure": null,
       "status": "consolidated",
       "documentedImpact": {
         "evacuations": 45000,
@@ -65,7 +80,9 @@
       }
     },
     "2023": {
-      "exposedPopulation": 1502,
+      "exposedPopulation": 1714,
+      "intersectedGridPopulation": 9266,
+      "smokeExposure": null,
       "status": "consolidated",
       "documentedImpact": {
         "evacuations": 3300,
@@ -73,15 +90,21 @@
       }
     },
     "2024": {
-      "exposedPopulation": 1422,
+      "exposedPopulation": 1128,
+      "intersectedGridPopulation": 5749,
+      "smokeExposure": null,
       "status": "consolidated"
     },
     "2025": {
-      "exposedPopulation": 9160,
+      "exposedPopulation": 8965,
+      "intersectedGridPopulation": 29362,
+      "smokeExposure": null,
       "status": "consolidated"
     },
     "2026": {
-      "exposedPopulation": 10358,
+      "exposedPopulation": 14392,
+      "intersectedGridPopulation": 52345,
+      "smokeExposure": null,
       "status": "provisional"
     }
   }

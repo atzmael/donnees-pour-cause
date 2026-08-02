@@ -41,6 +41,8 @@ type FireDataset = {
 };
 type PopulationExposureYear = {
   exposedPopulation: number;
+  intersectedGridPopulation: number;
+  smokeExposure: number | null;
   status: "consolidated" | "provisional";
   documentedImpact?: {evacuations: number; note: string};
 };
@@ -78,7 +80,7 @@ const COPY = {
     metrics: {
       burnedArea: {label: "Surface brûlée", unit: "ha", description: "Surface totale parcourue par les incendies recensés pendant l’année, exprimée en hectares."},
       fireCount: {label: "Nombre de feux", unit: "feux", description: "Nombre total d’incendies recensés pendant l’année, quelle que soit leur surface."},
-      populationExposure: {label: "Habitants en zone brûlée", unit: "personnes", description: "Estimation des habitants dont le centre du carreau de résidence Insee de 1 km se trouve dans un périmètre brûlé détecté par EFFIS. La méthode couvre surtout les feux d’environ 30 ha ou plus et ne mesure ni les fumées, ni les zones évacuées préventivement, ni les victimes. Un carreau partiellement touché dont le centre reste hors du feu n’est pas compté."},
+      populationExposure: {label: "Habitants des surfaces brûlées", unit: "personnes", description: "Estimation proportionnelle des habitants présents dans les surfaces brûlées EFFIS. Chaque carreau Insee de 1 km est échantillonné en 16 points : sa population est répartie selon la part située dans le feu. La borne haute compte tous les habitants des carreaux au moins partiellement touchés. Les évacuations restent séparées et l’exposition aux fumées n’est pas encore chiffrée sans seuil CAMS validé."},
     },
   },
   en: {
@@ -105,7 +107,7 @@ const COPY = {
     metrics: {
       burnedArea: {label: "Burned area", unit: "ha", description: "Total area affected by recorded wildfires during the year, in hectares."},
       fireCount: {label: "Number of fires", unit: "fires", description: "Total number of recorded wildfires during the year, regardless of their area."},
-      populationExposure: {label: "Residents in burnt areas", unit: "people", description: "Estimated residents whose 1 km Insee residential grid-cell centre lies within an EFFIS-detected burnt perimeter. The method mainly covers fires of about 30 ha or more and does not measure smoke exposure, precautionary evacuation zones or casualties. A partially affected cell is excluded when its centre remains outside the fire perimeter."},
+      populationExposure: {label: "Residents in burnt areas", unit: "people", description: "Proportional estimate of residents within EFFIS burnt areas. Each 1 km Insee cell is sampled at 16 points and its population is allocated according to the share inside the fire. The upper bound counts every resident of cells touched at least partially. Evacuations remain separate and smoke exposure is not quantified without a validated CAMS threshold."},
     },
   },
 } as const;
@@ -341,6 +343,17 @@ export function ForestFiresDataviz() {
     if (!target || (key === "fireCount" && target.source === "EFFIS")) return null;
     return target[key];
   };
+  const exposureDetails = (value: PopulationExposureYear) => {
+    const numberLocale = locale === "fr" ? "fr-FR" : "en-GB";
+    const upperBound = value.intersectedGridPopulation.toLocaleString(numberLocale);
+    const evacuation = value.documentedImpact ? ` ${value.documentedImpact.note}` : "";
+    const smoke = locale === "fr"
+      ? " Exposition aux fumées : pas encore de donnée comparable."
+      : " Smoke exposure: no comparable data yet.";
+    return locale === "fr"
+      ? `Borne haute : ${upperBound} habitants vivent dans des carreaux au moins partiellement touchés.${evacuation}${smoke}`
+      : `Upper bound: ${upperBound} residents live in grid cells touched at least partially.${evacuation}${smoke}`;
+  };
   const selectYear = (nextYear: number) => {
     setYear(nextYear);
     if (dataset?.years[String(nextYear)]?.source === "EFFIS" && metric === "fireCount") {
@@ -439,8 +452,8 @@ export function ForestFiresDataviz() {
               >
                 {key === "fireCount" && selectedNational?.source === "EFFIS"
                   ? copy.effisCountNote
-                  : key === "populationExposure" && selectedExposure?.documentedImpact
-                    ? `${metrics[key].description} ${selectedExposure.documentedImpact.note}`
+                  : key === "populationExposure" && selectedExposure
+                    ? `${metrics[key].description} ${exposureDetails(selectedExposure)}`
                     : metrics[key].description}
               </span>
             </button>
@@ -663,8 +676,8 @@ export function ForestFiresDataviz() {
                         >
                           <title>
                             {point.year} — {formatMetricValue(point.value, key)}
-                            {key === "populationExposure" && populationExposure?.years[String(point.year)]?.documentedImpact
-                              ? ` · ${populationExposure.years[String(point.year)].documentedImpact?.note}`
+                            {key === "populationExposure" && populationExposure?.years[String(point.year)]
+                              ? ` · ${exposureDetails(populationExposure.years[String(point.year)])}`
                               : ""}
                           </title>
                         </circle>

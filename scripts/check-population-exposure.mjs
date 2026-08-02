@@ -11,11 +11,16 @@ assert.equal(years[0], dataset.audit.coverageStartYear, "La première année doi
 assert.equal(years.at(-1), new Date().getFullYear(), "La série doit atteindre automatiquement l’année courante.");
 assert.ok(dataset.audit.effisRecords > dataset.audit.frenchPerimeters, "Le filtre France doit réduire les périmètres EFFIS.");
 assert.equal(dataset.audit.populationCells, 374622, "Le nombre de carreaux Insee 2021 a changé : vérifier la source.");
+assert.equal(dataset.audit.samplesPerCell, 16, "Le calcul proportionnel doit utiliser 16 échantillons par carreau.");
 assert.ok(
   dataset.audit.referencePopulation > 60_000_000 && dataset.audit.referencePopulation < 75_000_000,
   "La population de référence Insee est hors de l’intervalle attendu.",
 );
 assert.ok(Object.values(dataset.years).every((year) => year.exposedPopulation >= 0), "Une exposition annuelle est négative.");
+assert.ok(
+  Object.values(dataset.years).every((year) => year.intersectedGridPopulation >= year.exposedPopulation),
+  "La borne haute des carreaux touchés doit rester supérieure à l’estimation proportionnelle.",
+);
 assert.ok(
   dataset.years["2022"].documentedImpact.evacuations > dataset.years["2022"].exposedPopulation,
   "Le contrôle éditorial 2022 doit conserver la distinction entre évacuations et habitants des zones brûlées.",
