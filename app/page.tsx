@@ -86,7 +86,7 @@ export default function Home() {
             </div>
           )}
           {visibleProjects.map((project, index) => (
-            <Card className="project-row" href={`/dataviz/${project.slug}`} interactive key={project.slug}>
+            <Card className="project-row" href={project.slug === "veille-feu" ? "/outil/feux" : `/dataviz/${project.slug}`} interactive key={project.slug}>
               <span className="project-index">{String(index + 1).padStart(2, "0")}</span>
               <div className={`project-preview ${project.socialImage ? "project-preview-image" : `preview-${project.visual}`}`}>
                 {project.socialImage ? (

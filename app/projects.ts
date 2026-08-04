@@ -32,4 +32,22 @@ export const projects: Project[] = [
     stat: {fr: "21 ans", en: "21 years"},
     statLabel: {fr: "d’évolution à explorer", en: "of change to explore"},
   },
+  {
+    slug: "veille-feu",
+    title: {fr: "Veille feu", en: "Fire watch"},
+    description: {
+      fr: "Observer les détections thermiques, suivre leur évolution et comparer le territoire avant et après le feu.",
+      en: "Observe thermal detections, follow their evolution and compare the territory before and after fire.",
+    },
+    format: {fr: "Cartographie", en: "Mapping"},
+    modules: ["Outil"],
+    year: "2026",
+    tags: {
+      fr: ["Satellite", "Feux de forêt", "Quasi temps réel"],
+      en: ["Satellite", "Wildfires", "Near real time"],
+    },
+    visual: "map",
+    stat: {fr: "24 h", en: "24 h"},
+    statLabel: {fr: "d’observations à rejouer", en: "of observations to replay"},
+  },
 ];
