@@ -1,6 +1,6 @@
 {
-  "updatedAt": "2026-08-05T06:42:18.594Z",
-  "effisCutoffAt": "2026-08-04T10:28:45.443Z",
+  "updatedAt": "2026-08-05T09:51:02.179Z",
+  "effisCutoffAt": "2026-08-05T07:41:42.968Z",
   "earliestYear": 2006,
   "latestConsolidatedYear": 2025,
   "currentYear": 2026,
@@ -7204,9 +7204,9 @@
     "2026": {
       "source": "EFFIS",
       "status": "provisional",
-      "fireCount": 1592,
-      "burnedArea": 102413,
-      "forestBurnedArea": 50327.5,
+      "fireCount": 1594,
+      "burnedArea": 102458,
+      "forestBurnedArea": 50331.5,
       "forestShare": 49.1,
       "departments": {
         "11": {
@@ -7312,10 +7312,10 @@
           "forestShare": 52.4
         },
         "36": {
-          "fireCount": 5,
-          "burnedArea": 527,
-          "forestBurnedArea": 108.9,
-          "forestShare": 20.7
+          "fireCount": 6,
+          "burnedArea": 547,
+          "forestBurnedArea": 109.8,
+          "forestShare": 20.1
         },
         "37": {
           "fireCount": 1,
@@ -7497,17 +7497,11 @@
           "forestBurnedArea": 8.6,
           "forestShare": 15.4
         },
-        "04": {
-          "fireCount": 7,
-          "burnedArea": 88,
-          "forestBurnedArea": 0.9,
-          "forestShare": 1
-        },
-        "07": {
-          "fireCount": 69,
-          "burnedArea": 579,
-          "forestBurnedArea": 117.8,
-          "forestShare": 20.3
+        "09": {
+          "fireCount": 51,
+          "burnedArea": 972,
+          "forestBurnedArea": 196.1,
+          "forestShare": 20.2
         },
         "06": {
           "fireCount": 12,
@@ -7515,17 +7509,29 @@
           "forestBurnedArea": 5.5,
           "forestShare": 6
         },
-        "05": {
-          "fireCount": 2,
-          "burnedArea": 555,
-          "forestBurnedArea": 488.6,
-          "forestShare": 88
+        "2B": {
+          "fireCount": 24,
+          "burnedArea": 1801,
+          "forestBurnedArea": 713.7,
+          "forestShare": 39.6
         },
-        "09": {
-          "fireCount": 50,
-          "burnedArea": 947,
-          "forestBurnedArea": 193.1,
-          "forestShare": 20.4
+        "07": {
+          "fireCount": 69,
+          "burnedArea": 579,
+          "forestBurnedArea": 117.8,
+          "forestShare": 20.3
+        },
+        "04": {
+          "fireCount": 7,
+          "burnedArea": 88,
+          "forestBurnedArea": 0.9,
+          "forestShare": 1
+        },
+        "2A": {
+          "fireCount": 9,
+          "burnedArea": 112,
+          "forestBurnedArea": 10,
+          "forestShare": 8.9
         },
         "03": {
           "fireCount": 1,
@@ -7533,17 +7539,17 @@
           "forestBurnedArea": 17.3,
           "forestShare": 31.5
         },
-        "01": {
-          "fireCount": 2,
-          "burnedArea": 17,
-          "forestBurnedArea": 15.2,
-          "forestShare": 89.4
-        },
         "02": {
           "fireCount": 1,
           "burnedArea": 10,
           "forestBurnedArea": 2,
           "forestShare": 20
+        },
+        "05": {
+          "fireCount": 2,
+          "burnedArea": 555,
+          "forestBurnedArea": 488.6,
+          "forestShare": 88
         },
         "08": {
           "fireCount": 1,
@@ -7551,17 +7557,11 @@
           "forestBurnedArea": 1,
           "forestShare": 100
         },
-        "2B": {
-          "fireCount": 24,
-          "burnedArea": 1801,
-          "forestBurnedArea": 713.7,
-          "forestShare": 39.6
-        },
-        "2A": {
-          "fireCount": 9,
-          "burnedArea": 112,
-          "forestBurnedArea": 10,
-          "forestShare": 8.9
+        "01": {
+          "fireCount": 2,
+          "burnedArea": 17,
+          "forestBurnedArea": 15.2,
+          "forestShare": 89.4
         }
       }
     }
