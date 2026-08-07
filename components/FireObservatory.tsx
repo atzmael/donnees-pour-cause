@@ -3,6 +3,20 @@
 import {useCallback, useEffect, useMemo, useRef, useState} from "react";
 import Image from "next/image";
 import {Brand} from "@/components/Brand";
+import {
+  FULL_MAP_VIEW,
+  MIN_MAP_VIEW_WIDTH,
+  clusterDetections,
+  clusterEventsForMap,
+  eventIsInMapView,
+  isProbableFire,
+  projectFirePosition,
+  zoomMapView,
+  type Detection,
+  type MapCluster,
+  type MapView,
+  type ObservedEvent,
+} from "@/lib/fire-observatory";
 import {pointIsInBoundaryFeature, pointIsInFrance, type BoundaryCollection} from "@/lib/france-boundary";
 
 type Position = [number, number];
@@ -12,16 +26,6 @@ type DepartmentFeature = {
   geometry: {type: "Polygon"; coordinates: Position[][]} | {type: "MultiPolygon"; coordinates: Position[][][]};
 };
 type DepartmentCollection = {type: "FeatureCollection"; features: DepartmentFeature[]};
-type Detection = {
-  latitude: number;
-  longitude: number;
-  acquiredAt: string;
-  satellite: string;
-  instrument: string;
-  confidence: string;
-  frp: number;
-  daynight: string;
-};
 type FireResponse = {source: string; fetchedAt: string; days: number; detections: Detection[]};
 type FireError = {error: "missing_key" | "invalid_key" | "source_unavailable"; message: string};
 type LocationInfo = {
@@ -54,16 +58,8 @@ type Verification = {
   areaHa?: number | null;
   effisStatus: "available" | "unavailable" | "not_needed";
 };
-type ObservedEvent = {
-  id: string;
-  latitude: number;
-  longitude: number;
-  detections: Detection[];
-  firstAt: string;
-  lastAt: string;
-  maxFrp: number;
-};
 type FireFilter = "all" | "confirmed" | "strong" | "probable";
+type ReliabilityLevel = "official" | "mapped" | "strong" | "probable";
 
 const PERIODS = [
   {label: "6 h", hours: 6, days: 2},
@@ -81,6 +77,15 @@ const FIRE_FILTERS: ReadonlyArray<{value: FireFilter; label: string}> = [
   {value: "strong", label: "Forte présomption"},
   {value: "probable", label: "Probable"},
 ];
+const MAX_SIDEBAR_EVENTS = 40;
+const VERIFICATION_BATCH_SIZE = 100;
+const MARKER_COLORS: Record<ReliabilityLevel, string> = {
+  probable: "#f7b955",
+  strong: "#ff6b35",
+  mapped: "#b7d48b",
+  official: "#edf4e5",
+};
+const RELIABILITY_PRIORITY: Record<ReliabilityLevel, number> = {probable: 0, strong: 1, mapped: 2, official: 3};
 
 const REGION_NAMES: Record<string, string> = {
   "11": "Île-de-France",
@@ -99,7 +104,7 @@ const REGION_NAMES: Record<string, string> = {
 };
 
 function project([longitude, latitude]: Position): Position {
-  return [((longitude + 5.6) / 15.4) * 620 + 12, ((51.3 - latitude) / 10.4) * 590 + 8];
+  return projectFirePosition(longitude, latitude);
 }
 
 function ringToPath(ring: Position[]) {
@@ -112,49 +117,6 @@ function ringToPath(ring: Position[]) {
 function featurePath(feature: DepartmentFeature) {
   if (feature.geometry.type === "Polygon") return feature.geometry.coordinates.map(ringToPath).join(" ");
   return feature.geometry.coordinates.flatMap((polygon) => polygon.map(ringToPath)).join(" ");
-}
-
-function distanceKm(a: Detection, b: {latitude: number; longitude: number}) {
-  const earthRadius = 6371;
-  const latitudeDelta = (b.latitude - a.latitude) * Math.PI / 180;
-  const longitudeDelta = (b.longitude - a.longitude) * Math.PI / 180;
-  const latitudeA = a.latitude * Math.PI / 180;
-  const latitudeB = b.latitude * Math.PI / 180;
-  const value = Math.sin(latitudeDelta / 2) ** 2 + Math.cos(latitudeA) * Math.cos(latitudeB) * Math.sin(longitudeDelta / 2) ** 2;
-  return earthRadius * 2 * Math.atan2(Math.sqrt(value), Math.sqrt(1 - value));
-}
-
-function clusterDetections(detections: Detection[]): ObservedEvent[] {
-  const events: ObservedEvent[] = [];
-  [...detections].sort((a, b) => a.acquiredAt.localeCompare(b.acquiredAt)).forEach((detection) => {
-    const event = events.find((candidate) =>
-      distanceKm(detection, candidate) <= 18 &&
-      Math.abs(new Date(detection.acquiredAt).getTime() - new Date(candidate.lastAt).getTime()) <= 36 * 3_600_000,
-    );
-    if (!event) {
-      events.push({
-        id: `${detection.latitude.toFixed(2)}-${detection.longitude.toFixed(2)}-${detection.acquiredAt.slice(0, 10)}`,
-        latitude: detection.latitude,
-        longitude: detection.longitude,
-        detections: [detection],
-        firstAt: detection.acquiredAt,
-        lastAt: detection.acquiredAt,
-        maxFrp: detection.frp,
-      });
-      return;
-    }
-    event.detections.push(detection);
-    event.latitude = event.detections.reduce((sum, item) => sum + item.latitude, 0) / event.detections.length;
-    event.longitude = event.detections.reduce((sum, item) => sum + item.longitude, 0) / event.detections.length;
-    event.lastAt = detection.acquiredAt;
-    event.maxFrp = Math.max(event.maxFrp, detection.frp);
-  });
-  return events.sort((a, b) => b.lastAt.localeCompare(a.lastAt));
-}
-
-function isProbableFire(event: ObservedEvent) {
-  const hasReliableMeasurement = event.detections.some((detection) => ["n", "h"].includes(detection.confidence.toLowerCase()));
-  return event.detections.length >= 2 && event.maxFrp >= 10 && hasReliableMeasurement;
 }
 
 function satellitePassCount(detections: Detection[]) {
@@ -224,6 +186,7 @@ function LoadingBar({label, compact = false}: {label: string; compact?: boolean}
 
 export function FireObservatory() {
   const imageryDialogRef = useRef<HTMLDialogElement>(null);
+  const eventButtonRefs = useRef(new Map<string, HTMLButtonElement>());
   const [imageryDialogOpen, setImageryDialogOpen] = useState(false);
   const [departments, setDepartments] = useState<DepartmentFeature[]>([]);
   const [departmentsLoading, setDepartmentsLoading] = useState(true);
@@ -236,6 +199,7 @@ export function FireObservatory() {
   const [playing, setPlaying] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [fireFilter, setFireFilter] = useState<FireFilter>("all");
+  const [mapView, setMapView] = useState<MapView>(FULL_MAP_VIEW);
   const [locations, setLocations] = useState<Record<string, LocationInfo | null>>({});
   const [verifications, setVerifications] = useState<Record<string, Verification>>({});
   const [imagery, setImagery] = useState<LatestImagery | null>(null);
@@ -310,26 +274,44 @@ export function FireObservatory() {
     return fireFilter === "all" || level === fireFilter;
   }), [events, fireFilter, verifications]);
   const filteredFireDetections = useMemo(() => filteredEvents.flatMap((event) => event.detections), [filteredEvents]);
-  const selected = filteredEvents.find((event) => event.id === selectedId) ?? filteredEvents[0] ?? null;
+  const bounds = useMemo(() => {
+    const times = filteredFireDetections.map((item) => new Date(item.acquiredAt).getTime());
+    return {min: Math.min(...times), max: Math.max(...times)};
+  }, [filteredFireDetections]);
+  const referenceTime = response ? new Date(response.fetchedAt).getTime() : 0;
+  const timelineCutoff = Number.isFinite(bounds.min) ? bounds.min + ((bounds.max - bounds.min) * timeline / 5) : referenceTime;
+  const timelineEvents = useMemo(() => filteredEvents.filter((event) =>
+    event.detections.some((item) => new Date(item.acquiredAt).getTime() <= timelineCutoff),
+  ), [filteredEvents, timelineCutoff]);
+  const mapVisibleEvents = useMemo(() => timelineEvents.filter((event) => eventIsInMapView(event, mapView)), [mapView, timelineEvents]);
+  const mapClusters = useMemo(() => clusterEventsForMap(mapVisibleEvents, mapView), [mapView, mapVisibleEvents]);
+  const sidebarEvents = useMemo(() => mapVisibleEvents.slice(0, MAX_SIDEBAR_EVENTS), [mapVisibleEvents]);
+  const selected = mapVisibleEvents.find((event) => event.id === selectedId) ?? mapVisibleEvents[0] ?? null;
+  const selectedVisible = selected?.detections.filter((item) => new Date(item.acquiredAt).getTime() <= timelineCutoff) ?? [];
+  const latestDetection = selectedVisible.at(-1) ?? selected?.detections[0] ?? null;
+  const timelineTimes = Array.from({length: 6}, (_, index) => Number.isFinite(bounds.min)
+    ? new Date(bounds.min + ((bounds.max - bounds.min) * index / 5)).toISOString()
+    : new Date().toISOString());
 
   useEffect(() => {
-    if (!events.length) return;
+    const pendingEvents = sidebarEvents.filter((event) => locations[event.id] === undefined);
+    if (!pendingEvents.length) return;
     const controller = new AbortController();
-    const eventIds = events.map((event) => event.id);
+    const eventIds = pendingEvents.map((event) => event.id);
     void fetch("/api/locations", {
       method: "POST",
       headers: {"Content-Type": "application/json"},
-      body: JSON.stringify({locations: events.map((event) => ({id: event.id, latitude: event.latitude, longitude: event.longitude}))}),
+      body: JSON.stringify({locations: pendingEvents.map((event) => ({id: event.id, latitude: event.latitude, longitude: event.longitude}))}),
       signal: controller.signal,
     })
       .then((result) => result.json() as Promise<{locations: Record<string, LocationInfo | null>}>)
-      .then((result) => setLocations(result.locations))
+      .then((result) => setLocations((current) => ({...current, ...result.locations})))
       .catch((error: unknown) => {
         if (error instanceof DOMException && error.name === "AbortError") return;
         setLocations((current) => ({...current, ...Object.fromEntries(eventIds.map((id) => [id, null]))}));
       });
     return () => controller.abort();
-  }, [events]);
+  }, [locations, sidebarEvents]);
 
   useEffect(() => {
     if (!playing) return;
@@ -359,46 +341,46 @@ export function FireObservatory() {
   }, [selected]);
 
   useEffect(() => {
-    if (!events.length) return;
+    const pendingEvents = events.filter((event) => verifications[event.id] === undefined);
+    if (!pendingEvents.length) return;
     const controller = new AbortController();
-    const eventIds = events.map((event) => event.id);
-    void fetch("/api/fire-verification", {
-      method: "POST",
-      headers: {"Content-Type": "application/json"},
-      body: JSON.stringify({fires: events.map((event) => ({
-        id: event.id,
-        latitude: event.latitude,
-        longitude: event.longitude,
-        observedAt: event.lastAt,
-      }))}),
-      signal: controller.signal,
-    })
-      .then((response) => response.ok
-        ? response.json() as Promise<{verifications: Record<string, Verification>}>
-        : Promise.reject())
-      .then((result) => setVerifications((current) => ({...current, ...result.verifications})))
+    const batches = Array.from({length: Math.ceil(pendingEvents.length / VERIFICATION_BATCH_SIZE)}, (_, index) =>
+      pendingEvents.slice(index * VERIFICATION_BATCH_SIZE, (index + 1) * VERIFICATION_BATCH_SIZE),
+    );
+    void Promise.all(batches.map(async (batch) => {
+      const response = await fetch("/api/fire-verification", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({fires: batch.map((event) => ({
+          id: event.id,
+          latitude: event.latitude,
+          longitude: event.longitude,
+          observedAt: event.lastAt,
+        }))}),
+        signal: controller.signal,
+      });
+      if (!response.ok) throw new Error("Fire verification unavailable");
+      return response.json() as Promise<{verifications: Record<string, Verification>}>;
+    }))
+      .then((results) => setVerifications((current) => ({
+        ...current,
+        ...Object.assign({}, ...results.map((result) => result.verifications)),
+      })))
       .catch((error: unknown) => {
         if (error instanceof DOMException && error.name === "AbortError") return;
         setVerifications((current) => ({
           ...current,
-          ...Object.fromEntries(eventIds.map((id) => [id, {level: null, effisStatus: "unavailable"}])),
+          ...Object.fromEntries(pendingEvents.map((event) => [event.id, {level: null, effisStatus: "unavailable"}])),
         }));
       });
     return () => controller.abort();
-  }, [events]);
+  }, [events, verifications]);
 
-  const bounds = useMemo(() => {
-    const times = filteredFireDetections.map((item) => new Date(item.acquiredAt).getTime());
-    return {min: Math.min(...times), max: Math.max(...times)};
-  }, [filteredFireDetections]);
-  const referenceTime = response ? new Date(response.fetchedAt).getTime() : 0;
-  const timelineCutoff = Number.isFinite(bounds.min) ? bounds.min + ((bounds.max - bounds.min) * timeline / 5) : referenceTime;
-  const visibleDetections = filteredFireDetections.filter((item) => new Date(item.acquiredAt).getTime() <= timelineCutoff);
-  const selectedVisible = selected?.detections.filter((item) => new Date(item.acquiredAt).getTime() <= timelineCutoff) ?? [];
-  const latestDetection = selectedVisible.at(-1) ?? selected?.detections[0] ?? null;
-  const timelineTimes = Array.from({length: 6}, (_, index) => Number.isFinite(bounds.min)
-    ? new Date(bounds.min + ((bounds.max - bounds.min) * index / 5)).toISOString()
-    : new Date().toISOString());
+  useEffect(() => {
+    if (!selectedId) return;
+    eventButtonRefs.current.get(selectedId)?.scrollIntoView({block: "nearest"});
+  }, [selectedId]);
+
   const selectedImagery = selected && imagery?.eventId === selected.id ? imagery : null;
   const satelliteUrl = (choice: ImageryChoice) => selected
     ? `/api/satellite?lat=${selected.latitude.toFixed(5)}&lon=${selected.longitude.toFixed(5)}&from=${choice.from}&to=${choice.to}`
@@ -424,12 +406,35 @@ export function FireObservatory() {
   const selectedLabel = selected ? locationLabel(selected) : null;
   const selectedVerification = selected ? verifications[selected.id] : undefined;
   const selectedReliability = selected ? reliability(selected, selectedVerification) : null;
-  const visibleEvents = filteredEvents.filter((event) => {
+  const visibleEvents = sidebarEvents.filter((event) => {
     const query = normalizeSearch(searchQuery);
     if (!query) return true;
     const label = locationLabel(event);
     return normalizeSearch(`${label.title} ${label.parents} ${event.latitude.toFixed(2)} ${event.longitude.toFixed(2)}`).includes(query);
   });
+  const markerScale = mapView.width / FULL_MAP_VIEW.width;
+  const zoomLevel = Math.round(FULL_MAP_VIEW.width / mapView.width * 10) / 10;
+  const clusterLevel = (cluster: MapCluster) => cluster.events.reduce<ReliabilityLevel>((best, event) => {
+    const level = reliability(event, verifications[event.id]).level as ReliabilityLevel;
+    return RELIABILITY_PRIORITY[level] > RELIABILITY_PRIORITY[best] ? level : best;
+  }, "probable");
+  const selectCluster = (cluster: MapCluster) => {
+    if (cluster.events.length === 1 || mapView.width <= MIN_MAP_VIEW_WIDTH) {
+      setSelectedId(cluster.events[0].id);
+      return;
+    }
+    setMapView((current) => zoomMapView(current, 0.52, cluster.x, cluster.y));
+    setSelectedId(null);
+  };
+  const resetMapAndFilters = () => {
+    setMapView({...FULL_MAP_VIEW});
+    setPeriodIndex(2);
+    setFireFilter("all");
+    setSearchQuery("");
+    setTimeline(5);
+    setPlaying(false);
+    setSelectedId(null);
+  };
 
   return (
     <main className="watch-app">
@@ -446,13 +451,13 @@ export function FireObservatory() {
           <div className="watch-fire-filters" role="group" aria-label="Filtrer les feux par niveau de fiabilité">
             {FIRE_FILTERS.map((filter) => <button key={filter.value} type="button" className={fireFilter === filter.value ? "is-active" : ""} aria-pressed={fireFilter === filter.value} onClick={() => {setFireFilter(filter.value); setTimeline(5); setPlaying(false);}}>{filter.label}</button>)}
           </div>
-          <div className="watch-sidebar-head"><div><span>FOYERS AFFICHÉS</span><strong>{visibleEvents.length}</strong></div><button type="button" className="watch-refresh-button" aria-label="Actualiser la liste des feux" title="Actualiser la liste" disabled={loading} onClick={() => void loadFires(PERIODS[periodIndex].days)}><Icon name="refresh" /></button></div>
+          <div className="watch-sidebar-head"><div><span>FOYERS DANS LA CARTE</span><strong>{searchQuery ? visibleEvents.length : mapVisibleEvents.length}</strong></div><button type="button" className="watch-refresh-button" aria-label="Actualiser la liste des feux" title="Actualiser la liste" disabled={loading} onClick={() => void loadFires(PERIODS[periodIndex].days)}><Icon name="refresh" /></button></div>
           <div className="watch-event-list">
             {loading && <div className="watch-list-loading"><LoadingBar label="Actualisation des feux" compact /></div>}
             {visibleEvents.map((event) => {
               const label = locationLabel(event);
               const evidence = reliability(event, verifications[event.id]);
-              return <button key={event.id} type="button" className={selected?.id === event.id ? "is-active" : ""} onClick={() => setSelectedId(event.id)}>
+              return <button key={event.id} ref={(node) => {if (node) eventButtonRefs.current.set(event.id, node); else eventButtonRefs.current.delete(event.id);}} type="button" className={selected?.id === event.id ? "is-active" : ""} onClick={() => setSelectedId(event.id)}>
                 <span className={`watch-event-signal is-${evidence.level}`} />
                 {locations[event.id] === undefined
                   ? <span className="watch-location-loading"><i /><i /><em>Identification du lieu…</em></span>
@@ -460,7 +465,8 @@ export function FireObservatory() {
                 <time><span className={`watch-reliability is-${evidence.level}`}>{evidence.label}</span><small>{event.detections.length} observations</small></time>
               </button>;
             })}
-            {!loading && !error && visibleEvents.length === 0 && <div className="watch-empty-list">{searchQuery ? "Aucun feu ne correspond à cette recherche." : fireFilter === "all" ? "Aucun feu probable sur cette période." : "Aucun feu dans ce niveau de fiabilité."}</div>}
+            {!loading && !error && visibleEvents.length === 0 && <div className="watch-empty-list">{searchQuery ? "Aucun des foyers listés ne correspond à cette recherche." : fireFilter === "all" ? "Aucun feu probable sur cette période." : "Aucun feu dans ce niveau de fiabilité."}</div>}
+            {mapVisibleEvents.length > MAX_SIDEBAR_EVENTS && <div className="watch-list-limit">Les {MAX_SIDEBAR_EVENTS} foyers les plus récents sont listés{searchQuery ? " et parcourus par la recherche" : ""}. Zoomez sur la carte pour affiner.</div>}
           </div>
           <div className="watch-source-mini"><span>COUCHE ACTIVE</span><strong>Feux probables repérés par satellite</strong><small>Au moins 2 observations convergentes · NASA FIRMS VIIRS</small></div>
         </aside>
@@ -470,27 +476,46 @@ export function FireObservatory() {
             <div className="watch-periods" aria-label="Période affichée">{PERIODS.map((period, index) => <button className={periodIndex === index ? "is-active" : ""} type="button" key={period.label} onClick={() => {setPeriodIndex(index); setTimeline(5);}}>{period.label}</button>)}</div>
             <button type="button" onClick={() => void loadFires(PERIODS[periodIndex].days)}><Icon name="refresh" /> Actualiser</button>
           </div>
+          <div className="watch-map-navigation" role="group" aria-label="Navigation de la carte">
+            <button type="button" disabled={mapView.width >= FULL_MAP_VIEW.width} aria-label="Dézoomer" onClick={() => setMapView((current) => zoomMapView(current, 1.8))}>−</button>
+            <span>{zoomLevel.toLocaleString("fr-FR")}×</span>
+            <button type="button" disabled={mapView.width <= MIN_MAP_VIEW_WIDTH} aria-label="Zoomer" onClick={() => setMapView((current) => zoomMapView(current, 0.56))}>+</button>
+            <button type="button" className="watch-map-reset" onClick={resetMapAndFilters}>Réinitialiser</button>
+          </div>
 
-          <svg className="watch-map" viewBox="0 0 650 620" role="img" aria-label="Carte des détections thermiques NASA FIRMS en France">
-            <defs><filter id="watch-glow" x="-250%" y="-250%" width="600%" height="600%"><feGaussianBlur stdDeviation="5" /></filter><pattern id="watch-grid" width="18" height="18" patternUnits="userSpaceOnUse"><path d="M 18 0 L 0 0 0 18" fill="none" stroke="rgba(255,255,255,.035)" strokeWidth="1" /></pattern></defs>
+          <svg className="watch-map" viewBox={`${mapView.x} ${mapView.y} ${mapView.width} ${mapView.height}`} role="img" aria-label="Carte des foyers thermiques regroupés en France">
+            <defs><filter id="watch-glow" x="-250%" y="-250%" width="600%" height="600%"><feGaussianBlur stdDeviation={5 * markerScale} /></filter><pattern id="watch-grid" width="18" height="18" patternUnits="userSpaceOnUse"><path d="M 18 0 L 0 0 0 18" fill="none" stroke="rgba(255,255,255,.035)" strokeWidth="1" /></pattern></defs>
             <rect width="650" height="620" fill="url(#watch-grid)" />
             <g className="watch-departments">{departments.map((feature) => <path key={feature.properties.code} d={featurePath(feature)}><title>{feature.properties.nom}</title></path>)}</g>
-            <g className="watch-detections">{visibleDetections.map((detection, index) => {
-              const [x, y] = project([detection.longitude, detection.latitude]);
-              const event = events.find((candidate) => candidate.detections.includes(detection));
-              const isSelected = event?.id === selected?.id;
-              const markerLevel = event ? reliability(event, verifications[event.id]).level : "probable";
-              const markerColor = ({probable: "#f7b955", strong: "#ff6b35", mapped: "#b7d48b", official: "#edf4e5"} as Record<string, string>)[markerLevel];
-              return <g key={`${detection.acquiredAt}-${detection.latitude}-${index}`} className={isSelected ? "is-selected" : ""} onClick={() => event && setSelectedId(event.id)}>
-                <circle className="watch-marker-glow" cx={x} cy={y} r={isSelected ? 17 : 11} fill={markerColor} /><circle className="watch-marker-ring" cx={x} cy={y} r={isSelected ? 10 : 7} /><circle className="watch-marker-core" cx={x} cy={y} r={isSelected ? 4 : 3} fill={markerColor} />
+            <g className="watch-detections">{mapClusters.map((cluster) => {
+              const isCluster = cluster.events.length > 1;
+              const isSelected = cluster.events.some((event) => event.id === selected?.id);
+              const level = clusterLevel(cluster);
+              const markerColor = MARKER_COLORS[level];
+              const label = isCluster
+                ? mapView.width > MIN_MAP_VIEW_WIDTH ? `${cluster.events.length} foyers proches, zoomer` : `${cluster.events.length} foyers proches dans la liste`
+                : `Foyer ${reliability(cluster.events[0], verifications[cluster.events[0].id]).label}`;
+              return <g key={cluster.id} role="button" tabIndex={0} aria-label={label} className={`${isSelected ? "is-selected" : ""}${isCluster ? " is-cluster" : ""}`} onClick={() => selectCluster(cluster)} onKeyDown={(event) => {if (event.key === "Enter" || event.key === " ") {event.preventDefault(); selectCluster(cluster);}}}>
+                <circle className="watch-marker-hit" cx={cluster.x} cy={cluster.y} r={22 * markerScale} />
+                {isCluster ? <>
+                  <circle className="watch-marker-glow" cx={cluster.x} cy={cluster.y} r={17 * markerScale} fill={markerColor} />
+                  <circle className="watch-cluster-ring" cx={cluster.x} cy={cluster.y} r={13 * markerScale} fill={markerColor} vectorEffect="non-scaling-stroke" />
+                  <text className="watch-cluster-count" x={cluster.x} y={cluster.y} fontSize={8 * markerScale}>{cluster.events.length}</text>
+                </> : <>
+                  <circle className="watch-marker-glow" cx={cluster.x} cy={cluster.y} r={(isSelected ? 17 : 11) * markerScale} fill={markerColor} />
+                  <circle className="watch-marker-ring" cx={cluster.x} cy={cluster.y} r={(isSelected ? 10 : 7) * markerScale} vectorEffect="non-scaling-stroke" />
+                  <circle className="watch-marker-core" cx={cluster.x} cy={cluster.y} r={(isSelected ? 4 : 3) * markerScale} fill={markerColor} vectorEffect="non-scaling-stroke" />
+                </>}
+                <title>{label}</title>
               </g>;
             })}</g>
           </svg>
 
-          <div className="watch-map-label"><span>FRANCE MÉTROPOLITAINE</span><strong>{filteredEvents.length} foyer{filteredEvents.length > 1 ? "s" : ""} affiché{filteredEvents.length > 1 ? "s" : ""}</strong></div>
+          <div className="watch-map-label"><span>ZONE VISIBLE</span><strong>{mapVisibleEvents.length} foyer{mapVisibleEvents.length > 1 ? "s" : ""} · {mapClusters.length} repère{mapClusters.length > 1 ? "s" : ""}</strong></div>
           {(loading || departmentsLoading) && <div className="watch-map-state"><LoadingBar label={loading ? "Chargement des observations FIRMS" : "Chargement du fond géographique"} /></div>}
           {!loading && error && <div className="watch-map-state is-error"><strong>{error.message}</strong><span>{error.error === "missing_key" ? "Ajoute NASA_FIRMS_MAP_KEY dans .env.local puis redémarre le serveur." : "Vérifie la configuration ou réessaie dans quelques minutes."}</span><button type="button" onClick={() => void loadFires(PERIODS[periodIndex].days)}>Réessayer</button></div>}
           {!loading && !error && filteredEvents.length === 0 && <div className="watch-map-state"><strong>{fireFilter === "all" ? "Aucun feu probable détecté" : "Aucun feu dans ce filtre"}</strong><span>{fireFilter === "all" ? "Le filtre strict peut ignorer un feu récent ou de faible intensité avant une seconde observation." : "Choisissez un autre niveau de fiabilité ou une période plus longue."}</span></div>}
+          {!loading && !error && filteredEvents.length > 0 && mapVisibleEvents.length === 0 && <div className="watch-map-state"><strong>Aucun foyer dans cette zone</strong><span>Dézoomez ou réinitialisez la carte pour retrouver les autres foyers.</span><button type="button" onClick={resetMapAndFilters}>Réinitialiser</button></div>}
           <div className="watch-legend"><span><i className="probable" /> Probable</span><span><i className="strong" /> Forte présomption</span><span><i className="mapped" /> Zone cartographiée</span><span><i className="official" /> Confirmé</span></div>
 
           <div className="watch-timeline">
