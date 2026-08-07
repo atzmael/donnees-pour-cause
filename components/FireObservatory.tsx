@@ -136,6 +136,22 @@ function isProbableFire(event: ObservedEvent) {
   return event.detections.length >= 2 && event.maxFrp >= 10 && hasReliableMeasurement;
 }
 
+function satellitePassCount(detections: Detection[]) {
+  const times = detections.map((detection) => new Date(detection.acquiredAt).getTime()).sort((a, b) => a - b);
+  return times.reduce((passes, time) => {
+    const previous = passes.at(-1);
+    return previous === undefined || time - previous >= 45 * 60_000 ? [...passes, time] : passes;
+  }, [] as number[]).length;
+}
+
+function reliability(event: ObservedEvent) {
+  const passes = satellitePassCount(event.detections);
+  const strong = passes >= 2 && event.maxFrp >= 20;
+  return strong
+    ? {level: "strong", label: "Forte présomption", detail: `${passes} passages satellites distincts · intensité ≥ 20 MW`}
+    : {level: "probable", label: "Probable", detail: "Plusieurs mesures convergentes sur un même passage"};
+}
+
 function normalizeSearch(value: string) {
   return value.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLocaleLowerCase("fr-FR").trim();
 }
@@ -322,12 +338,13 @@ export function FireObservatory() {
           <div className="watch-search"><Icon name="search" /><input aria-label="Rechercher dans les feux probables" placeholder="Village, commune, département…" value={searchQuery} onChange={(event) => setSearchQuery(event.target.value)} /></div>
           <div className="watch-sidebar-head"><div><span>FEUX PROBABLES</span><strong>{visibleEvents.length}</strong></div><button type="button" aria-label="Rafraîchir" onClick={() => void loadFires(PERIODS[periodIndex].days)}><Icon name="refresh" /></button></div>
           <div className="watch-event-list">
-            {visibleEvents.map((event, index) => {
+            {visibleEvents.map((event) => {
               const label = locationLabel(event);
+              const evidence = reliability(event);
               return <button key={event.id} type="button" className={selected?.id === event.id ? "is-active" : ""} onClick={() => setSelectedId(event.id)}>
-                <span className="watch-event-signal" style={{background: index < 3 ? "#ff6b35" : "#f7b955"}} />
+                <span className={`watch-event-signal is-${evidence.level}`} />
                 <span><strong>{label.title}</strong><small>{label.parents}</small><em>Observé {elapsed(event.lastAt, referenceTime)}</em></span>
-                <time>{event.detections.length} observation{event.detections.length > 1 ? "s" : ""}<small>convergentes</small></time>
+                <time><span className={`watch-reliability is-${evidence.level}`}>{evidence.label}</span><small>{event.detections.length} observations</small></time>
               </button>;
             })}
             {!loading && !error && visibleEvents.length === 0 && <div className="watch-empty-list">{searchQuery ? "Aucun feu probable ne correspond à cette recherche." : "Aucun feu probable sur cette période."}</div>}
@@ -349,8 +366,9 @@ export function FireObservatory() {
               const [x, y] = project([detection.longitude, detection.latitude]);
               const event = events.find((candidate) => candidate.detections.includes(detection));
               const isSelected = event?.id === selected?.id;
+              const markerColor = event && reliability(event).level === "strong" ? "#ff6b35" : "#f7b955";
               return <g key={`${detection.acquiredAt}-${detection.latitude}-${index}`} className={isSelected ? "is-selected" : ""} onClick={() => event && setSelectedId(event.id)}>
-                <circle className="watch-marker-glow" cx={x} cy={y} r={isSelected ? 24 : 16} fill="#ff6b35" /><circle className="watch-marker-ring" cx={x} cy={y} r={isSelected ? 10 : 7} /><circle className="watch-marker-core" cx={x} cy={y} r={isSelected ? 4 : 3} fill="#ff6b35" />
+                <circle className="watch-marker-glow" cx={x} cy={y} r={isSelected ? 24 : 16} fill={markerColor} /><circle className="watch-marker-ring" cx={x} cy={y} r={isSelected ? 10 : 7} /><circle className="watch-marker-core" cx={x} cy={y} r={isSelected ? 4 : 3} fill={markerColor} />
               </g>;
             })}</g>
           </svg>
@@ -359,7 +377,7 @@ export function FireObservatory() {
           {loading && <div className="watch-map-state"><span className="watch-spinner" />Chargement des observations FIRMS…</div>}
           {!loading && error && <div className="watch-map-state is-error"><strong>{error.message}</strong><span>{error.error === "missing_key" ? "Ajoute NASA_FIRMS_MAP_KEY dans .env.local puis redémarre le serveur." : "Vérifie la configuration ou réessaie dans quelques minutes."}</span><button type="button" onClick={() => void loadFires(PERIODS[periodIndex].days)}>Réessayer</button></div>}
           {!loading && !error && events.length === 0 && <div className="watch-map-state"><strong>Aucun feu probable détecté</strong><span>Le filtre strict peut ignorer un feu récent ou de faible intensité avant une seconde observation.</span></div>}
-          <div className="watch-legend"><span><i className="fresh" /> Feu probable</span><small>Plusieurs observations thermiques convergent, sans constituer une confirmation officielle.</small></div>
+          <div className="watch-legend"><span><i className="probable" /> Probable</span><span><i className="strong" /> Forte présomption</span><small>Aucun niveau ne constitue une confirmation officielle.</small></div>
 
           <div className="watch-timeline">
             <button type="button" className="watch-play" disabled={!probableDetections.length} aria-label={playing ? "Mettre en pause" : "Lire la chronologie"} onClick={() => setPlaying((value) => !value)}><Icon name={playing ? "pause" : "play"} /></button>
@@ -368,10 +386,10 @@ export function FireObservatory() {
         </div>
 
         <aside className="watch-detail">
-          <div className="watch-detail-head"><span>FEU PROBABLE</span><button type="button" aria-label="Informations"><Icon name="info" /></button></div>
+          <div className="watch-detail-head"><span>{selected ? reliability(selected).label.toLocaleUpperCase("fr-FR") : "FEU PROBABLE"}</span><button type="button" aria-label="Informations"><Icon name="info" /></button></div>
           {selected && latestDetection ? <>
             <h1>{selectedLabel?.title}</h1><p>{selectedLabel?.parents}{selectedLabel?.parents.includes("Zone") ? "" : ` · Zone ${selected.latitude.toFixed(2)}, ${selected.longitude.toFixed(2)}`}</p>
-            <div className="watch-status"><i style={{background: "#ff6b35"}} /><span><strong>Dernière détection {elapsed(selected.lastAt, referenceTime)}</strong><small>Ce statut n’indique pas si le feu est actif ou éteint.</small></span></div>
+            <div className={`watch-status is-${reliability(selected).level}`}><i /><span><strong>{reliability(selected).label} · dernière détection {elapsed(selected.lastAt, referenceTime)}</strong><small>{reliability(selected).detail}. Ce statut n’indique pas si le feu est actif ou éteint.</small></span></div>
             <dl className="watch-metrics"><div><dt>Première observation</dt><dd>{formatDate(selected.firstAt)}</dd></div><div><dt>Dernière observation</dt><dd>{formatDate(selected.lastAt)}</dd></div><div><dt>Observations affichées</dt><dd>{selectedVisible.length} <small>sur {selected.detections.length}</small></dd></div><div><dt>Intensité thermique max.</dt><dd>{selected.maxFrp.toLocaleString("fr-FR")} <small>MW</small></dd></div></dl>
             <div className="watch-confidence"><span>Mesure satellite {latestDetection.satellite} · {latestDetection.daynight === "D" ? "de jour" : "de nuit"}</span><strong>confiance {confidenceLabel(latestDetection.confidence)}</strong></div>
           </> : <div className="watch-detail-empty">Sélectionnez une période contenant des observations pour afficher leur détail.</div>}
@@ -404,7 +422,7 @@ export function FireObservatory() {
         </div>
       </dialog>
 
-      <section className="watch-method" id="methode"><span>DONNÉES & MÉTHODE</span><h2>Observer vite.<br />Rester précis.</h2><div><p>Les observations proviennent des produits VIIRS S‑NPP, NOAA‑20 et NOAA‑21 distribués par NASA FIRMS. L’outil n’affiche que les groupes comptant au moins deux mesures convergentes, une intensité minimale de 10 MW et une confiance nominale ou haute.</p><p>Ce filtre réduit les anomalies isolées, mais ne remplace pas une confirmation des services de secours. Il peut aussi manquer un feu récent ou peu intense avant le passage suivant d’un satellite.</p></div></section>
+      <section className="watch-method" id="methode"><span>DONNÉES & MÉTHODE</span><h2>Observer vite.<br />Rester précis.</h2><div><p>« Probable » exige au moins deux mesures convergentes, une intensité minimale de 10 MW et une confiance nominale ou haute. « Forte présomption » exige en plus deux passages satellites espacés d’au moins 45 minutes et une intensité de 20 MW.</p><p>Ces niveaux décrivent la solidité des indices disponibles, pas une certitude. Les futurs tags « zone brûlée cartographiée » et « confirmé officiellement » seront réservés aux données EFFIS ou aux autorités.</p></div></section>
     </main>
   );
 }
