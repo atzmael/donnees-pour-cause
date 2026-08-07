@@ -1,6 +1,7 @@
 "use client";
 
 import {useCallback, useEffect, useMemo, useRef, useState} from "react";
+import Image from "next/image";
 import {Brand} from "@/components/Brand";
 import {pointIsInBoundaryFeature, pointIsInFrance, type BoundaryCollection} from "@/lib/france-boundary";
 
@@ -205,9 +206,16 @@ function Icon({name}: {name: "layers" | "search" | "info" | "play" | "pause" | "
   return <span aria-hidden="true">{icons[name]}</span>;
 }
 
+function LoadingBar({label, compact = false}: {label: string; compact?: boolean}) {
+  return <div className={`watch-loading-bar${compact ? " is-compact" : ""}`} role="status" aria-live="polite">
+    <span>{label}</span><i><b /></i>
+  </div>;
+}
+
 export function FireObservatory() {
   const imageryDialogRef = useRef<HTMLDialogElement>(null);
   const [departments, setDepartments] = useState<DepartmentFeature[]>([]);
+  const [departmentsLoading, setDepartmentsLoading] = useState(true);
   const [response, setResponse] = useState<FireResponse | null>(null);
   const [error, setError] = useState<FireError | null>(null);
   const [loading, setLoading] = useState(true);
@@ -220,12 +228,15 @@ export function FireObservatory() {
   const [verifications, setVerifications] = useState<Record<string, Verification>>({});
   const [imagery, setImagery] = useState<LatestImagery | null>(null);
   const [imageryUnavailableId, setImageryUnavailableId] = useState<string | null>(null);
+  const [loadedImageryUrl, setLoadedImageryUrl] = useState<string | null>(null);
+  const [imageryRenderErrorId, setImageryRenderErrorId] = useState<string | null>(null);
 
   useEffect(() => {
     void fetch("/data/departements-1000m.geojson")
       .then((result) => result.json() as Promise<DepartmentCollection>)
       .then((data) => setDepartments(data.features))
-      .catch(() => setDepartments([]));
+      .catch(() => setDepartments([]))
+      .finally(() => setDepartmentsLoading(false));
   }, []);
 
   const loadFires = useCallback(async (days: number) => {
@@ -266,6 +277,7 @@ export function FireObservatory() {
   useEffect(() => {
     if (!events.length) return;
     const controller = new AbortController();
+    const eventIds = events.map((event) => event.id);
     void fetch("/api/locations", {
       method: "POST",
       headers: {"Content-Type": "application/json"},
@@ -274,7 +286,10 @@ export function FireObservatory() {
     })
       .then((result) => result.json() as Promise<{locations: Record<string, LocationInfo | null>}>)
       .then((result) => setLocations(result.locations))
-      .catch(() => undefined);
+      .catch((error: unknown) => {
+        if (error instanceof DOMException && error.name === "AbortError") return;
+        setLocations((current) => ({...current, ...Object.fromEntries(eventIds.map((id) => [id, null]))}));
+      });
     return () => controller.abort();
   }, [events]);
 
@@ -300,6 +315,7 @@ export function FireObservatory() {
     void resolveImage().then((image) => {
       setImagery({eventId: selected.id, image});
       setImageryUnavailableId(null);
+      setImageryRenderErrorId(null);
     }).catch(() => setImageryUnavailableId(selected.id));
     return () => controller.abort();
   }, [selected]);
@@ -315,7 +331,10 @@ export function FireObservatory() {
     void fetch(`/api/fire-verification?${query}`, {signal: controller.signal})
       .then((response) => response.ok ? response.json() as Promise<Verification> : Promise.reject())
       .then((verification) => setVerifications((current) => ({...current, [selected.id]: verification})))
-      .catch(() => undefined);
+      .catch((error: unknown) => {
+        if (error instanceof DOMException && error.name === "AbortError") return;
+        setVerifications((current) => ({...current, [selected.id]: {level: null, effisStatus: "unavailable"}}));
+      });
     return () => controller.abort();
   }, [selected, verifications]);
 
@@ -335,6 +354,8 @@ export function FireObservatory() {
   const satelliteUrl = (choice: ImageryChoice) => selected
     ? `/api/satellite?lat=${selected.latitude.toFixed(5)}&lon=${selected.longitude.toFixed(5)}&from=${choice.from}&to=${choice.to}`
     : "";
+  const selectedImageryUrl = selectedImagery ? satelliteUrl(selectedImagery.image) : null;
+  const selectedImageryLoaded = Boolean(selectedImageryUrl && loadedImageryUrl === selectedImageryUrl);
   const locationLabel = (event: ObservedEvent) => {
     const remote = locations[event.id];
     if (remote === undefined) return {title: "Recherche du lieu…", parents: "Analyse des coordonnées"};
@@ -375,12 +396,15 @@ export function FireObservatory() {
           <div className="watch-search"><Icon name="search" /><input aria-label="Rechercher dans les feux probables" placeholder="Village, commune, département…" value={searchQuery} onChange={(event) => setSearchQuery(event.target.value)} /></div>
           <div className="watch-sidebar-head"><div><span>FEUX PROBABLES</span><strong>{visibleEvents.length}</strong></div><button type="button" aria-label="Rafraîchir" onClick={() => void loadFires(PERIODS[periodIndex].days)}><Icon name="refresh" /></button></div>
           <div className="watch-event-list">
+            {loading && <div className="watch-list-loading"><LoadingBar label="Actualisation des feux" compact /></div>}
             {visibleEvents.map((event) => {
               const label = locationLabel(event);
               const evidence = reliability(event, verifications[event.id]);
               return <button key={event.id} type="button" className={selected?.id === event.id ? "is-active" : ""} onClick={() => setSelectedId(event.id)}>
                 <span className={`watch-event-signal is-${evidence.level}`} />
-                <span><strong>{label.title}</strong><small>{label.parents}</small><em>Observé {elapsed(event.lastAt, referenceTime)}</em></span>
+                {locations[event.id] === undefined
+                  ? <span className="watch-location-loading"><i /><i /><em>Identification du lieu…</em></span>
+                  : <span><strong>{label.title}</strong><small>{label.parents}</small><em>Observé {elapsed(event.lastAt, referenceTime)}</em></span>}
                 <time><span className={`watch-reliability is-${evidence.level}`}>{evidence.label}</span><small>{event.detections.length} observations</small></time>
               </button>;
             })}
@@ -412,7 +436,7 @@ export function FireObservatory() {
           </svg>
 
           <div className="watch-map-label"><span>FRANCE MÉTROPOLITAINE</span><strong>{events.length} feu{events.length > 1 ? "x" : ""} probable{events.length > 1 ? "s" : ""}</strong></div>
-          {loading && <div className="watch-map-state"><span className="watch-spinner" />Chargement des observations FIRMS…</div>}
+          {(loading || departmentsLoading) && <div className="watch-map-state"><LoadingBar label={loading ? "Chargement des observations FIRMS" : "Chargement du fond géographique"} /></div>}
           {!loading && error && <div className="watch-map-state is-error"><strong>{error.message}</strong><span>{error.error === "missing_key" ? "Ajoute NASA_FIRMS_MAP_KEY dans .env.local puis redémarre le serveur." : "Vérifie la configuration ou réessaie dans quelques minutes."}</span><button type="button" onClick={() => void loadFires(PERIODS[periodIndex].days)}>Réessayer</button></div>}
           {!loading && !error && events.length === 0 && <div className="watch-map-state"><strong>Aucun feu probable détecté</strong><span>Le filtre strict peut ignorer un feu récent ou de faible intensité avant une seconde observation.</span></div>}
           <div className="watch-legend"><span><i className="probable" /> Probable</span><span><i className="strong" /> Forte présomption</span><span><i className="mapped" /> Zone cartographiée</span><span><i className="official" /> Confirmé</span></div>
@@ -426,19 +450,23 @@ export function FireObservatory() {
         <aside className="watch-detail">
           <div className="watch-detail-head"><span>{selectedReliability?.label.toLocaleUpperCase("fr-FR") ?? "FEU PROBABLE"}</span><button type="button" aria-label="Informations"><Icon name="info" /></button></div>
           {selected && latestDetection ? <>
-            <h1>{selectedLabel?.title}</h1><p>{selectedLabel?.parents}{selectedLabel?.parents.includes("Zone") ? "" : ` · Zone ${selected.latitude.toFixed(2)}, ${selected.longitude.toFixed(2)}`}</p>
-            <div className={`watch-status is-${selectedReliability?.level}`}><i /><span><strong>{selectedReliability?.label} · dernière détection {elapsed(selected.lastAt, referenceTime)}</strong><small>{selectedReliability?.detail}. Ce statut n’indique pas si le feu est actif ou éteint.</small>{selectedVerification?.sourceUrl && <a href={selectedVerification.sourceUrl} target="_blank" rel="noreferrer">Voir la source · {selectedVerification.sourceName}</a>}{selectedVerification?.effisStatus === "unavailable" && <em>Vérification EFFIS temporairement indisponible</em>}</span></div>
+            {locations[selected.id] === undefined
+              ? <div className="watch-detail-location-loading"><LoadingBar label="Identification du lieu" compact /></div>
+              : <><h1>{selectedLabel?.title}</h1><p>{selectedLabel?.parents}{selectedLabel?.parents.includes("Zone") ? "" : ` · Zone ${selected.latitude.toFixed(2)}, ${selected.longitude.toFixed(2)}`}</p></>}
+            <div className={`watch-status is-${selectedReliability?.level}`}><i /><span><strong>{selectedReliability?.label} · dernière détection {elapsed(selected.lastAt, referenceTime)}</strong><small>{selectedReliability?.detail}. Ce statut n’indique pas si le feu est actif ou éteint.</small>{selectedVerification === undefined && <LoadingBar label="Vérification des sources externes" compact />}{selectedVerification?.sourceUrl && <a href={selectedVerification.sourceUrl} target="_blank" rel="noreferrer">Voir la source · {selectedVerification.sourceName}</a>}{selectedVerification?.effisStatus === "unavailable" && <em>Vérification EFFIS temporairement indisponible</em>}</span></div>
             <dl className="watch-metrics"><div><dt>Première observation</dt><dd>{formatDate(selected.firstAt)}</dd></div><div><dt>Dernière observation</dt><dd>{formatDate(selected.lastAt)}</dd></div><div><dt>Observations affichées</dt><dd>{selectedVisible.length} <small>sur {selected.detections.length}</small></dd></div><div><dt>Intensité thermique max.</dt><dd>{selected.maxFrp.toLocaleString("fr-FR")} <small>MW</small></dd></div></dl>
             <div className="watch-confidence"><span>Mesure satellite {latestDetection.satellite} · {latestDetection.daynight === "D" ? "de jour" : "de nuit"}</span><strong>confiance {confidenceLabel(latestDetection.confidence)}</strong></div>
           </> : <div className="watch-detail-empty">Sélectionnez une période contenant des observations pour afficher leur détail.</div>}
 
           {selected && <section className="watch-compare">
             <div className="watch-compare-head"><div><span>DERNIÈRE VUE DISPONIBLE</span><strong>Image satellite sans nuages</strong></div><div className="watch-compare-actions"><span className="watch-imagery-badge">{selectedImagery ? "Sentinel-2 · 10 m" : "Recherche…"}</span>{selectedImagery && <button type="button" className="watch-expand-button" onClick={() => imageryDialogRef.current?.showModal()}>Agrandir</button>}</div></div>
-            {selectedImagery ? <div className="watch-satellite" style={{backgroundImage: `url(${satelliteUrl(selectedImagery.image)})`}}>
-              <span className="after">ACQUISITION · {formatImageRange(selectedImagery.image.date, selectedImagery.image.date)}</span>
-            </div> : imageryUnavailableId === selected.id
+            {selectedImagery && selectedImageryUrl && imageryRenderErrorId !== selected.id ? <div className="watch-satellite">
+              <Image fill unoptimized sizes="(max-width: 1100px) 50vw, 350px" src={selectedImageryUrl} alt={`Vue Sentinel-2 récente autour de ${selectedLabel?.title ?? "la zone observée"}`} className={selectedImageryLoaded ? "is-loaded" : ""} onLoad={() => setLoadedImageryUrl(selectedImageryUrl)} onError={() => setImageryRenderErrorId(selected.id)} />
+              {!selectedImageryLoaded && <div className="watch-imagery-progress"><LoadingBar label="Chargement de l’image satellite" /></div>}
+              {selectedImageryLoaded && <span className="after">ACQUISITION · {formatImageRange(selectedImagery.image.date, selectedImagery.image.date)}</span>}
+            </div> : imageryUnavailableId === selected.id || imageryRenderErrorId === selected.id
               ? <div className="watch-imagery-loading"><strong>Aucune image exploitable récente</strong><span>Sentinel-2 n’a pas fourni de pixels suffisamment dégagés sur cette zone.</span></div>
-              : <div className="watch-imagery-loading"><span className="watch-spinner" />Recherche de la dernière image exploitable…</div>}
+              : <div className="watch-imagery-loading"><LoadingBar label="Recherche de la dernière image exploitable" /></div>}
             <small>{selectedImagery ? `Copernicus Sentinel-2 L2A · composite récent de pixels non nuageux · dernière acquisition : ${selectedImagery.image.cloudCoverage.toLocaleString("fr-FR")} % de nuages sur la tuile.` : "Recherche des acquisitions Sentinel-2 récentes."}</small>
           </section>}
           <p className="watch-warning"><Icon name="info" /> Feu probable signifie que plusieurs observations thermiques fiables convergent. Seuls les services de secours peuvent confirmer un incendie.</p>
@@ -453,8 +481,10 @@ export function FireObservatory() {
             <div><span>DERNIÈRE VUE SATELLITE</span><strong>{selectedLabel?.title ?? "Observation satellite"}</strong><small>{selectedLabel?.parents}</small></div>
             <button type="button" onClick={() => imageryDialogRef.current?.close()}>Fermer</button>
           </header>
-          {selectedImagery && <div className="watch-satellite watch-satellite-expanded" style={{backgroundImage: `url(${satelliteUrl(selectedImagery.image)})`}}>
-            <span className="after">ACQUISITION · {formatImageRange(selectedImagery.image.date, selectedImagery.image.date)}</span>
+          {selectedImagery && selectedImageryUrl && <div className="watch-satellite watch-satellite-expanded">
+            <Image fill unoptimized sizes="100vw" src={selectedImageryUrl} alt={`Vue Sentinel-2 récente autour de ${selectedLabel?.title ?? "la zone observée"}`} className={selectedImageryLoaded ? "is-loaded" : ""} onLoad={() => setLoadedImageryUrl(selectedImageryUrl)} />
+            {!selectedImageryLoaded && <div className="watch-imagery-progress"><LoadingBar label="Chargement de l’image satellite" /></div>}
+            {selectedImageryLoaded && <span className="after">ACQUISITION · {formatImageRange(selectedImagery.image.date, selectedImagery.image.date)}</span>}
           </div>}
           <footer>Dernière vue Sentinel-2 exploitable · Échap pour fermer</footer>
         </div>
