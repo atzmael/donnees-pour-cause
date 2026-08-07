@@ -279,13 +279,40 @@ export function FireObservatory() {
     return {min: Math.min(...times), max: Math.max(...times)};
   }, [filteredFireDetections]);
   const referenceTime = response ? new Date(response.fetchedAt).getTime() : 0;
+  const locationLabel = useCallback((event: ObservedEvent) => {
+    const remote = locations[event.id];
+    if (remote === undefined) return {title: "Recherche du lieu…", parents: "Analyse des coordonnées"};
+    if (remote) {
+      const parents = [remote.locality, remote.commune, remote.department, remote.region]
+        .filter((value): value is string => Boolean(value) && value !== remote.title)
+        .filter((value, index, values) => values.indexOf(value) === index);
+      return {title: remote.title, parents: parents.join(" · ") || `Zone ${event.latitude.toFixed(2)}, ${event.longitude.toFixed(2)}`};
+    }
+    const department = departments.find((feature) => pointIsInBoundaryFeature(event.longitude, event.latitude, feature));
+    const region = department?.properties.region ? REGION_NAMES[department.properties.region] : null;
+    return {
+      title: department?.properties.nom ?? region ?? "Lieu non déterminé",
+      parents: [region, `Zone ${event.latitude.toFixed(2)}, ${event.longitude.toFixed(2)}`].filter(Boolean).join(" · "),
+    };
+  }, [departments, locations]);
   const timelineCutoff = Number.isFinite(bounds.min) ? bounds.min + ((bounds.max - bounds.min) * timeline / 5) : referenceTime;
   const timelineEvents = useMemo(() => filteredEvents.filter((event) =>
     event.detections.some((item) => new Date(item.acquiredAt).getTime() <= timelineCutoff),
   ), [filteredEvents, timelineCutoff]);
-  const mapVisibleEvents = useMemo(() => timelineEvents.filter((event) => eventIsInMapView(event, mapView)), [mapView, timelineEvents]);
+  const mapScopedEvents = useMemo(() => timelineEvents.filter((event) => eventIsInMapView(event, mapView)), [mapView, timelineEvents]);
+  const sidebarEvents = useMemo(() => mapScopedEvents.slice(0, MAX_SIDEBAR_EVENTS), [mapScopedEvents]);
+  const searchTerm = useMemo(() => normalizeSearch(searchQuery), [searchQuery]);
+  const visibleEvents = useMemo(() => sidebarEvents.filter((event) => {
+    if (!searchTerm) return true;
+    const label = locationLabel(event);
+    return normalizeSearch(`${label.title} ${label.parents} ${event.latitude.toFixed(2)} ${event.longitude.toFixed(2)}`).includes(searchTerm);
+  }), [locationLabel, searchTerm, sidebarEvents]);
+  const mapVisibleEvents = useMemo(
+    () => searchTerm ? visibleEvents : mapScopedEvents,
+    [mapScopedEvents, searchTerm, visibleEvents],
+  );
   const mapClusters = useMemo(() => clusterEventsForMap(mapVisibleEvents, mapView), [mapView, mapVisibleEvents]);
-  const sidebarEvents = useMemo(() => mapVisibleEvents.slice(0, MAX_SIDEBAR_EVENTS), [mapVisibleEvents]);
+  const searchResolving = Boolean(searchTerm && sidebarEvents.some((event) => locations[event.id] === undefined));
   const selected = mapVisibleEvents.find((event) => event.id === selectedId) ?? mapVisibleEvents[0] ?? null;
   const selectedVisible = selected?.detections.filter((item) => new Date(item.acquiredAt).getTime() <= timelineCutoff) ?? [];
   const latestDetection = selectedVisible.at(-1) ?? selected?.detections[0] ?? null;
@@ -387,31 +414,9 @@ export function FireObservatory() {
     : "";
   const selectedImageryUrl = selectedImagery ? satelliteUrl(selectedImagery.image) : null;
   const selectedImageryLoaded = Boolean(selectedImageryUrl && loadedImageryUrl === selectedImageryUrl);
-  const locationLabel = (event: ObservedEvent) => {
-    const remote = locations[event.id];
-    if (remote === undefined) return {title: "Recherche du lieu…", parents: "Analyse des coordonnées"};
-    if (remote) {
-      const parents = [remote.locality, remote.commune, remote.department, remote.region]
-        .filter((value): value is string => Boolean(value) && value !== remote.title)
-        .filter((value, index, values) => values.indexOf(value) === index);
-      return {title: remote.title, parents: parents.join(" · ") || `Zone ${event.latitude.toFixed(2)}, ${event.longitude.toFixed(2)}`};
-    }
-    const department = departments.find((feature) => pointIsInBoundaryFeature(event.longitude, event.latitude, feature));
-    const region = department?.properties.region ? REGION_NAMES[department.properties.region] : null;
-    return {
-      title: department?.properties.nom ?? region ?? "Lieu non déterminé",
-      parents: [region, `Zone ${event.latitude.toFixed(2)}, ${event.longitude.toFixed(2)}`].filter(Boolean).join(" · "),
-    };
-  };
   const selectedLabel = selected ? locationLabel(selected) : null;
   const selectedVerification = selected ? verifications[selected.id] : undefined;
   const selectedReliability = selected ? reliability(selected, selectedVerification) : null;
-  const visibleEvents = sidebarEvents.filter((event) => {
-    const query = normalizeSearch(searchQuery);
-    if (!query) return true;
-    const label = locationLabel(event);
-    return normalizeSearch(`${label.title} ${label.parents} ${event.latitude.toFixed(2)} ${event.longitude.toFixed(2)}`).includes(query);
-  });
   const markerScale = mapView.width / FULL_MAP_VIEW.width;
   const zoomLevel = Math.round(FULL_MAP_VIEW.width / mapView.width * 10) / 10;
   const clusterLevel = (cluster: MapCluster) => cluster.events.reduce<ReliabilityLevel>((best, event) => {
@@ -441,11 +446,11 @@ export function FireObservatory() {
 
       <section className="watch-workspace" aria-label="Observatoire satellite des feux">
         <aside className="watch-sidebar">
-          <div className="watch-search"><Icon name="search" /><input aria-label="Rechercher dans les feux probables" placeholder="Village, commune, département…" value={searchQuery} onChange={(event) => setSearchQuery(event.target.value)} /></div>
+          <div className="watch-search"><Icon name="search" /><input aria-label="Rechercher dans les feux probables" placeholder="Village, commune, département…" value={searchQuery} onChange={(event) => {setSearchQuery(event.target.value); setSelectedId(null);}} /></div>
           <div className="watch-fire-filters" role="group" aria-label="Filtrer les feux par niveau de fiabilité">
-            {FIRE_FILTERS.map((filter) => <button key={filter.value} type="button" className={fireFilter === filter.value ? "is-active" : ""} aria-pressed={fireFilter === filter.value} onClick={() => {setFireFilter(filter.value); setTimeline(5); setPlaying(false);}}>{filter.label}</button>)}
+            {FIRE_FILTERS.map((filter) => <button key={filter.value} type="button" className={fireFilter === filter.value ? "is-active" : ""} aria-pressed={fireFilter === filter.value} onClick={() => {setFireFilter(filter.value); setTimeline(5); setPlaying(false); setSelectedId(null);}}>{filter.label}</button>)}
           </div>
-          <div className="watch-sidebar-head"><div><span>FOYERS DANS LA CARTE</span><strong>{searchQuery ? visibleEvents.length : mapVisibleEvents.length}</strong></div><button type="button" className="watch-refresh-button" aria-label="Actualiser la liste des feux" title="Actualiser la liste" disabled={loading} onClick={() => void loadFires(PERIODS[periodIndex].days)}><Icon name="refresh" /></button></div>
+          <div className="watch-sidebar-head"><div><span>FOYERS DANS LA CARTE</span><strong aria-live="polite">{mapVisibleEvents.length}</strong></div><button type="button" className="watch-refresh-button" aria-label="Actualiser la liste des feux" title="Actualiser la liste" disabled={loading} onClick={() => void loadFires(PERIODS[periodIndex].days)}><Icon name="refresh" /></button></div>
           <div className="watch-event-list">
             {loading && <div className="watch-list-loading"><LoadingBar label="Actualisation des feux" compact /></div>}
             {visibleEvents.map((event) => {
@@ -459,8 +464,8 @@ export function FireObservatory() {
                 <time><span className={`watch-reliability is-${evidence.level}`}>{evidence.label}</span><small>{event.detections.length} observations</small></time>
               </button>;
             })}
-            {!loading && !error && visibleEvents.length === 0 && <div className="watch-empty-list">{searchQuery ? "Aucun des foyers listés ne correspond à cette recherche." : fireFilter === "all" ? "Aucun feu probable sur cette période." : "Aucun feu dans ce niveau de fiabilité."}</div>}
-            {mapVisibleEvents.length > MAX_SIDEBAR_EVENTS && <div className="watch-list-limit">Les {MAX_SIDEBAR_EVENTS} foyers les plus récents sont listés{searchQuery ? " et parcourus par la recherche" : ""}. Zoomez sur la carte pour affiner.</div>}
+            {!loading && !error && visibleEvents.length === 0 && <div className="watch-empty-list">{searchResolving ? <LoadingBar label="Recherche des lieux correspondants" compact /> : searchTerm ? "Aucun des foyers listés ne correspond à cette recherche." : fireFilter === "all" ? "Aucun feu probable sur cette période." : "Aucun feu dans ce niveau de fiabilité."}</div>}
+            {mapScopedEvents.length > MAX_SIDEBAR_EVENTS && <div className="watch-list-limit">Les {MAX_SIDEBAR_EVENTS} foyers les plus récents sont listés{searchTerm ? " et parcourus par la recherche" : ""}. Zoomez sur la carte pour affiner.</div>}
           </div>
           <div className="watch-source-mini"><span>COUCHE ACTIVE</span><strong>Feux probables repérés par satellite</strong><small>Au moins 2 observations convergentes · NASA FIRMS VIIRS</small></div>
         </aside>
@@ -505,11 +510,11 @@ export function FireObservatory() {
             })}</g>
           </svg>
 
-          <div className="watch-map-label"><span>ZONE VISIBLE</span><strong>{mapVisibleEvents.length} foyer{mapVisibleEvents.length > 1 ? "s" : ""} · {mapClusters.length} repère{mapClusters.length > 1 ? "s" : ""}</strong></div>
+          <div className="watch-map-label"><span>{searchTerm ? "RÉSULTATS VISIBLES" : "ZONE VISIBLE"}</span><strong>{mapVisibleEvents.length} foyer{mapVisibleEvents.length > 1 ? "s" : ""} · {mapClusters.length} repère{mapClusters.length > 1 ? "s" : ""}</strong></div>
           {(loading || departmentsLoading) && <div className="watch-map-state"><LoadingBar label={loading ? "Chargement des observations FIRMS" : "Chargement du fond géographique"} /></div>}
           {!loading && error && <div className="watch-map-state is-error"><strong>{error.message}</strong><span>{error.error === "missing_key" ? "Ajoute NASA_FIRMS_MAP_KEY dans .env.local puis redémarre le serveur." : "Vérifie la configuration ou réessaie dans quelques minutes."}</span><button type="button" onClick={() => void loadFires(PERIODS[periodIndex].days)}>Réessayer</button></div>}
           {!loading && !error && filteredEvents.length === 0 && <div className="watch-map-state"><strong>{fireFilter === "all" ? "Aucun feu probable détecté" : "Aucun feu dans ce filtre"}</strong><span>{fireFilter === "all" ? "Le filtre strict peut ignorer un feu récent ou de faible intensité avant une seconde observation." : "Choisissez un autre niveau de fiabilité ou une période plus longue."}</span></div>}
-          {!loading && !error && filteredEvents.length > 0 && mapVisibleEvents.length === 0 && <div className="watch-map-state"><strong>Aucun foyer dans cette zone</strong><span>Dézoomez ou revenez à la vue France pour retrouver les autres foyers.</span><button type="button" onClick={resetMapView}>Voir toute la France</button></div>}
+          {!loading && !error && filteredEvents.length > 0 && mapVisibleEvents.length === 0 && <div className="watch-map-state">{searchResolving ? <LoadingBar label="Recherche des lieux correspondants" /> : <><strong>{searchTerm ? "Aucun foyer pour cette recherche" : "Aucun foyer dans cette zone"}</strong><span>{searchTerm ? "Modifiez votre recherche ou dézoomez pour élargir les résultats." : "Dézoomez ou revenez à la vue France pour retrouver les autres foyers."}</span>{!searchTerm && <button type="button" onClick={resetMapView}>Voir toute la France</button>}</>}</div>}
           <div className="watch-legend"><span><i className="probable" /> Probable</span><span><i className="strong" /> Forte présomption</span><span><i className="mapped" /> Zone cartographiée</span><span><i className="official" /> Confirmé</span></div>
 
           <div className="watch-timeline">
