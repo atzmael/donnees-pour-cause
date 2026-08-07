@@ -8,11 +8,11 @@ on:
       target_branch:
         description: "Branche à actualiser"
         required: true
-        default: preprod
+        default: main
         type: choice
         options:
-          - preprod
           - main
+          - preprod
 
 permissions:
   contents: write
@@ -44,19 +44,35 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Actualiser les données
-        run: pnpm data:forest-fires
+        run: |
+          updated=false
+          for attempt in 1 2 3; do
+            if pnpm data:forest-fires; then
+              updated=true
+              break
+            fi
+            echo "Tentative ${attempt}/3 échouée, nouvelle tentative dans 20 secondes."
+            sleep 20
+          done
+          if [ "$updated" != "true" ]; then
+            echo "::warning::EFFIS ou BDIFF est indisponible. Les dernières données valides sont conservées."
+            git restore public/data/forest-fires.json public/data/population-exposure.json
+          fi
+
+      - name: Actualiser les validations EFFIS et FR-Alert
+        run: pnpm data:fire-verification
 
       - name: Vérifier le calcul d’exposition
         run: pnpm data:population-exposure:check
 
       - name: Publier uniquement si les données ont changé
         run: |
-          if git diff --quiet -- public/data/forest-fires.json public/data/population-exposure.json; then
+          if git diff --quiet -- public/data/forest-fires.json public/data/population-exposure.json public/data/effis-current-fires.json public/data/official-fire-confirmations.json; then
             echo "Aucune nouvelle donnée."
             exit 0
           fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add public/data/forest-fires.json public/data/population-exposure.json
+          git add public/data/forest-fires.json public/data/population-exposure.json public/data/effis-current-fires.json public/data/official-fire-confirmations.json
           git commit -m "data: actualise les feux de forêt"
           git push origin HEAD:${TARGET_BRANCH}

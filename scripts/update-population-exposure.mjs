@@ -15,7 +15,7 @@ const effisDirectory = join(workspace, "effis");
 const outputPath = new URL("../public/data/population-exposure.json", import.meta.url);
 
 function curl(args) {
-  execFileSync("curl", ["-L", "--fail", "--silent", "--show-error", ...args], {stdio: "inherit"});
+  execFileSync("curl", ["-L", "--fail", "--silent", "--show-error", "--connect-timeout", "20", "--max-time", "90", ...args], {stdio: "inherit"});
 }
 
 function parseDbf(path) {
