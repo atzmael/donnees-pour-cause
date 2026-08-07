@@ -427,7 +427,7 @@ export function FireObservatory() {
       <section className="watch-workspace" aria-label="Observatoire satellite des feux">
         <aside className="watch-sidebar">
           <div className="watch-search"><Icon name="search" /><input aria-label="Rechercher dans les feux probables" placeholder="Village, commune, département…" value={searchQuery} onChange={(event) => setSearchQuery(event.target.value)} /></div>
-          <div className="watch-sidebar-head"><div><span>FEUX PROBABLES</span><strong>{visibleEvents.length}</strong></div><button type="button" aria-label="Rafraîchir" onClick={() => void loadFires(PERIODS[periodIndex].days)}><Icon name="refresh" /></button></div>
+          <div className="watch-sidebar-head"><div><span>FEUX PROBABLES</span><strong>{visibleEvents.length}</strong></div><button type="button" className="watch-refresh-button" aria-label="Actualiser la liste des feux" title="Actualiser la liste" disabled={loading} onClick={() => void loadFires(PERIODS[periodIndex].days)}><Icon name="refresh" /></button></div>
           <div className="watch-event-list">
             {loading && <div className="watch-list-loading"><LoadingBar label="Actualisation des feux" compact /></div>}
             {visibleEvents.map((event) => {
