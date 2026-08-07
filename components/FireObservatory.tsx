@@ -426,14 +426,8 @@ export function FireObservatory() {
     setMapView((current) => zoomMapView(current, 0.52, cluster.x, cluster.y));
     setSelectedId(null);
   };
-  const resetMapAndFilters = () => {
+  const resetMapView = () => {
     setMapView({...FULL_MAP_VIEW});
-    setPeriodIndex(2);
-    setFireFilter("all");
-    setSearchQuery("");
-    setTimeline(5);
-    setPlaying(false);
-    setSelectedId(null);
   };
 
   return (
@@ -480,7 +474,7 @@ export function FireObservatory() {
             <button type="button" disabled={mapView.width >= FULL_MAP_VIEW.width} aria-label="Dézoomer" onClick={() => setMapView((current) => zoomMapView(current, 1.8))}>−</button>
             <span>{zoomLevel.toLocaleString("fr-FR")}×</span>
             <button type="button" disabled={mapView.width <= MIN_MAP_VIEW_WIDTH} aria-label="Zoomer" onClick={() => setMapView((current) => zoomMapView(current, 0.56))}>+</button>
-            <button type="button" className="watch-map-reset" onClick={resetMapAndFilters}>Réinitialiser</button>
+            <button type="button" className="watch-map-reset" onClick={resetMapView}>Vue France</button>
           </div>
 
           <svg className="watch-map" viewBox={`${mapView.x} ${mapView.y} ${mapView.width} ${mapView.height}`} role="img" aria-label="Carte des foyers thermiques regroupés en France">
@@ -515,7 +509,7 @@ export function FireObservatory() {
           {(loading || departmentsLoading) && <div className="watch-map-state"><LoadingBar label={loading ? "Chargement des observations FIRMS" : "Chargement du fond géographique"} /></div>}
           {!loading && error && <div className="watch-map-state is-error"><strong>{error.message}</strong><span>{error.error === "missing_key" ? "Ajoute NASA_FIRMS_MAP_KEY dans .env.local puis redémarre le serveur." : "Vérifie la configuration ou réessaie dans quelques minutes."}</span><button type="button" onClick={() => void loadFires(PERIODS[periodIndex].days)}>Réessayer</button></div>}
           {!loading && !error && filteredEvents.length === 0 && <div className="watch-map-state"><strong>{fireFilter === "all" ? "Aucun feu probable détecté" : "Aucun feu dans ce filtre"}</strong><span>{fireFilter === "all" ? "Le filtre strict peut ignorer un feu récent ou de faible intensité avant une seconde observation." : "Choisissez un autre niveau de fiabilité ou une période plus longue."}</span></div>}
-          {!loading && !error && filteredEvents.length > 0 && mapVisibleEvents.length === 0 && <div className="watch-map-state"><strong>Aucun foyer dans cette zone</strong><span>Dézoomez ou réinitialisez la carte pour retrouver les autres foyers.</span><button type="button" onClick={resetMapAndFilters}>Réinitialiser</button></div>}
+          {!loading && !error && filteredEvents.length > 0 && mapVisibleEvents.length === 0 && <div className="watch-map-state"><strong>Aucun foyer dans cette zone</strong><span>Dézoomez ou revenez à la vue France pour retrouver les autres foyers.</span><button type="button" onClick={resetMapView}>Voir toute la France</button></div>}
           <div className="watch-legend"><span><i className="probable" /> Probable</span><span><i className="strong" /> Forte présomption</span><span><i className="mapped" /> Zone cartographiée</span><span><i className="official" /> Confirmé</span></div>
 
           <div className="watch-timeline">
