@@ -25,7 +25,7 @@ jobs:
   update:
     runs-on: ubuntu-latest
     env:
-      TARGET_BRANCH: ${{ github.event_name == 'workflow_dispatch' && inputs.target_branch || 'main' }}
+      TARGET_BRANCH: ${{ github.event_name == 'workflow_dispatch' && inputs.target_branch || 'preprod' }}
     steps:
       - name: Récupérer la branche cible
         uses: actions/checkout@v4
@@ -44,7 +44,20 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Actualiser les données
-        run: pnpm data:forest-fires
+        run: |
+          updated=false
+          for attempt in 1 2 3; do
+            if pnpm data:forest-fires; then
+              updated=true
+              break
+            fi
+            echo "Tentative ${attempt}/3 échouée, nouvelle tentative dans 20 secondes."
+            sleep 20
+          done
+          if [ "$updated" != "true" ]; then
+            echo "::warning::EFFIS ou BDIFF est indisponible. Les dernières données valides sont conservées."
+            git restore public/data/forest-fires.json public/data/population-exposure.json
+          fi
 
       - name: Vérifier le calcul d’exposition
         run: pnpm data:population-exposure:check

@@ -43,6 +43,16 @@ type ImageryChoice = {
   composite: boolean;
 };
 type LatestImagery = {eventId: string; image: ImageryChoice};
+type Verification = {
+  level: "mapped" | "official" | null;
+  label?: string;
+  sourceName?: string;
+  sourceUrl?: string;
+  observedAt?: string | null;
+  publishedAt?: string;
+  areaHa?: number | null;
+  effisStatus: "available" | "unavailable" | "not_needed";
+};
 type ObservedEvent = {
   id: string;
   latitude: number;
@@ -144,7 +154,16 @@ function satellitePassCount(detections: Detection[]) {
   }, [] as number[]).length;
 }
 
-function reliability(event: ObservedEvent) {
+function reliability(event: ObservedEvent, verification?: Verification) {
+  if (verification?.level === "official") {
+    const published = verification.publishedAt ? ` · publiée le ${formatDate(verification.publishedAt)}` : "";
+    return {level: "official", label: "Confirmé officiellement", detail: `Publication de ${verification.sourceName ?? "l’autorité compétente"}${published}`};
+  }
+  if (verification?.level === "mapped") {
+    const area = verification.areaHa ? ` · ${verification.areaHa.toLocaleString("fr-FR")} ha cartographiés` : "";
+    const observed = verification.observedAt ? ` · observé le ${formatDate(verification.observedAt)}` : "";
+    return {level: "mapped", label: "Zone brûlée cartographiée", detail: `Périmètre EFFIS recoupant les coordonnées${area}${observed}`};
+  }
   const passes = satellitePassCount(event.detections);
   const strong = passes >= 2 && event.maxFrp >= 20;
   return strong
@@ -198,6 +217,7 @@ export function FireObservatory() {
   const [playing, setPlaying] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [locations, setLocations] = useState<Record<string, LocationInfo | null>>({});
+  const [verifications, setVerifications] = useState<Record<string, Verification>>({});
   const [imagery, setImagery] = useState<LatestImagery | null>(null);
   const [imageryUnavailableId, setImageryUnavailableId] = useState<string | null>(null);
 
@@ -284,6 +304,21 @@ export function FireObservatory() {
     return () => controller.abort();
   }, [selected]);
 
+  useEffect(() => {
+    if (!selected || verifications[selected.id]) return;
+    const controller = new AbortController();
+    const query = new URLSearchParams({
+      lat: selected.latitude.toFixed(5),
+      lon: selected.longitude.toFixed(5),
+      observedAt: selected.lastAt,
+    });
+    void fetch(`/api/fire-verification?${query}`, {signal: controller.signal})
+      .then((response) => response.ok ? response.json() as Promise<Verification> : Promise.reject())
+      .then((verification) => setVerifications((current) => ({...current, [selected.id]: verification})))
+      .catch(() => undefined);
+    return () => controller.abort();
+  }, [selected, verifications]);
+
   const bounds = useMemo(() => {
     const times = probableDetections.map((item) => new Date(item.acquiredAt).getTime());
     return {min: Math.min(...times), max: Math.max(...times)};
@@ -317,6 +352,8 @@ export function FireObservatory() {
     };
   };
   const selectedLabel = selected ? locationLabel(selected) : null;
+  const selectedVerification = selected ? verifications[selected.id] : undefined;
+  const selectedReliability = selected ? reliability(selected, selectedVerification) : null;
   const visibleEvents = events.filter((event) => {
     const query = normalizeSearch(searchQuery);
     if (!query) return true;
@@ -340,7 +377,7 @@ export function FireObservatory() {
           <div className="watch-event-list">
             {visibleEvents.map((event) => {
               const label = locationLabel(event);
-              const evidence = reliability(event);
+              const evidence = reliability(event, verifications[event.id]);
               return <button key={event.id} type="button" className={selected?.id === event.id ? "is-active" : ""} onClick={() => setSelectedId(event.id)}>
                 <span className={`watch-event-signal is-${evidence.level}`} />
                 <span><strong>{label.title}</strong><small>{label.parents}</small><em>Observé {elapsed(event.lastAt, referenceTime)}</em></span>
@@ -366,7 +403,8 @@ export function FireObservatory() {
               const [x, y] = project([detection.longitude, detection.latitude]);
               const event = events.find((candidate) => candidate.detections.includes(detection));
               const isSelected = event?.id === selected?.id;
-              const markerColor = event && reliability(event).level === "strong" ? "#ff6b35" : "#f7b955";
+              const markerLevel = event ? reliability(event, verifications[event.id]).level : "probable";
+              const markerColor = ({probable: "#f7b955", strong: "#ff6b35", mapped: "#b7d48b", official: "#edf4e5"} as Record<string, string>)[markerLevel];
               return <g key={`${detection.acquiredAt}-${detection.latitude}-${index}`} className={isSelected ? "is-selected" : ""} onClick={() => event && setSelectedId(event.id)}>
                 <circle className="watch-marker-glow" cx={x} cy={y} r={isSelected ? 24 : 16} fill={markerColor} /><circle className="watch-marker-ring" cx={x} cy={y} r={isSelected ? 10 : 7} /><circle className="watch-marker-core" cx={x} cy={y} r={isSelected ? 4 : 3} fill={markerColor} />
               </g>;
@@ -377,7 +415,7 @@ export function FireObservatory() {
           {loading && <div className="watch-map-state"><span className="watch-spinner" />Chargement des observations FIRMS…</div>}
           {!loading && error && <div className="watch-map-state is-error"><strong>{error.message}</strong><span>{error.error === "missing_key" ? "Ajoute NASA_FIRMS_MAP_KEY dans .env.local puis redémarre le serveur." : "Vérifie la configuration ou réessaie dans quelques minutes."}</span><button type="button" onClick={() => void loadFires(PERIODS[periodIndex].days)}>Réessayer</button></div>}
           {!loading && !error && events.length === 0 && <div className="watch-map-state"><strong>Aucun feu probable détecté</strong><span>Le filtre strict peut ignorer un feu récent ou de faible intensité avant une seconde observation.</span></div>}
-          <div className="watch-legend"><span><i className="probable" /> Probable</span><span><i className="strong" /> Forte présomption</span><small>Aucun niveau ne constitue une confirmation officielle.</small></div>
+          <div className="watch-legend"><span><i className="probable" /> Probable</span><span><i className="strong" /> Forte présomption</span><span><i className="mapped" /> Zone cartographiée</span><span><i className="official" /> Confirmé</span></div>
 
           <div className="watch-timeline">
             <button type="button" className="watch-play" disabled={!probableDetections.length} aria-label={playing ? "Mettre en pause" : "Lire la chronologie"} onClick={() => setPlaying((value) => !value)}><Icon name={playing ? "pause" : "play"} /></button>
@@ -386,10 +424,10 @@ export function FireObservatory() {
         </div>
 
         <aside className="watch-detail">
-          <div className="watch-detail-head"><span>{selected ? reliability(selected).label.toLocaleUpperCase("fr-FR") : "FEU PROBABLE"}</span><button type="button" aria-label="Informations"><Icon name="info" /></button></div>
+          <div className="watch-detail-head"><span>{selectedReliability?.label.toLocaleUpperCase("fr-FR") ?? "FEU PROBABLE"}</span><button type="button" aria-label="Informations"><Icon name="info" /></button></div>
           {selected && latestDetection ? <>
             <h1>{selectedLabel?.title}</h1><p>{selectedLabel?.parents}{selectedLabel?.parents.includes("Zone") ? "" : ` · Zone ${selected.latitude.toFixed(2)}, ${selected.longitude.toFixed(2)}`}</p>
-            <div className={`watch-status is-${reliability(selected).level}`}><i /><span><strong>{reliability(selected).label} · dernière détection {elapsed(selected.lastAt, referenceTime)}</strong><small>{reliability(selected).detail}. Ce statut n’indique pas si le feu est actif ou éteint.</small></span></div>
+            <div className={`watch-status is-${selectedReliability?.level}`}><i /><span><strong>{selectedReliability?.label} · dernière détection {elapsed(selected.lastAt, referenceTime)}</strong><small>{selectedReliability?.detail}. Ce statut n’indique pas si le feu est actif ou éteint.</small>{selectedVerification?.sourceUrl && <a href={selectedVerification.sourceUrl} target="_blank" rel="noreferrer">Voir la source · {selectedVerification.sourceName}</a>}{selectedVerification?.effisStatus === "unavailable" && <em>Vérification EFFIS temporairement indisponible</em>}</span></div>
             <dl className="watch-metrics"><div><dt>Première observation</dt><dd>{formatDate(selected.firstAt)}</dd></div><div><dt>Dernière observation</dt><dd>{formatDate(selected.lastAt)}</dd></div><div><dt>Observations affichées</dt><dd>{selectedVisible.length} <small>sur {selected.detections.length}</small></dd></div><div><dt>Intensité thermique max.</dt><dd>{selected.maxFrp.toLocaleString("fr-FR")} <small>MW</small></dd></div></dl>
             <div className="watch-confidence"><span>Mesure satellite {latestDetection.satellite} · {latestDetection.daynight === "D" ? "de jour" : "de nuit"}</span><strong>confiance {confidenceLabel(latestDetection.confidence)}</strong></div>
           </> : <div className="watch-detail-empty">Sélectionnez une période contenant des observations pour afficher leur détail.</div>}

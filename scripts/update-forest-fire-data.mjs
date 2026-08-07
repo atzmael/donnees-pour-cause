@@ -19,7 +19,7 @@ const bdiffCaPath = fileURLToPath(
 function curl(args, {caPath} = {}) {
   execFileSync(
     "curl",
-    ["-L", "--fail", "--silent", "--show-error", ...(caPath ? ["--cacert", caPath] : []), ...args],
+    ["-L", "--fail", "--silent", "--show-error", "--connect-timeout", "20", "--max-time", "90", ...(caPath ? ["--cacert", caPath] : []), ...args],
     {stdio: "inherit"},
   );
 }
