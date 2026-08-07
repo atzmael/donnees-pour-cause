@@ -63,6 +63,7 @@ type ObservedEvent = {
   lastAt: string;
   maxFrp: number;
 };
+type FireFilter = "all" | "confirmed" | "strong" | "probable";
 
 const PERIODS = [
   {label: "6 h", hours: 6, days: 1},
@@ -70,6 +71,13 @@ const PERIODS = [
   {label: "24 h", hours: 24, days: 1},
   {label: "48 h", hours: 48, days: 2},
   {label: "5 j", hours: 120, days: 5},
+];
+
+const FIRE_FILTERS: ReadonlyArray<{value: FireFilter; label: string}> = [
+  {value: "all", label: "Tous"},
+  {value: "confirmed", label: "Confirmé"},
+  {value: "strong", label: "Forte présomption"},
+  {value: "probable", label: "Probable"},
 ];
 
 const REGION_NAMES: Record<string, string> = {
@@ -225,6 +233,7 @@ export function FireObservatory() {
   const [timeline, setTimeline] = useState(5);
   const [playing, setPlaying] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [fireFilter, setFireFilter] = useState<FireFilter>("all");
   const [locations, setLocations] = useState<Record<string, LocationInfo | null>>({});
   const [verifications, setVerifications] = useState<Record<string, Verification>>({});
   const [imagery, setImagery] = useState<LatestImagery | null>(null);
@@ -293,8 +302,13 @@ export function FireObservatory() {
     );
   }, [departments, periodIndex, response]);
   const events = useMemo(() => clusterDetections(filteredDetections).filter(isProbableFire), [filteredDetections]);
-  const probableDetections = useMemo(() => events.flatMap((event) => event.detections), [events]);
-  const selected = events.find((event) => event.id === selectedId) ?? events[0] ?? null;
+  const filteredEvents = useMemo(() => events.filter((event) => {
+    const level = reliability(event, verifications[event.id]).level;
+    if (fireFilter === "confirmed") return level === "official" || level === "mapped";
+    return fireFilter === "all" || level === fireFilter;
+  }), [events, fireFilter, verifications]);
+  const filteredFireDetections = useMemo(() => filteredEvents.flatMap((event) => event.detections), [filteredEvents]);
+  const selected = filteredEvents.find((event) => event.id === selectedId) ?? filteredEvents[0] ?? null;
 
   useEffect(() => {
     if (!events.length) return;
@@ -372,12 +386,12 @@ export function FireObservatory() {
   }, [events]);
 
   const bounds = useMemo(() => {
-    const times = probableDetections.map((item) => new Date(item.acquiredAt).getTime());
+    const times = filteredFireDetections.map((item) => new Date(item.acquiredAt).getTime());
     return {min: Math.min(...times), max: Math.max(...times)};
-  }, [probableDetections]);
+  }, [filteredFireDetections]);
   const referenceTime = response ? new Date(response.fetchedAt).getTime() : 0;
   const timelineCutoff = Number.isFinite(bounds.min) ? bounds.min + ((bounds.max - bounds.min) * timeline / 5) : referenceTime;
-  const visibleDetections = probableDetections.filter((item) => new Date(item.acquiredAt).getTime() <= timelineCutoff);
+  const visibleDetections = filteredFireDetections.filter((item) => new Date(item.acquiredAt).getTime() <= timelineCutoff);
   const selectedVisible = selected?.detections.filter((item) => new Date(item.acquiredAt).getTime() <= timelineCutoff) ?? [];
   const latestDetection = selectedVisible.at(-1) ?? selected?.detections[0] ?? null;
   const timelineTimes = Array.from({length: 6}, (_, index) => Number.isFinite(bounds.min)
@@ -408,7 +422,7 @@ export function FireObservatory() {
   const selectedLabel = selected ? locationLabel(selected) : null;
   const selectedVerification = selected ? verifications[selected.id] : undefined;
   const selectedReliability = selected ? reliability(selected, selectedVerification) : null;
-  const visibleEvents = events.filter((event) => {
+  const visibleEvents = filteredEvents.filter((event) => {
     const query = normalizeSearch(searchQuery);
     if (!query) return true;
     const label = locationLabel(event);
@@ -427,7 +441,10 @@ export function FireObservatory() {
       <section className="watch-workspace" aria-label="Observatoire satellite des feux">
         <aside className="watch-sidebar">
           <div className="watch-search"><Icon name="search" /><input aria-label="Rechercher dans les feux probables" placeholder="Village, commune, département…" value={searchQuery} onChange={(event) => setSearchQuery(event.target.value)} /></div>
-          <div className="watch-sidebar-head"><div><span>FEUX PROBABLES</span><strong>{visibleEvents.length}</strong></div><button type="button" className="watch-refresh-button" aria-label="Actualiser la liste des feux" title="Actualiser la liste" disabled={loading} onClick={() => void loadFires(PERIODS[periodIndex].days)}><Icon name="refresh" /></button></div>
+          <div className="watch-fire-filters" role="group" aria-label="Filtrer les feux par niveau de fiabilité">
+            {FIRE_FILTERS.map((filter) => <button key={filter.value} type="button" className={fireFilter === filter.value ? "is-active" : ""} aria-pressed={fireFilter === filter.value} onClick={() => {setFireFilter(filter.value); setTimeline(5); setPlaying(false);}}>{filter.label}</button>)}
+          </div>
+          <div className="watch-sidebar-head"><div><span>FOYERS AFFICHÉS</span><strong>{visibleEvents.length}</strong></div><button type="button" className="watch-refresh-button" aria-label="Actualiser la liste des feux" title="Actualiser la liste" disabled={loading} onClick={() => void loadFires(PERIODS[periodIndex].days)}><Icon name="refresh" /></button></div>
           <div className="watch-event-list">
             {loading && <div className="watch-list-loading"><LoadingBar label="Actualisation des feux" compact /></div>}
             {visibleEvents.map((event) => {
@@ -441,7 +458,7 @@ export function FireObservatory() {
                 <time><span className={`watch-reliability is-${evidence.level}`}>{evidence.label}</span><small>{event.detections.length} observations</small></time>
               </button>;
             })}
-            {!loading && !error && visibleEvents.length === 0 && <div className="watch-empty-list">{searchQuery ? "Aucun feu probable ne correspond à cette recherche." : "Aucun feu probable sur cette période."}</div>}
+            {!loading && !error && visibleEvents.length === 0 && <div className="watch-empty-list">{searchQuery ? "Aucun feu ne correspond à cette recherche." : fireFilter === "all" ? "Aucun feu probable sur cette période." : "Aucun feu dans ce niveau de fiabilité."}</div>}
           </div>
           <div className="watch-source-mini"><span>COUCHE ACTIVE</span><strong>Feux probables repérés par satellite</strong><small>Au moins 2 observations convergentes · NASA FIRMS VIIRS</small></div>
         </aside>
@@ -453,7 +470,7 @@ export function FireObservatory() {
           </div>
 
           <svg className="watch-map" viewBox="0 0 650 620" role="img" aria-label="Carte des détections thermiques NASA FIRMS en France">
-            <defs><filter id="watch-glow" x="-300%" y="-300%" width="700%" height="700%"><feGaussianBlur stdDeviation="8" /></filter><pattern id="watch-grid" width="18" height="18" patternUnits="userSpaceOnUse"><path d="M 18 0 L 0 0 0 18" fill="none" stroke="rgba(255,255,255,.035)" strokeWidth="1" /></pattern></defs>
+            <defs><filter id="watch-glow" x="-250%" y="-250%" width="600%" height="600%"><feGaussianBlur stdDeviation="5" /></filter><pattern id="watch-grid" width="18" height="18" patternUnits="userSpaceOnUse"><path d="M 18 0 L 0 0 0 18" fill="none" stroke="rgba(255,255,255,.035)" strokeWidth="1" /></pattern></defs>
             <rect width="650" height="620" fill="url(#watch-grid)" />
             <g className="watch-departments">{departments.map((feature) => <path key={feature.properties.code} d={featurePath(feature)}><title>{feature.properties.nom}</title></path>)}</g>
             <g className="watch-detections">{visibleDetections.map((detection, index) => {
@@ -463,20 +480,20 @@ export function FireObservatory() {
               const markerLevel = event ? reliability(event, verifications[event.id]).level : "probable";
               const markerColor = ({probable: "#f7b955", strong: "#ff6b35", mapped: "#b7d48b", official: "#edf4e5"} as Record<string, string>)[markerLevel];
               return <g key={`${detection.acquiredAt}-${detection.latitude}-${index}`} className={isSelected ? "is-selected" : ""} onClick={() => event && setSelectedId(event.id)}>
-                <circle className="watch-marker-glow" cx={x} cy={y} r={isSelected ? 24 : 16} fill={markerColor} /><circle className="watch-marker-ring" cx={x} cy={y} r={isSelected ? 10 : 7} /><circle className="watch-marker-core" cx={x} cy={y} r={isSelected ? 4 : 3} fill={markerColor} />
+                <circle className="watch-marker-glow" cx={x} cy={y} r={isSelected ? 17 : 11} fill={markerColor} /><circle className="watch-marker-ring" cx={x} cy={y} r={isSelected ? 10 : 7} /><circle className="watch-marker-core" cx={x} cy={y} r={isSelected ? 4 : 3} fill={markerColor} />
               </g>;
             })}</g>
           </svg>
 
-          <div className="watch-map-label"><span>FRANCE MÉTROPOLITAINE</span><strong>{events.length} feu{events.length > 1 ? "x" : ""} probable{events.length > 1 ? "s" : ""}</strong></div>
+          <div className="watch-map-label"><span>FRANCE MÉTROPOLITAINE</span><strong>{filteredEvents.length} foyer{filteredEvents.length > 1 ? "s" : ""} affiché{filteredEvents.length > 1 ? "s" : ""}</strong></div>
           {(loading || departmentsLoading) && <div className="watch-map-state"><LoadingBar label={loading ? "Chargement des observations FIRMS" : "Chargement du fond géographique"} /></div>}
           {!loading && error && <div className="watch-map-state is-error"><strong>{error.message}</strong><span>{error.error === "missing_key" ? "Ajoute NASA_FIRMS_MAP_KEY dans .env.local puis redémarre le serveur." : "Vérifie la configuration ou réessaie dans quelques minutes."}</span><button type="button" onClick={() => void loadFires(PERIODS[periodIndex].days)}>Réessayer</button></div>}
-          {!loading && !error && events.length === 0 && <div className="watch-map-state"><strong>Aucun feu probable détecté</strong><span>Le filtre strict peut ignorer un feu récent ou de faible intensité avant une seconde observation.</span></div>}
+          {!loading && !error && filteredEvents.length === 0 && <div className="watch-map-state"><strong>{fireFilter === "all" ? "Aucun feu probable détecté" : "Aucun feu dans ce filtre"}</strong><span>{fireFilter === "all" ? "Le filtre strict peut ignorer un feu récent ou de faible intensité avant une seconde observation." : "Choisissez un autre niveau de fiabilité ou une période plus longue."}</span></div>}
           <div className="watch-legend"><span><i className="probable" /> Probable</span><span><i className="strong" /> Forte présomption</span><span><i className="mapped" /> Zone cartographiée</span><span><i className="official" /> Confirmé</span></div>
 
           <div className="watch-timeline">
-            <button type="button" className="watch-play" disabled={!probableDetections.length} aria-label={playing ? "Mettre en pause" : "Lire la chronologie"} onClick={() => setPlaying((value) => !value)}><Icon name={playing ? "pause" : "play"} /></button>
-            <div className="watch-timeline-main"><div><span>ÉVOLUTION DES OBSERVATIONS</span><strong>{probableDetections.length ? formatDate(timelineTimes[timeline]) : "Aucune donnée"}</strong></div><input aria-label="Heure observée" type="range" min="0" max="5" value={timeline} disabled={!probableDetections.length} onChange={(event) => setTimeline(Number(event.target.value))} /><div className="watch-ticks">{timelineTimes.map((time, index) => <span key={`${time}-${index}`} className={index <= timeline ? "is-past" : ""}>{formatDate(time, false)}</span>)}</div></div>
+            <button type="button" className="watch-play" disabled={!filteredFireDetections.length} aria-label={playing ? "Mettre en pause" : "Lire la chronologie"} onClick={() => setPlaying((value) => !value)}><Icon name={playing ? "pause" : "play"} /></button>
+            <div className="watch-timeline-main"><div><span>ÉVOLUTION DES OBSERVATIONS</span><strong>{filteredFireDetections.length ? formatDate(timelineTimes[timeline]) : "Aucune donnée"}</strong></div><input aria-label="Heure observée" type="range" min="0" max="5" value={timeline} disabled={!filteredFireDetections.length} onChange={(event) => setTimeline(Number(event.target.value))} /><div className="watch-ticks">{timelineTimes.map((time, index) => <span key={`${time}-${index}`} className={index <= timeline ? "is-past" : ""}>{formatDate(time, false)}</span>)}</div></div>
           </div>
         </div>
 
