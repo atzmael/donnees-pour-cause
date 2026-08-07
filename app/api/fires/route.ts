@@ -15,6 +15,25 @@ type FirmsRow = {
 
 const SOURCES = ["VIIRS_SNPP_NRT", "VIIRS_NOAA20_NRT", "VIIRS_NOAA21_NRT"];
 const FRANCE_BBOX = "-5.6,41.2,9.8,51.3";
+const MAX_REQUEST_DAYS = 31;
+const FIRMS_WINDOW_DAYS = 5;
+
+function formatUtcDate(date: Date) {
+  return date.toISOString().slice(0, 10);
+}
+
+function buildDateWindows(days: number, now = new Date()) {
+  const today = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
+  const firstDay = new Date(today);
+  firstDay.setUTCDate(firstDay.getUTCDate() - (days - 1));
+
+  return Array.from({length: Math.ceil(days / FIRMS_WINDOW_DAYS)}, (_, index) => {
+    const offset = index * FIRMS_WINDOW_DAYS;
+    const start = new Date(firstDay);
+    start.setUTCDate(start.getUTCDate() + offset);
+    return {days: Math.min(FIRMS_WINDOW_DAYS, days - offset), date: formatUtcDate(start)};
+  });
+}
 
 function parseCsvLine(line: string) {
   const values: string[] = [];
@@ -63,19 +82,23 @@ export async function GET(request: NextRequest) {
   }
 
   const requestedDays = Number(request.nextUrl.searchParams.get("days") ?? 2);
-  const days = Math.max(1, Math.min(5, Number.isFinite(requestedDays) ? requestedDays : 2));
+  const days = Math.max(1, Math.min(MAX_REQUEST_DAYS, Number.isFinite(requestedDays) ? Math.round(requestedDays) : 2));
+  const windows = buildDateWindows(days);
 
   try {
-    const responses = await Promise.all(SOURCES.map(async (source) => {
-      const url = `https://firms.modaps.eosdis.nasa.gov/api/area/csv/${encodeURIComponent(mapKey)}/${source}/${FRANCE_BBOX}/${days}`;
-      const response = await fetch(url, {cache: "no-store", signal: AbortSignal.timeout(15_000)});
+    const responses = await Promise.all(SOURCES.flatMap((source) => windows.map(async (window) => {
+      const url = `https://firms.modaps.eosdis.nasa.gov/api/area/csv/${encodeURIComponent(mapKey)}/${source}/${FRANCE_BBOX}/${window.days}/${window.date}`;
+      const response = await fetch(url, {next: {revalidate: 300}, signal: AbortSignal.timeout(20_000)});
       if (!response.ok) throw new Error(`FIRMS ${source}: ${response.status}`);
       const body = await response.text();
       if (body.startsWith("Invalid MAP_KEY")) throw new Error("Invalid MAP_KEY");
       return parseFirmsCsv(body);
-    }));
+    })));
 
-    const detections = responses.flat().sort((a, b) => a.acquiredAt.localeCompare(b.acquiredAt));
+    const detections = Array.from(new Map(responses.flat().map((detection) => [
+      `${detection.satellite}:${detection.acquiredAt}:${detection.latitude}:${detection.longitude}`,
+      detection,
+    ])).values()).sort((a, b) => a.acquiredAt.localeCompare(b.acquiredAt));
     return NextResponse.json({
       source: "NASA FIRMS",
       products: SOURCES,
@@ -83,7 +106,7 @@ export async function GET(request: NextRequest) {
       days,
       detections,
     }, {
-      headers: {"Cache-Control": "private, max-age=0, must-revalidate"},
+      headers: {"Cache-Control": "public, s-maxage=300, stale-while-revalidate=300"},
     });
   } catch (error) {
     const invalidKey = error instanceof Error && error.message.includes("Invalid MAP_KEY");

@@ -66,11 +66,13 @@ type ObservedEvent = {
 type FireFilter = "all" | "confirmed" | "strong" | "probable";
 
 const PERIODS = [
-  {label: "6 h", hours: 6, days: 1},
-  {label: "12 h", hours: 12, days: 1},
-  {label: "24 h", hours: 24, days: 1},
-  {label: "48 h", hours: 48, days: 2},
-  {label: "5 j", hours: 120, days: 5},
+  {label: "6 h", hours: 6, days: 2},
+  {label: "12 h", hours: 12, days: 2},
+  {label: "24 h", hours: 24, days: 2},
+  {label: "48 h", hours: 48, days: 3},
+  {label: "7 j", hours: 168, days: 8},
+  {label: "14 j", hours: 336, days: 15},
+  {label: "30 j", hours: 720, days: 31},
 ];
 
 const FIRE_FILTERS: ReadonlyArray<{value: FireFilter; label: string}> = [
