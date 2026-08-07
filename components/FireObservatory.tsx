@@ -42,7 +42,7 @@ type ImageryChoice = {
   cloudCoverage: number;
   composite: boolean;
 };
-type ImageryPair = {eventId: string; before: ImageryChoice; after: ImageryChoice};
+type LatestImagery = {eventId: string; image: ImageryChoice};
 type ObservedEvent = {
   id: string;
   latitude: number;
@@ -131,6 +131,15 @@ function clusterDetections(detections: Detection[]): ObservedEvent[] {
   return events.sort((a, b) => b.lastAt.localeCompare(a.lastAt));
 }
 
+function isProbableFire(event: ObservedEvent) {
+  const hasReliableMeasurement = event.detections.some((detection) => ["n", "h"].includes(detection.confidence.toLowerCase()));
+  return event.detections.length >= 2 && event.maxFrp >= 10 && hasReliableMeasurement;
+}
+
+function normalizeSearch(value: string) {
+  return value.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLocaleLowerCase("fr-FR").trim();
+}
+
 function formatDate(value: string, withDate = true) {
   return new Intl.DateTimeFormat("fr-FR", {
     ...(withDate ? {day: "2-digit", month: "short"} : {}),
@@ -147,12 +156,6 @@ function elapsed(value: string, referenceTime: number) {
 
 function confidenceLabel(value: string) {
   return ({h: "haute", n: "nominale", l: "faible"} as Record<string, string>)[value.toLowerCase()] ?? value;
-}
-
-function dateOnly(value: string, offsetDays = 0) {
-  const date = new Date(value);
-  date.setUTCDate(date.getUTCDate() + offsetDays);
-  return date.toISOString().slice(0, 10);
 }
 
 function formatImageRange(from: string, to: string) {
@@ -177,9 +180,9 @@ export function FireObservatory() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [timeline, setTimeline] = useState(5);
   const [playing, setPlaying] = useState(false);
-  const [compare, setCompare] = useState(54);
+  const [searchQuery, setSearchQuery] = useState("");
   const [locations, setLocations] = useState<Record<string, LocationInfo | null>>({});
-  const [imagery, setImagery] = useState<ImageryPair | null>(null);
+  const [imagery, setImagery] = useState<LatestImagery | null>(null);
   const [imageryUnavailableId, setImageryUnavailableId] = useState<string | null>(null);
 
   useEffect(() => {
@@ -220,7 +223,8 @@ export function FireObservatory() {
       pointIsInFrance(detection.longitude, detection.latitude, {features: departments} as BoundaryCollection),
     );
   }, [departments, periodIndex, response]);
-  const events = useMemo(() => clusterDetections(filteredDetections), [filteredDetections]);
+  const events = useMemo(() => clusterDetections(filteredDetections).filter(isProbableFire), [filteredDetections]);
+  const probableDetections = useMemo(() => events.flatMap((event) => event.detections), [events]);
   const selected = events.find((event) => event.id === selectedId) ?? events[0] ?? null;
 
   useEffect(() => {
@@ -247,35 +251,30 @@ export function FireObservatory() {
   useEffect(() => {
     if (!selected) return;
     const controller = new AbortController();
-    const resolveImage = async (mode: "before" | "after") => {
+    const resolveImage = async () => {
       const query = new URLSearchParams({
         lat: selected.latitude.toFixed(5),
         lon: selected.longitude.toFixed(5),
-        date: dateOnly(selected.lastAt),
-        mode,
         resolve: "1",
       });
       const result = await fetch(`/api/satellite?${query}`, {signal: controller.signal});
       if (!result.ok) throw new Error("No usable imagery");
       return result.json() as Promise<ImageryChoice>;
     };
-    void Promise.all([
-      resolveImage("before"),
-      resolveImage("after"),
-    ]).then(([before, after]) => {
-      setImagery({eventId: selected.id, before, after});
+    void resolveImage().then((image) => {
+      setImagery({eventId: selected.id, image});
       setImageryUnavailableId(null);
     }).catch(() => setImageryUnavailableId(selected.id));
     return () => controller.abort();
   }, [selected]);
 
   const bounds = useMemo(() => {
-    const times = filteredDetections.map((item) => new Date(item.acquiredAt).getTime());
+    const times = probableDetections.map((item) => new Date(item.acquiredAt).getTime());
     return {min: Math.min(...times), max: Math.max(...times)};
-  }, [filteredDetections]);
+  }, [probableDetections]);
   const referenceTime = response ? new Date(response.fetchedAt).getTime() : 0;
   const timelineCutoff = Number.isFinite(bounds.min) ? bounds.min + ((bounds.max - bounds.min) * timeline / 5) : referenceTime;
-  const visibleDetections = filteredDetections.filter((item) => new Date(item.acquiredAt).getTime() <= timelineCutoff);
+  const visibleDetections = probableDetections.filter((item) => new Date(item.acquiredAt).getTime() <= timelineCutoff);
   const selectedVisible = selected?.detections.filter((item) => new Date(item.acquiredAt).getTime() <= timelineCutoff) ?? [];
   const latestDetection = selectedVisible.at(-1) ?? selected?.detections[0] ?? null;
   const timelineTimes = Array.from({length: 6}, (_, index) => Number.isFinite(bounds.min)
@@ -302,6 +301,12 @@ export function FireObservatory() {
     };
   };
   const selectedLabel = selected ? locationLabel(selected) : null;
+  const visibleEvents = events.filter((event) => {
+    const query = normalizeSearch(searchQuery);
+    if (!query) return true;
+    const label = locationLabel(event);
+    return normalizeSearch(`${label.title} ${label.parents} ${event.latitude.toFixed(2)} ${event.longitude.toFixed(2)}`).includes(query);
+  });
 
   return (
     <main className="watch-app">
@@ -314,20 +319,20 @@ export function FireObservatory() {
 
       <section className="watch-workspace" aria-label="Observatoire satellite des feux">
         <aside className="watch-sidebar">
-          <div className="watch-search"><Icon name="search" /><input aria-label="Rechercher un lieu" placeholder="Recherche à venir…" disabled /></div>
-          <div className="watch-sidebar-head"><div><span>ÉVÉNEMENTS OBSERVÉS</span><strong>{events.length}</strong></div><button type="button" aria-label="Rafraîchir" onClick={() => void loadFires(PERIODS[periodIndex].days)}><Icon name="refresh" /></button></div>
+          <div className="watch-search"><Icon name="search" /><input aria-label="Rechercher dans les feux probables" placeholder="Village, commune, département…" value={searchQuery} onChange={(event) => setSearchQuery(event.target.value)} /></div>
+          <div className="watch-sidebar-head"><div><span>FEUX PROBABLES</span><strong>{visibleEvents.length}</strong></div><button type="button" aria-label="Rafraîchir" onClick={() => void loadFires(PERIODS[periodIndex].days)}><Icon name="refresh" /></button></div>
           <div className="watch-event-list">
-            {events.map((event, index) => {
+            {visibleEvents.map((event, index) => {
               const label = locationLabel(event);
               return <button key={event.id} type="button" className={selected?.id === event.id ? "is-active" : ""} onClick={() => setSelectedId(event.id)}>
                 <span className="watch-event-signal" style={{background: index < 3 ? "#ff6b35" : "#f7b955"}} />
                 <span><strong>{label.title}</strong><small>{label.parents}</small><em>Observé {elapsed(event.lastAt, referenceTime)}</em></span>
-                <time>{event.detections.length} signal{event.detections.length > 1 ? "s" : ""}<small>de chaleur</small></time>
+                <time>{event.detections.length} observation{event.detections.length > 1 ? "s" : ""}<small>convergentes</small></time>
               </button>;
             })}
-            {!loading && !error && events.length === 0 && <div className="watch-empty-list">Aucune détection FIRMS sur cette période.</div>}
+            {!loading && !error && visibleEvents.length === 0 && <div className="watch-empty-list">{searchQuery ? "Aucun feu probable ne correspond à cette recherche." : "Aucun feu probable sur cette période."}</div>}
           </div>
-          <div className="watch-source-mini"><span>COUCHE ACTIVE</span><strong>Signaux de chaleur repérés par satellite</strong><small>Source scientifique : NASA FIRMS · VIIRS 375 m</small></div>
+          <div className="watch-source-mini"><span>COUCHE ACTIVE</span><strong>Feux probables repérés par satellite</strong><small>Au moins 2 observations convergentes · NASA FIRMS VIIRS</small></div>
         </aside>
 
         <div className="watch-map-panel">
@@ -350,40 +355,37 @@ export function FireObservatory() {
             })}</g>
           </svg>
 
-          <div className="watch-map-label"><span>FRANCE MÉTROPOLITAINE</span><strong>{visibleDetections.length} signal{visibleDetections.length > 1 ? "s" : ""} de chaleur affiché{visibleDetections.length > 1 ? "s" : ""}</strong></div>
+          <div className="watch-map-label"><span>FRANCE MÉTROPOLITAINE</span><strong>{events.length} feu{events.length > 1 ? "x" : ""} probable{events.length > 1 ? "s" : ""}</strong></div>
           {loading && <div className="watch-map-state"><span className="watch-spinner" />Chargement des observations FIRMS…</div>}
           {!loading && error && <div className="watch-map-state is-error"><strong>{error.message}</strong><span>{error.error === "missing_key" ? "Ajoute NASA_FIRMS_MAP_KEY dans .env.local puis redémarre le serveur." : "Vérifie la configuration ou réessaie dans quelques minutes."}</span><button type="button" onClick={() => void loadFires(PERIODS[periodIndex].days)}>Réessayer</button></div>}
-          {!loading && !error && events.length === 0 && <div className="watch-map-state"><strong>Aucune anomalie détectée</strong><span>Cela ne confirme pas une absence de feu : nuages, fumée et passages satellites limitent l’observation.</span></div>}
-          <div className="watch-legend"><span><i className="fresh" /> Signal de chaleur satellite</span><small>Un point représente une zone observée de 375 m, pas un contour de feu.</small></div>
+          {!loading && !error && events.length === 0 && <div className="watch-map-state"><strong>Aucun feu probable détecté</strong><span>Le filtre strict peut ignorer un feu récent ou de faible intensité avant une seconde observation.</span></div>}
+          <div className="watch-legend"><span><i className="fresh" /> Feu probable</span><small>Plusieurs observations thermiques convergent, sans constituer une confirmation officielle.</small></div>
 
           <div className="watch-timeline">
-            <button type="button" className="watch-play" disabled={!filteredDetections.length} aria-label={playing ? "Mettre en pause" : "Lire la chronologie"} onClick={() => setPlaying((value) => !value)}><Icon name={playing ? "pause" : "play"} /></button>
-            <div className="watch-timeline-main"><div><span>ÉVOLUTION DES OBSERVATIONS</span><strong>{filteredDetections.length ? formatDate(timelineTimes[timeline]) : "Aucune donnée"}</strong></div><input aria-label="Heure observée" type="range" min="0" max="5" value={timeline} disabled={!filteredDetections.length} onChange={(event) => setTimeline(Number(event.target.value))} /><div className="watch-ticks">{timelineTimes.map((time, index) => <span key={`${time}-${index}`} className={index <= timeline ? "is-past" : ""}>{formatDate(time, false)}</span>)}</div></div>
+            <button type="button" className="watch-play" disabled={!probableDetections.length} aria-label={playing ? "Mettre en pause" : "Lire la chronologie"} onClick={() => setPlaying((value) => !value)}><Icon name={playing ? "pause" : "play"} /></button>
+            <div className="watch-timeline-main"><div><span>ÉVOLUTION DES OBSERVATIONS</span><strong>{probableDetections.length ? formatDate(timelineTimes[timeline]) : "Aucune donnée"}</strong></div><input aria-label="Heure observée" type="range" min="0" max="5" value={timeline} disabled={!probableDetections.length} onChange={(event) => setTimeline(Number(event.target.value))} /><div className="watch-ticks">{timelineTimes.map((time, index) => <span key={`${time}-${index}`} className={index <= timeline ? "is-past" : ""}>{formatDate(time, false)}</span>)}</div></div>
           </div>
         </div>
 
         <aside className="watch-detail">
-          <div className="watch-detail-head"><span>ÉVÉNEMENT OBSERVÉ</span><button type="button" aria-label="Informations"><Icon name="info" /></button></div>
+          <div className="watch-detail-head"><span>FEU PROBABLE</span><button type="button" aria-label="Informations"><Icon name="info" /></button></div>
           {selected && latestDetection ? <>
             <h1>{selectedLabel?.title}</h1><p>{selectedLabel?.parents}{selectedLabel?.parents.includes("Zone") ? "" : ` · Zone ${selected.latitude.toFixed(2)}, ${selected.longitude.toFixed(2)}`}</p>
             <div className="watch-status"><i style={{background: "#ff6b35"}} /><span><strong>Dernière détection {elapsed(selected.lastAt, referenceTime)}</strong><small>Ce statut n’indique pas si le feu est actif ou éteint.</small></span></div>
-            <dl className="watch-metrics"><div><dt>Premier signal observé</dt><dd>{formatDate(selected.firstAt)}</dd></div><div><dt>Dernier signal observé</dt><dd>{formatDate(selected.lastAt)}</dd></div><div><dt>Signaux affichés</dt><dd>{selectedVisible.length} <small>sur {selected.detections.length}</small></dd></div><div><dt>Intensité thermique max.</dt><dd>{selected.maxFrp.toLocaleString("fr-FR")} <small>MW</small></dd></div></dl>
+            <dl className="watch-metrics"><div><dt>Première observation</dt><dd>{formatDate(selected.firstAt)}</dd></div><div><dt>Dernière observation</dt><dd>{formatDate(selected.lastAt)}</dd></div><div><dt>Observations affichées</dt><dd>{selectedVisible.length} <small>sur {selected.detections.length}</small></dd></div><div><dt>Intensité thermique max.</dt><dd>{selected.maxFrp.toLocaleString("fr-FR")} <small>MW</small></dd></div></dl>
             <div className="watch-confidence"><span>Mesure satellite {latestDetection.satellite} · {latestDetection.daynight === "D" ? "de jour" : "de nuit"}</span><strong>confiance {confidenceLabel(latestDetection.confidence)}</strong></div>
           </> : <div className="watch-detail-empty">Sélectionnez une période contenant des observations pour afficher leur détail.</div>}
 
           {selected && <section className="watch-compare">
-            <div className="watch-compare-head"><div><span>AVANT / APRÈS</span><strong>Images satellites sans nuages</strong></div><div className="watch-compare-actions"><span className="watch-imagery-badge">{selectedImagery ? "Sentinel-2 · 10 m" : "Recherche…"}</span>{selectedImagery && <button type="button" className="watch-expand-button" onClick={() => imageryDialogRef.current?.showModal()}>Agrandir</button>}</div></div>
-            {selectedImagery ? <div className="watch-satellite" style={{backgroundImage: `url(${satelliteUrl(selectedImagery.before)})`}}>
-              <div className="watch-satellite-after" style={{clipPath: `inset(0 ${100 - compare}% 0 0)`, backgroundImage: `url(${satelliteUrl(selectedImagery.after)})`}} />
-              <div className="watch-satellite-divider" style={{left: `${compare}%`}}><i /></div>
-              <span className="before">AVANT · {formatImageRange(selectedImagery.before.from, selectedImagery.before.to)}</span><span className="after">APRÈS · {formatImageRange(selectedImagery.after.from, selectedImagery.after.to)}</span>
-              <input aria-label="Comparer les images satellite avant et après" type="range" min="8" max="92" value={compare} onChange={(event) => setCompare(Number(event.target.value))} />
+            <div className="watch-compare-head"><div><span>DERNIÈRE VUE DISPONIBLE</span><strong>Image satellite sans nuages</strong></div><div className="watch-compare-actions"><span className="watch-imagery-badge">{selectedImagery ? "Sentinel-2 · 10 m" : "Recherche…"}</span>{selectedImagery && <button type="button" className="watch-expand-button" onClick={() => imageryDialogRef.current?.showModal()}>Agrandir</button>}</div></div>
+            {selectedImagery ? <div className="watch-satellite" style={{backgroundImage: `url(${satelliteUrl(selectedImagery.image)})`}}>
+              <span className="after">ACQUISITION · {formatImageRange(selectedImagery.image.date, selectedImagery.image.date)}</span>
             </div> : imageryUnavailableId === selected.id
-              ? <div className="watch-imagery-loading"><strong>Pas encore d’image après le signal</strong><span>Sentinel-2 n’a pas encore acquis de scène exploitable depuis cette observation.</span></div>
-              : <div className="watch-imagery-loading"><span className="watch-spinner" />Recherche des dernières images exploitables…</div>}
-            <small>{selectedImagery ? `Copernicus Sentinel-2 L2A · composite de pixels non nuageux · meilleure scène après : ${selectedImagery.after.cloudCoverage.toLocaleString("fr-FR")} % de nuages sur la tuile.` : "Recherche d’acquisitions Sentinel-2 avant et après le signal."}</small>
+              ? <div className="watch-imagery-loading"><strong>Aucune image exploitable récente</strong><span>Sentinel-2 n’a pas fourni de pixels suffisamment dégagés sur cette zone.</span></div>
+              : <div className="watch-imagery-loading"><span className="watch-spinner" />Recherche de la dernière image exploitable…</div>}
+            <small>{selectedImagery ? `Copernicus Sentinel-2 L2A · composite récent de pixels non nuageux · dernière acquisition : ${selectedImagery.image.cloudCoverage.toLocaleString("fr-FR")} % de nuages sur la tuile.` : "Recherche des acquisitions Sentinel-2 récentes."}</small>
           </section>}
-          <p className="watch-warning"><Icon name="info" /> Les anomalies thermiques peuvent provenir d’un feu, de fumées chaudes, d’une activité agricole ou d’une autre source de chaleur.</p>
+          <p className="watch-warning"><Icon name="info" /> Feu probable signifie que plusieurs observations thermiques fiables convergent. Seuls les services de secours peuvent confirmer un incendie.</p>
         </aside>
       </section>
 
@@ -392,20 +394,17 @@ export function FireObservatory() {
       }}>
         <div className="watch-imagery-dialog-shell">
           <header>
-            <div><span>AVANT / APRÈS EN GRAND</span><strong>{selectedLabel?.title ?? "Observation satellite"}</strong><small>{selectedLabel?.parents}</small></div>
+            <div><span>DERNIÈRE VUE SATELLITE</span><strong>{selectedLabel?.title ?? "Observation satellite"}</strong><small>{selectedLabel?.parents}</small></div>
             <button type="button" onClick={() => imageryDialogRef.current?.close()}>Fermer</button>
           </header>
-          {selectedImagery && <div className="watch-satellite watch-satellite-expanded" style={{backgroundImage: `url(${satelliteUrl(selectedImagery.before)})`}}>
-            <div className="watch-satellite-after" style={{clipPath: `inset(0 ${100 - compare}% 0 0)`, backgroundImage: `url(${satelliteUrl(selectedImagery.after)})`}} />
-            <div className="watch-satellite-divider" style={{left: `${compare}%`}}><i /></div>
-            <span className="before">AVANT · {formatImageRange(selectedImagery.before.from, selectedImagery.before.to)}</span><span className="after">APRÈS · {formatImageRange(selectedImagery.after.from, selectedImagery.after.to)}</span>
-            <input aria-label="Comparer les images satellite avant et après en grand" type="range" min="8" max="92" value={compare} onChange={(event) => setCompare(Number(event.target.value))} />
+          {selectedImagery && <div className="watch-satellite watch-satellite-expanded" style={{backgroundImage: `url(${satelliteUrl(selectedImagery.image)})`}}>
+            <span className="after">ACQUISITION · {formatImageRange(selectedImagery.image.date, selectedImagery.image.date)}</span>
           </div>}
-          <footer>Faites glisser le curseur pour comparer les deux périodes · Échap pour fermer</footer>
+          <footer>Dernière vue Sentinel-2 exploitable · Échap pour fermer</footer>
         </div>
       </dialog>
 
-      <section className="watch-method" id="methode"><span>DONNÉES & MÉTHODE</span><h2>Observer vite.<br />Rester précis.</h2><div><p>Les points visibles proviennent des produits VIIRS S‑NPP, NOAA‑20 et NOAA‑21 distribués par NASA FIRMS. Ils sont généralement publiés dans les heures suivant le passage du satellite.</p><p>L’outil regroupe pour l’instant les détections distantes de moins de 18 km et séparées de moins de 36 heures. Ce regroupement produit un événement observé, jamais un incendie officiellement confirmé.</p></div></section>
+      <section className="watch-method" id="methode"><span>DONNÉES & MÉTHODE</span><h2>Observer vite.<br />Rester précis.</h2><div><p>Les observations proviennent des produits VIIRS S‑NPP, NOAA‑20 et NOAA‑21 distribués par NASA FIRMS. L’outil n’affiche que les groupes comptant au moins deux mesures convergentes, une intensité minimale de 10 MW et une confiance nominale ou haute.</p><p>Ce filtre réduit les anomalies isolées, mais ne remplace pas une confirmation des services de secours. Il peut aussi manquer un feu récent ou peu intense avant le passage suivant d’un satellite.</p></div></section>
     </main>
   );
 }

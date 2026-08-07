@@ -36,8 +36,8 @@ export const projects: Project[] = [
     slug: "veille-feu",
     title: {fr: "Veille feu", en: "Fire watch"},
     description: {
-      fr: "Observer les détections thermiques, suivre leur évolution et comparer le territoire avant et après le feu.",
-      en: "Observe thermal detections, follow their evolution and compare the territory before and after fire.",
+      fr: "Repérer les feux probables, suivre leurs observations et consulter la dernière vue satellite disponible.",
+      en: "Locate probable fires, follow their observations and view the latest available satellite imagery.",
     },
     format: {fr: "Cartographie", en: "Mapping"},
     modules: ["Outil"],

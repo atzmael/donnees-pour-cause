@@ -9,7 +9,7 @@ export async function generateMetadata(): Promise<Metadata> {
     locale,
     path: "/outil/feux",
     title: "Veille feu : observatoire satellite",
-    description: "Un prototype pour observer les détections thermiques, suivre leur évolution et comparer le territoire avant et après le feu.",
+    description: "Un prototype pour repérer les feux probables, suivre leurs observations et consulter la dernière vue Sentinel-2 disponible.",
   });
 }
 

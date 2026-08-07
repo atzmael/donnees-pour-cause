@@ -42,11 +42,9 @@ async function accessToken() {
   return token.access_token;
 }
 
-function timeRange(targetDate: string, mode: "before" | "after") {
-  if (mode === "before") return {from: offsetDate(targetDate, -45), to: offsetDate(targetDate, -1)};
-  const maximum = offsetDate(targetDate, 30);
+function timeRange() {
   const today = currentUtcDate();
-  return {from: targetDate, to: maximum < today ? maximum : today};
+  return {from: offsetDate(today, -45), to: today};
 }
 
 async function catalogue(latitude: number, longitude: number, from: string, to: string, token: string) {
@@ -105,7 +103,7 @@ async function processImage(latitude: number, longitude: number, from: string, t
           type: "sentinel-2-l2a",
           dataFilter: {
             timeRange: {from: `${from}T00:00:00Z`, to: `${to}T23:59:59Z`},
-            mosaickingOrder: "leastCC",
+            mosaickingOrder: "mostRecent",
             maxCloudCoverage: 90,
           },
         }],
@@ -123,8 +121,6 @@ async function processImage(latitude: number, longitude: number, from: string, t
 export async function GET(request: NextRequest) {
   const latitude = Number(request.nextUrl.searchParams.get("lat"));
   const longitude = Number(request.nextUrl.searchParams.get("lon"));
-  const targetDate = request.nextUrl.searchParams.get("date");
-  const mode = request.nextUrl.searchParams.get("mode");
   const from = request.nextUrl.searchParams.get("from");
   const to = request.nextUrl.searchParams.get("to");
   const resolve = request.nextUrl.searchParams.get("resolve") === "1";
@@ -136,14 +132,10 @@ export async function GET(request: NextRequest) {
   try {
     const token = await accessToken();
     if (resolve) {
-      if (!validDate(targetDate) || (mode !== "before" && mode !== "after")) {
-        return NextResponse.json({error: "invalid_parameters"}, {status: 400});
-      }
-      const range = timeRange(targetDate as string, mode);
-      if (range.from > range.to) return NextResponse.json({error: "no_acquisition_yet"}, {status: 404});
+      const range = timeRange();
       const scenes = await catalogue(latitude, longitude, range.from, range.to, token);
       if (!scenes.length) return NextResponse.json({error: "no_acquisition"}, {status: 404});
-      const best = scenes[0].properties;
+      const best = [...scenes].sort((a, b) => (b.properties?.datetime ?? "").localeCompare(a.properties?.datetime ?? ""))[0].properties;
       return NextResponse.json({
         date: best?.datetime?.slice(0, 10) ?? range.to,
         from: range.from,
