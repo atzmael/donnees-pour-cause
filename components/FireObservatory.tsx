@@ -48,6 +48,8 @@ type ImageryChoice = {
   source: string;
   cloudCoverage: number;
   composite: boolean;
+  burnedAreaStatus: "available" | "missing_before" | "missing_after" | "missing_signal";
+  burnedAreaComparison: {beforeAt: string; afterAt: string} | null;
   groundSampleDistance: number;
   extentKm: {width: number; height: number};
 };
@@ -64,6 +66,7 @@ type Verification = {
 };
 type FireFilter = "all" | "confirmed" | "strong" | "probable";
 type ReliabilityLevel = "official" | "mapped" | "strong" | "probable";
+type ImageryDialogMode = "burned-area" | "photo";
 
 const PERIODS = [
   {label: "6 h", hours: 6, days: 2},
@@ -193,6 +196,7 @@ export function FireObservatory() {
   const imageryDialogRef = useRef<HTMLDialogElement>(null);
   const eventButtonRefs = useRef(new Map<string, HTMLButtonElement>());
   const [imageryDialogOpen, setImageryDialogOpen] = useState(false);
+  const [imageryDialogMode, setImageryDialogMode] = useState<ImageryDialogMode>("burned-area");
   const [departments, setDepartments] = useState<DepartmentFeature[]>([]);
   const [departmentsLoading, setDepartmentsLoading] = useState(true);
   const [response, setResponse] = useState<FireResponse | null>(null);
@@ -211,6 +215,8 @@ export function FireObservatory() {
   const [imageryUnavailableId, setImageryUnavailableId] = useState<string | null>(null);
   const [loadedImageryUrl, setLoadedImageryUrl] = useState<string | null>(null);
   const [imageryRenderErrorId, setImageryRenderErrorId] = useState<string | null>(null);
+  const [loadedBurnedAreaUrl, setLoadedBurnedAreaUrl] = useState<string | null>(null);
+  const [burnedAreaRenderErrorUrl, setBurnedAreaRenderErrorUrl] = useState<string | null>(null);
 
   useEffect(() => {
     if (!imageryDialogOpen) return;
@@ -229,6 +235,7 @@ export function FireObservatory() {
   const openImageryDialog = () => {
     const dialog = imageryDialogRef.current;
     if (!dialog || dialog.open) return;
+    setImageryDialogMode("burned-area");
     dialog.showModal();
     setImageryDialogOpen(true);
   };
@@ -360,6 +367,7 @@ export function FireObservatory() {
         lat: selected.latitude.toFixed(5),
         lon: selected.longitude.toFixed(5),
         resolve: "1",
+        signalAt: selected.firstAt,
       });
       const result = await fetch(`/api/satellite?${query}`, {signal: controller.signal});
       if (!result.ok) throw new Error("No usable imagery");
@@ -419,7 +427,24 @@ export function FireObservatory() {
     ? `/api/satellite?lat=${selected.latitude.toFixed(5)}&lon=${selected.longitude.toFixed(5)}&from=${choice.from}&to=${choice.to}&view=local-v2`
     : "";
   const selectedImageryUrl = selectedImagery ? satelliteUrl(selectedImagery.image) : null;
+  const burnedAreaComparison = selectedImagery?.image.burnedAreaComparison;
+  const burnedAreaUrl = selected && burnedAreaComparison ? `/api/satellite?${new URLSearchParams({
+    lat: selected.latitude.toFixed(5),
+    lon: selected.longitude.toFixed(5),
+    from: burnedAreaComparison.beforeAt.slice(0, 10),
+    to: burnedAreaComparison.afterAt.slice(0, 10),
+    layer: "burned-area",
+    signalAt: selected.firstAt,
+    view: "burned-area-v2",
+  })}` : null;
   const selectedImageryLoaded = Boolean(selectedImageryUrl && loadedImageryUrl === selectedImageryUrl);
+  const burnedAreaLoaded = Boolean(burnedAreaUrl && loadedBurnedAreaUrl === burnedAreaUrl);
+  const burnedAreaUnavailable = Boolean(burnedAreaUrl && burnedAreaRenderErrorUrl === burnedAreaUrl);
+  const burnedAreaUnavailableLabel = selectedImagery?.image.burnedAreaStatus === "missing_after"
+    ? "Pas encore d’acquisition Sentinel-2 après le signal"
+    : selectedImagery?.image.burnedAreaStatus === "missing_before"
+      ? "Pas d’acquisition de référence avant le signal"
+      : "Comparaison avant / après indisponible";
   const imageryPredatesSignal = Boolean(selectedImagery && selected && new Date(selectedImagery.image.acquiredAt).getTime() < new Date(selected.firstAt).getTime());
   const selectedLabel = selected ? locationLabel(selected) : null;
   const selectedVerification = selected ? verifications[selected.id] : undefined;
@@ -565,16 +590,27 @@ export function FireObservatory() {
         <div className="watch-imagery-dialog-shell">
           <header>
             <div><span>DERNIÈRE VUE SATELLITE</span><strong>{selectedLabel?.title ?? "Observation satellite"}</strong><small>{selectedLabel?.parents}</small></div>
-            <button type="button" onClick={() => imageryDialogRef.current?.close()}>Fermer</button>
+            <div className="watch-imagery-dialog-actions">
+              <div className="watch-imagery-modes" role="group" aria-label="Affichage de l’image satellite">
+                <button type="button" className={imageryDialogMode === "burned-area" ? "is-active" : ""} aria-pressed={imageryDialogMode === "burned-area"} onClick={() => setImageryDialogMode("burned-area")}>Zones brûlées</button>
+                <button type="button" className={imageryDialogMode === "photo" ? "is-active" : ""} aria-pressed={imageryDialogMode === "photo"} onClick={() => setImageryDialogMode("photo")}>Photo seule</button>
+              </div>
+              <button type="button" className="watch-imagery-close" onClick={() => imageryDialogRef.current?.close()}>Fermer</button>
+            </div>
           </header>
           {imageryDialogOpen && selectedImagery && selectedImageryUrl && <div className="watch-satellite watch-satellite-expanded">
-            <Image fill unoptimized sizes="100vw" src={selectedImageryUrl} alt={`Vue Sentinel-2 récente autour de ${selectedLabel?.title ?? "la zone observée"}`} className={selectedImageryLoaded ? "is-loaded" : ""} onLoad={() => setLoadedImageryUrl(selectedImageryUrl)} />
+            <Image fill unoptimized loading="eager" sizes="100vw" src={selectedImageryUrl} alt={`Vue Sentinel-2 récente autour de ${selectedLabel?.title ?? "la zone observée"}`} className={selectedImageryLoaded ? "is-loaded" : ""} onLoad={() => setLoadedImageryUrl(selectedImageryUrl)} />
             {!selectedImageryLoaded && <div className="watch-imagery-progress"><LoadingBar label="Chargement de l’image satellite" /></div>}
-            {selectedImageryLoaded && <div className="watch-satellite-target" aria-hidden="true"><i /><span>Centre du signal VIIRS</span></div>}
-            {selectedImageryLoaded && imageryPredatesSignal && <span className="watch-satellite-timing">IMAGE ANTÉRIEURE AU SIGNAL</span>}
-            {selectedImageryLoaded && <span className="after">ACQUISITION · {formatDate(selectedImagery.image.acquiredAt)}</span>}
+            {imageryDialogMode === "burned-area" && burnedAreaUrl && <Image fill unoptimized loading="eager" sizes="100vw" src={burnedAreaUrl} alt="" aria-hidden="true" className={`watch-burned-area-layer${burnedAreaLoaded ? " is-loaded" : ""}`} onLoad={() => {setLoadedBurnedAreaUrl(burnedAreaUrl); setBurnedAreaRenderErrorUrl(null);}} onError={() => setBurnedAreaRenderErrorUrl(burnedAreaUrl)} />}
+            {selectedImageryLoaded && imageryDialogMode === "burned-area" && burnedAreaUrl && !burnedAreaLoaded && !burnedAreaUnavailable && <div className="watch-burned-area-progress"><LoadingBar label="Comparaison NBR avant / après" compact /></div>}
+            {selectedImageryLoaded && imageryDialogMode === "burned-area" && burnedAreaUnavailable && <div className="watch-burned-area-progress is-error">Analyse spectrale indisponible</div>}
+            {selectedImageryLoaded && imageryDialogMode === "burned-area" && !burnedAreaUrl && <div className="watch-burned-area-progress is-notice">{burnedAreaUnavailableLabel}</div>}
+            {selectedImageryLoaded && imageryDialogMode === "burned-area" && <div className="watch-satellite-target" aria-hidden="true"><i /><span>Centre du signal VIIRS</span></div>}
+            {selectedImageryLoaded && imageryDialogMode === "burned-area" && imageryPredatesSignal && <span className="watch-satellite-timing">IMAGE ANTÉRIEURE AU SIGNAL</span>}
+            {selectedImageryLoaded && imageryDialogMode === "burned-area" && <span className="after">ACQUISITION · {formatDate(selectedImagery.image.acquiredAt)}</span>}
+            {selectedImageryLoaded && imageryDialogMode === "burned-area" && burnedAreaLoaded && <div className="watch-burned-area-legend"><i /> Zones potentiellement brûlées <small>variation NBR avant / après</small></div>}
           </div>}
-          <footer>Dernière vue Sentinel-2 exploitable · Échap pour fermer</footer>
+          <footer>{imageryDialogMode === "burned-area" ? "Détection dNBR indicative, à distinguer d’un périmètre officiellement cartographié" : "Photo Sentinel-2 sans surcouche"} · Échap pour fermer</footer>
         </div>
       </dialog>
 
