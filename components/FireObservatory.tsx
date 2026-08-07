@@ -18,6 +18,7 @@ import {
   type ObservedEvent,
 } from "@/lib/fire-observatory";
 import {pointIsInBoundaryFeature, pointIsInFrance, type BoundaryCollection} from "@/lib/france-boundary";
+import {buildFireTimeline} from "@/lib/fire-timeline";
 
 type Position = [number, number];
 type DepartmentFeature = {
@@ -82,6 +83,7 @@ const FIRE_FILTERS: ReadonlyArray<{value: FireFilter; label: string}> = [
 ];
 const MAX_SIDEBAR_EVENTS = 40;
 const VERIFICATION_BATCH_SIZE = 100;
+const TIMELINE_STEP_COUNT = 6;
 const MARKER_COLORS: Record<ReliabilityLevel, string> = {
   probable: "#f7b955",
   strong: "#ff6b35",
@@ -155,6 +157,13 @@ function formatDate(value: string, withDate = true) {
   return new Intl.DateTimeFormat("fr-FR", {
     ...(withDate ? {day: "2-digit", month: "short"} : {}),
     hour: "2-digit", minute: "2-digit", timeZone: "Europe/Paris",
+  }).format(new Date(value));
+}
+
+function formatTimelineTick(value: string, periodHours: number) {
+  return new Intl.DateTimeFormat("fr-FR", {
+    ...(periodHours <= 48 ? {hour: "2-digit", minute: "2-digit"} : {day: "2-digit", month: "short"}),
+    timeZone: "Europe/Paris",
   }).format(new Date(value));
 }
 
@@ -269,11 +278,7 @@ export function FireObservatory() {
     if (fireFilter === "confirmed") return level === "official" || level === "mapped";
     return fireFilter === "all" || level === fireFilter;
   }), [events, fireFilter, verifications]);
-  const filteredFireDetections = useMemo(() => filteredEvents.flatMap((event) => event.detections), [filteredEvents]);
-  const bounds = useMemo(() => {
-    const times = filteredFireDetections.map((item) => new Date(item.acquiredAt).getTime());
-    return {min: Math.min(...times), max: Math.max(...times)};
-  }, [filteredFireDetections]);
+  const timelineDetections = useMemo(() => events.flatMap((event) => event.detections), [events]);
   const referenceTime = response ? new Date(response.fetchedAt).getTime() : 0;
   const locationLabel = useCallback((event: ObservedEvent) => {
     const remote = locations[event.id];
@@ -291,7 +296,14 @@ export function FireObservatory() {
       parents: [region, `Zone ${event.latitude.toFixed(2)}, ${event.longitude.toFixed(2)}`].filter(Boolean).join(" · "),
     };
   }, [departments, locations]);
-  const timelineCutoff = Number.isFinite(bounds.min) ? bounds.min + ((bounds.max - bounds.min) * timeline / 5) : referenceTime;
+  const timelineModel = useMemo(() => buildFireTimeline(
+    response?.fetchedAt ?? null,
+    PERIODS[periodIndex].hours,
+    timelineDetections.map((detection) => detection.acquiredAt),
+    TIMELINE_STEP_COUNT,
+  ), [periodIndex, response?.fetchedAt, timelineDetections]);
+  const timelineCutoff = timelineModel?.steps[timeline]?.cutoff ?? referenceTime;
+  const timelineObservationCount = timelineModel?.steps[timeline]?.observationCount ?? 0;
   const timelineEvents = useMemo(() => filteredEvents.filter((event) =>
     event.detections.some((item) => new Date(item.acquiredAt).getTime() <= timelineCutoff),
   ), [filteredEvents, timelineCutoff]);
@@ -312,9 +324,7 @@ export function FireObservatory() {
   const selected = mapVisibleEvents.find((event) => event.id === selectedId) ?? mapVisibleEvents[0] ?? null;
   const selectedVisible = selected?.detections.filter((item) => new Date(item.acquiredAt).getTime() <= timelineCutoff) ?? [];
   const latestDetection = selectedVisible.at(-1) ?? selected?.detections[0] ?? null;
-  const timelineTimes = Array.from({length: 6}, (_, index) => Number.isFinite(bounds.min)
-    ? new Date(bounds.min + ((bounds.max - bounds.min) * index / 5)).toISOString()
-    : new Date().toISOString());
+  const timelineTimes = timelineModel?.steps.map((step) => new Date(step.cutoff).toISOString()) ?? [];
 
   useEffect(() => {
     const pendingEvents = sidebarEvents.filter((event) => locations[event.id] === undefined);
@@ -338,7 +348,7 @@ export function FireObservatory() {
 
   useEffect(() => {
     if (!playing) return;
-    const timer = window.setInterval(() => setTimeline((value) => value >= 5 ? 0 : value + 1), 900);
+    const timer = window.setInterval(() => setTimeline((value) => value >= TIMELINE_STEP_COUNT - 1 ? 0 : value + 1), 900);
     return () => window.clearInterval(timer);
   }, [playing]);
 
@@ -461,7 +471,7 @@ export function FireObservatory() {
                 <time><span className={`watch-reliability is-${evidence.level}`}>{evidence.label}</span><small>{event.detections.length} observations</small></time>
               </button>;
             })}
-            {!loading && !error && visibleEvents.length === 0 && <div className="watch-empty-list">{searchResolving ? <LoadingBar label="Recherche des lieux correspondants" compact /> : searchTerm ? "Aucun des foyers listés ne correspond à cette recherche." : fireFilter === "all" ? "Aucun feu probable sur cette période." : "Aucun feu dans ce niveau de fiabilité."}</div>}
+            {!loading && !error && visibleEvents.length === 0 && <div className="watch-empty-list">{searchResolving ? <LoadingBar label="Recherche des lieux correspondants" compact /> : filteredEvents.length > 0 && timelineEvents.length === 0 ? "Aucune observation à ce moment de la frise." : searchTerm ? "Aucun des foyers listés ne correspond à cette recherche." : fireFilter === "all" ? "Aucun feu probable sur cette période." : "Aucun feu dans ce niveau de fiabilité."}</div>}
             {mapScopedEvents.length > MAX_SIDEBAR_EVENTS && <div className="watch-list-limit">Les {MAX_SIDEBAR_EVENTS} foyers les plus récents sont listés{searchTerm ? " et parcourus par la recherche" : ""}. Zoomez sur la carte pour affiner.</div>}
           </div>
           <div className="watch-source-mini"><span>COUCHE ACTIVE</span><strong>Feux probables repérés par satellite</strong><small>Au moins 2 observations convergentes · NASA FIRMS VIIRS</small></div>
@@ -511,12 +521,13 @@ export function FireObservatory() {
           {(loading || departmentsLoading) && <div className="watch-map-state"><LoadingBar label={loading ? "Chargement des observations FIRMS" : "Chargement du fond géographique"} /></div>}
           {!loading && error && <div className="watch-map-state is-error"><strong>{error.message}</strong><span>{error.error === "missing_key" ? "Ajoute NASA_FIRMS_MAP_KEY dans .env.local puis redémarre le serveur." : "Vérifie la configuration ou réessaie dans quelques minutes."}</span><button type="button" onClick={() => void loadFires(PERIODS[periodIndex].days)}>Réessayer</button></div>}
           {!loading && !error && filteredEvents.length === 0 && <div className="watch-map-state"><strong>{fireFilter === "all" ? "Aucun feu probable détecté" : "Aucun feu dans ce filtre"}</strong><span>{fireFilter === "all" ? "Le filtre strict peut ignorer un feu récent ou de faible intensité avant une seconde observation." : "Choisissez un autre niveau de fiabilité ou une période plus longue."}</span></div>}
-          {!loading && !error && filteredEvents.length > 0 && mapVisibleEvents.length === 0 && <div className="watch-map-state">{searchResolving ? <LoadingBar label="Recherche des lieux correspondants" /> : <><strong>{searchTerm ? "Aucun foyer pour cette recherche" : "Aucun foyer dans cette zone"}</strong><span>{searchTerm ? "Modifiez votre recherche ou dézoomez pour élargir les résultats." : "Dézoomez ou revenez à la vue France pour retrouver les autres foyers."}</span>{!searchTerm && <button type="button" onClick={resetMapView}>Voir toute la France</button>}</>}</div>}
+          {!loading && !error && filteredEvents.length > 0 && timelineEvents.length === 0 && <div className="watch-map-state"><strong>Aucune observation à cette date</strong><span>Avancez dans la frise pour faire apparaître les observations disponibles.</span></div>}
+          {!loading && !error && timelineEvents.length > 0 && mapVisibleEvents.length === 0 && <div className="watch-map-state">{searchResolving ? <LoadingBar label="Recherche des lieux correspondants" /> : <><strong>{searchTerm ? "Aucun foyer pour cette recherche" : "Aucun foyer dans cette zone"}</strong><span>{searchTerm ? "Modifiez votre recherche ou dézoomez pour élargir les résultats." : "Dézoomez ou revenez à la vue France pour retrouver les autres foyers."}</span>{!searchTerm && <button type="button" onClick={resetMapView}>Voir toute la France</button>}</>}</div>}
           <div className="watch-legend"><span><i className="probable" /> Probable</span><span><i className="strong" /> Forte présomption</span><span><i className="mapped" /> Zone cartographiée</span><span><i className="official" /> Confirmé</span></div>
 
           <div className="watch-timeline">
-            <button type="button" className="watch-play" disabled={!filteredFireDetections.length} aria-label={playing ? "Mettre en pause" : "Lire la chronologie"} onClick={() => setPlaying((value) => !value)}><Icon name={playing ? "pause" : "play"} /></button>
-            <div className="watch-timeline-main"><div><span>ÉVOLUTION DES OBSERVATIONS</span><strong>{filteredFireDetections.length ? formatDate(timelineTimes[timeline]) : "Aucune donnée"}</strong></div><input aria-label="Heure observée" type="range" min="0" max="5" value={timeline} disabled={!filteredFireDetections.length} onChange={(event) => setTimeline(Number(event.target.value))} /><div className="watch-ticks">{timelineTimes.map((time, index) => <span key={`${time}-${index}`} className={index <= timeline ? "is-past" : ""}>{formatDate(time, false)}</span>)}</div></div>
+            <button type="button" className="watch-play" disabled={!timelineModel?.totalObservations} aria-label={playing ? "Mettre en pause" : "Lire la chronologie"} onClick={() => setPlaying((value) => !value)}><Icon name={playing ? "pause" : "play"} /></button>
+            <div className="watch-timeline-main"><div><span>ÉVOLUTION DE TOUTES LES OBSERVATIONS</span><strong>{timelineModel?.totalObservations ? `${formatDate(timelineTimes[timeline])} · ${timelineObservationCount}/${timelineModel.totalObservations} obs.` : "Aucune donnée"}</strong></div><input aria-label="Date observée" aria-valuetext={timelineModel?.totalObservations ? `${formatDate(timelineTimes[timeline])}, ${timelineObservationCount} observations sur ${timelineModel.totalObservations}` : "Aucune observation"} type="range" min="0" max={TIMELINE_STEP_COUNT - 1} value={timeline} disabled={!timelineModel?.totalObservations} onChange={(event) => setTimeline(Number(event.target.value))} /><div className="watch-ticks">{timelineTimes.map((time, index) => <span key={`${time}-${index}`} className={index <= timeline ? "is-past" : ""} title={formatDate(time)}>{formatTimelineTick(time, PERIODS[periodIndex].hours)}</span>)}</div></div>
           </div>
         </div>
 
