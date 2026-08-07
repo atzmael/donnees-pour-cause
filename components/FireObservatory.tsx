@@ -214,6 +214,7 @@ function LoadingBar({label, compact = false}: {label: string; compact?: boolean}
 
 export function FireObservatory() {
   const imageryDialogRef = useRef<HTMLDialogElement>(null);
+  const [imageryDialogOpen, setImageryDialogOpen] = useState(false);
   const [departments, setDepartments] = useState<DepartmentFeature[]>([]);
   const [departmentsLoading, setDepartmentsLoading] = useState(true);
   const [response, setResponse] = useState<FireResponse | null>(null);
@@ -230,6 +231,27 @@ export function FireObservatory() {
   const [imageryUnavailableId, setImageryUnavailableId] = useState<string | null>(null);
   const [loadedImageryUrl, setLoadedImageryUrl] = useState<string | null>(null);
   const [imageryRenderErrorId, setImageryRenderErrorId] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!imageryDialogOpen) return;
+    const root = document.documentElement;
+    const body = document.body;
+    const previousRootOverflow = root.style.overflow;
+    const previousBodyOverflow = body.style.overflow;
+    root.style.overflow = "hidden";
+    body.style.overflow = "hidden";
+    return () => {
+      root.style.overflow = previousRootOverflow;
+      body.style.overflow = previousBodyOverflow;
+    };
+  }, [imageryDialogOpen]);
+
+  const openImageryDialog = () => {
+    const dialog = imageryDialogRef.current;
+    if (!dialog || dialog.open) return;
+    dialog.showModal();
+    setImageryDialogOpen(true);
+  };
 
   useEffect(() => {
     void fetch("/data/departements-1000m.geojson")
@@ -459,7 +481,7 @@ export function FireObservatory() {
           </> : <div className="watch-detail-empty">Sélectionnez une période contenant des observations pour afficher leur détail.</div>}
 
           {selected && <section className="watch-compare">
-            <div className="watch-compare-head"><div><span>DERNIÈRE VUE DISPONIBLE</span><strong>Image satellite sans nuages</strong></div><div className="watch-compare-actions"><span className="watch-imagery-badge">{selectedImagery ? "Sentinel-2 · 10 m" : "Recherche…"}</span>{selectedImagery && <button type="button" className="watch-expand-button" onClick={() => imageryDialogRef.current?.showModal()}>Agrandir</button>}</div></div>
+            <div className="watch-compare-head"><div><span>DERNIÈRE VUE DISPONIBLE</span><strong>Image satellite sans nuages</strong></div><div className="watch-compare-actions"><span className="watch-imagery-badge">{selectedImagery ? "Sentinel-2 · 10 m" : "Recherche…"}</span>{selectedImagery && <button type="button" className="watch-expand-button" onClick={openImageryDialog}>Agrandir</button>}</div></div>
             {selectedImagery && selectedImageryUrl && imageryRenderErrorId !== selected.id ? <div className="watch-satellite">
               <Image fill unoptimized sizes="(max-width: 1100px) 50vw, 350px" src={selectedImageryUrl} alt={`Vue Sentinel-2 récente autour de ${selectedLabel?.title ?? "la zone observée"}`} className={selectedImageryLoaded ? "is-loaded" : ""} onLoad={() => setLoadedImageryUrl(selectedImageryUrl)} onError={() => setImageryRenderErrorId(selected.id)} />
               {!selectedImageryLoaded && <div className="watch-imagery-progress"><LoadingBar label="Chargement de l’image satellite" /></div>}
@@ -473,7 +495,7 @@ export function FireObservatory() {
         </aside>
       </section>
 
-      <dialog ref={imageryDialogRef} className="watch-imagery-dialog" onClick={(event) => {
+      <dialog ref={imageryDialogRef} className="watch-imagery-dialog" onClose={() => setImageryDialogOpen(false)} onClick={(event) => {
         if (event.target === event.currentTarget) imageryDialogRef.current?.close();
       }}>
         <div className="watch-imagery-dialog-shell">
