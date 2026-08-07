@@ -343,22 +343,33 @@ export function FireObservatory() {
   }, [selected]);
 
   useEffect(() => {
-    if (!selected || verifications[selected.id]) return;
+    if (!events.length) return;
     const controller = new AbortController();
-    const query = new URLSearchParams({
-      lat: selected.latitude.toFixed(5),
-      lon: selected.longitude.toFixed(5),
-      observedAt: selected.lastAt,
-    });
-    void fetch(`/api/fire-verification?${query}`, {signal: controller.signal})
-      .then((response) => response.ok ? response.json() as Promise<Verification> : Promise.reject())
-      .then((verification) => setVerifications((current) => ({...current, [selected.id]: verification})))
+    const eventIds = events.map((event) => event.id);
+    void fetch("/api/fire-verification", {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({fires: events.map((event) => ({
+        id: event.id,
+        latitude: event.latitude,
+        longitude: event.longitude,
+        observedAt: event.lastAt,
+      }))}),
+      signal: controller.signal,
+    })
+      .then((response) => response.ok
+        ? response.json() as Promise<{verifications: Record<string, Verification>}>
+        : Promise.reject())
+      .then((result) => setVerifications((current) => ({...current, ...result.verifications})))
       .catch((error: unknown) => {
         if (error instanceof DOMException && error.name === "AbortError") return;
-        setVerifications((current) => ({...current, [selected.id]: {level: null, effisStatus: "unavailable"}}));
+        setVerifications((current) => ({
+          ...current,
+          ...Object.fromEntries(eventIds.map((id) => [id, {level: null, effisStatus: "unavailable"}])),
+        }));
       });
     return () => controller.abort();
-  }, [selected, verifications]);
+  }, [events]);
 
   const bounds = useMemo(() => {
     const times = probableDetections.map((item) => new Date(item.acquiredAt).getTime());
@@ -512,7 +523,7 @@ export function FireObservatory() {
         </div>
       </dialog>
 
-      <section className="watch-method" id="methode"><span>DONNÉES & MÉTHODE</span><h2>Observer vite.<br />Rester précis.</h2><div><p>« Probable » exige au moins deux mesures convergentes, une intensité minimale de 10 MW et une confiance nominale ou haute. « Forte présomption » exige en plus deux passages satellites espacés d’au moins 45 minutes et une intensité de 20 MW.</p><p>Ces niveaux décrivent la solidité des indices disponibles, pas une certitude. Les futurs tags « zone brûlée cartographiée » et « confirmé officiellement » seront réservés aux données EFFIS ou aux autorités.</p></div></section>
+      <section className="watch-method" id="methode"><span>DONNÉES & MÉTHODE</span><h2>Observer vite.<br />Rester précis.</h2><div><p>« Probable » exige au moins deux mesures convergentes, une intensité minimale de 10 MW et une confiance nominale ou haute. « Forte présomption » exige en plus deux passages satellites espacés d’au moins 45 minutes et une intensité de 20 MW.</p><p>« Zone brûlée cartographiée » recoupe le signal avec un périmètre EFFIS. « Confirmé officiellement » exige une alerte FR-Alert réelle, observée et publiée par une autorité. La vérification est appliquée à tous les foyers affichés.</p></div></section>
     </main>
   );
 }
