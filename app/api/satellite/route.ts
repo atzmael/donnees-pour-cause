@@ -1,4 +1,10 @@
 import {NextRequest, NextResponse} from "next/server";
+import {
+  SATELLITE_GROUND_SAMPLE_DISTANCE_METERS,
+  SATELLITE_IMAGE_HEIGHT,
+  SATELLITE_IMAGE_WIDTH,
+  satelliteImageBounds,
+} from "@/lib/satellite-imagery";
 
 export const dynamic = "force-dynamic";
 
@@ -52,7 +58,7 @@ async function catalogue(latitude: number, longitude: number, from: string, to: 
     method: "POST",
     headers: {Authorization: `Bearer ${token}`, "Content-Type": "application/json"},
     body: JSON.stringify({
-      bbox: [longitude - 0.52, latitude - 0.36, longitude + 0.52, latitude + 0.36],
+      bbox: satelliteImageBounds(latitude, longitude),
       datetime: `${from}T00:00:00Z/${to}T23:59:59Z`,
       collections: ["sentinel-2-l2a"],
       limit: 100,
@@ -96,7 +102,7 @@ async function processImage(latitude: number, longitude: number, from: string, t
     body: JSON.stringify({
       input: {
         bounds: {
-          bbox: [longitude - 0.52, latitude - 0.36, longitude + 0.52, latitude + 0.36],
+          bbox: satelliteImageBounds(latitude, longitude),
           properties: {crs: "http://www.opengis.net/def/crs/OGC/1.3/CRS84"},
         },
         data: [{
@@ -108,7 +114,7 @@ async function processImage(latitude: number, longitude: number, from: string, t
           },
         }],
       },
-      output: {width: 760, height: 420, responses: [{identifier: "default", format: {type: "image/png"}}]},
+      output: {width: SATELLITE_IMAGE_WIDTH, height: SATELLITE_IMAGE_HEIGHT, responses: [{identifier: "default", format: {type: "image/png"}}]},
       evalscript: EVALSCRIPT,
     }),
     cache: "no-store",
@@ -138,12 +144,18 @@ export async function GET(request: NextRequest) {
       const best = [...scenes].sort((a, b) => (b.properties?.datetime ?? "").localeCompare(a.properties?.datetime ?? ""))[0].properties;
       return NextResponse.json({
         date: best?.datetime?.slice(0, 10) ?? range.to,
+        acquiredAt: best?.datetime ?? `${range.to}T23:59:59Z`,
         from: range.from,
         to: range.to,
         platform: "sentinel2",
         source: "Copernicus Sentinel-2 L2A",
         cloudCoverage: Math.round((best?.["eo:cloud_cover"] ?? 0) * 10) / 10,
         composite: scenes.length > 1,
+        groundSampleDistance: SATELLITE_GROUND_SAMPLE_DISTANCE_METERS,
+        extentKm: {
+          width: SATELLITE_IMAGE_WIDTH * SATELLITE_GROUND_SAMPLE_DISTANCE_METERS / 1_000,
+          height: SATELLITE_IMAGE_HEIGHT * SATELLITE_GROUND_SAMPLE_DISTANCE_METERS / 1_000,
+        },
       }, {headers: {"Cache-Control": "private, max-age=0, must-revalidate"}});
     }
 
@@ -154,6 +166,7 @@ export async function GET(request: NextRequest) {
         "Content-Type": "image/png",
         "Cache-Control": "private, max-age=3600, stale-while-revalidate=86400",
         "X-Imagery-Source": "Copernicus Sentinel-2 L2A",
+        "X-Imagery-GSD": `${SATELLITE_GROUND_SAMPLE_DISTANCE_METERS}m`,
       },
     });
   } catch (error) {

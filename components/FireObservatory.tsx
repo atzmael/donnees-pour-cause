@@ -40,12 +40,15 @@ type LocationInfo = {
 };
 type ImageryChoice = {
   date: string;
+  acquiredAt: string;
   from: string;
   to: string;
   platform: "sentinel2";
   source: string;
   cloudCoverage: number;
   composite: boolean;
+  groundSampleDistance: number;
+  extentKm: {width: number; height: number};
 };
 type LatestImagery = {eventId: string; image: ImageryChoice};
 type Verification = {
@@ -164,13 +167,6 @@ function elapsed(value: string, referenceTime: number) {
 
 function confidenceLabel(value: string) {
   return ({h: "haute", n: "nominale", l: "faible"} as Record<string, string>)[value.toLowerCase()] ?? value;
-}
-
-function formatImageRange(from: string, to: string) {
-  const formatter = new Intl.DateTimeFormat("fr-FR", {day: "2-digit", month: "short", timeZone: "UTC"});
-  return from === to
-    ? formatter.format(new Date(`${from}T12:00:00Z`))
-    : `${formatter.format(new Date(`${from}T12:00:00Z`))} au ${formatter.format(new Date(`${to}T12:00:00Z`))}`;
 }
 
 function Icon({name}: {name: "layers" | "search" | "info" | "play" | "pause" | "refresh"}) {
@@ -410,10 +406,11 @@ export function FireObservatory() {
 
   const selectedImagery = selected && imagery?.eventId === selected.id ? imagery : null;
   const satelliteUrl = (choice: ImageryChoice) => selected
-    ? `/api/satellite?lat=${selected.latitude.toFixed(5)}&lon=${selected.longitude.toFixed(5)}&from=${choice.from}&to=${choice.to}`
+    ? `/api/satellite?lat=${selected.latitude.toFixed(5)}&lon=${selected.longitude.toFixed(5)}&from=${choice.from}&to=${choice.to}&view=local-v2`
     : "";
   const selectedImageryUrl = selectedImagery ? satelliteUrl(selectedImagery.image) : null;
   const selectedImageryLoaded = Boolean(selectedImageryUrl && loadedImageryUrl === selectedImageryUrl);
+  const imageryPredatesSignal = Boolean(selectedImagery && selected && new Date(selectedImagery.image.acquiredAt).getTime() < new Date(selected.firstAt).getTime());
   const selectedLabel = selected ? locationLabel(selected) : null;
   const selectedVerification = selected ? verifications[selected.id] : undefined;
   const selectedReliability = selected ? reliability(selected, selectedVerification) : null;
@@ -535,15 +532,17 @@ export function FireObservatory() {
           </> : <div className="watch-detail-empty">Sélectionnez une période contenant des observations pour afficher leur détail.</div>}
 
           {selected && <section className="watch-compare">
-            <div className="watch-compare-head"><div><span>DERNIÈRE VUE DISPONIBLE</span><strong>Image satellite sans nuages</strong></div><div className="watch-compare-actions"><span className="watch-imagery-badge">{selectedImagery ? "Sentinel-2 · 10 m" : "Recherche…"}</span>{selectedImagery && <button type="button" className="watch-expand-button" onClick={openImageryDialog}>Agrandir</button>}</div></div>
+            <div className="watch-compare-head"><div><span>DERNIÈRE VUE DISPONIBLE</span><strong>Image satellite sans nuages</strong></div><div className="watch-compare-actions"><span className="watch-imagery-badge">{selectedImagery ? `Sentinel-2 · ${selectedImagery.image.groundSampleDistance} m` : "Recherche…"}</span>{selectedImagery && <button type="button" className="watch-expand-button" onClick={openImageryDialog}>Agrandir</button>}</div></div>
             {selectedImagery && selectedImageryUrl && imageryRenderErrorId !== selected.id ? <div className="watch-satellite">
-              <Image fill unoptimized sizes="(max-width: 1100px) 50vw, 350px" src={selectedImageryUrl} alt={`Vue Sentinel-2 récente autour de ${selectedLabel?.title ?? "la zone observée"}`} className={selectedImageryLoaded ? "is-loaded" : ""} onLoad={() => setLoadedImageryUrl(selectedImageryUrl)} onError={() => setImageryRenderErrorId(selected.id)} />
+              <Image fill unoptimized loading="eager" sizes="(max-width: 1100px) 50vw, 350px" src={selectedImageryUrl} alt={`Vue Sentinel-2 récente autour de ${selectedLabel?.title ?? "la zone observée"}`} className={selectedImageryLoaded ? "is-loaded" : ""} onLoad={() => setLoadedImageryUrl(selectedImageryUrl)} onError={() => setImageryRenderErrorId(selected.id)} />
               {!selectedImageryLoaded && <div className="watch-imagery-progress"><LoadingBar label="Chargement de l’image satellite" /></div>}
-              {selectedImageryLoaded && <span className="after">ACQUISITION · {formatImageRange(selectedImagery.image.date, selectedImagery.image.date)}</span>}
+              {selectedImageryLoaded && <div className="watch-satellite-target" aria-hidden="true"><i /><span>Centre du signal VIIRS</span></div>}
+              {selectedImageryLoaded && imageryPredatesSignal && <span className="watch-satellite-timing">IMAGE ANTÉRIEURE AU SIGNAL</span>}
+              {selectedImageryLoaded && <span className="after">ACQUISITION · {formatDate(selectedImagery.image.acquiredAt)}</span>}
             </div> : imageryUnavailableId === selected.id || imageryRenderErrorId === selected.id
               ? <div className="watch-imagery-loading"><strong>Aucune image exploitable récente</strong><span>Sentinel-2 n’a pas fourni de pixels suffisamment dégagés sur cette zone.</span></div>
               : <div className="watch-imagery-loading"><LoadingBar label="Recherche de la dernière image exploitable" /></div>}
-            <small>{selectedImagery ? `Copernicus Sentinel-2 L2A · composite récent de pixels non nuageux · dernière acquisition : ${selectedImagery.image.cloudCoverage.toLocaleString("fr-FR")} % de nuages sur la tuile.` : "Recherche des acquisitions Sentinel-2 récentes."}</small>
+            <small>{selectedImagery ? `Copernicus Sentinel-2 L2A · vue locale ${selectedImagery.image.extentKm.width.toLocaleString("fr-FR")} × ${selectedImagery.image.extentKm.height.toLocaleString("fr-FR")} km · dernière acquisition : ${selectedImagery.image.cloudCoverage.toLocaleString("fr-FR")} % de nuages sur la tuile. ${imageryPredatesSignal ? "Cette acquisition précède le signal thermique et ne peut pas montrer cet événement. " : ""}Le repère orange situe le centre du pixel VIIRS de 375 m ; des flammes ne sont pas nécessairement visibles.` : "Recherche des acquisitions Sentinel-2 récentes."}</small>
           </section>}
           <p className="watch-warning"><Icon name="info" /> Feu probable signifie que plusieurs observations thermiques fiables convergent. Seuls les services de secours peuvent confirmer un incendie.</p>
         </aside>
@@ -557,10 +556,12 @@ export function FireObservatory() {
             <div><span>DERNIÈRE VUE SATELLITE</span><strong>{selectedLabel?.title ?? "Observation satellite"}</strong><small>{selectedLabel?.parents}</small></div>
             <button type="button" onClick={() => imageryDialogRef.current?.close()}>Fermer</button>
           </header>
-          {selectedImagery && selectedImageryUrl && <div className="watch-satellite watch-satellite-expanded">
+          {imageryDialogOpen && selectedImagery && selectedImageryUrl && <div className="watch-satellite watch-satellite-expanded">
             <Image fill unoptimized sizes="100vw" src={selectedImageryUrl} alt={`Vue Sentinel-2 récente autour de ${selectedLabel?.title ?? "la zone observée"}`} className={selectedImageryLoaded ? "is-loaded" : ""} onLoad={() => setLoadedImageryUrl(selectedImageryUrl)} />
             {!selectedImageryLoaded && <div className="watch-imagery-progress"><LoadingBar label="Chargement de l’image satellite" /></div>}
-            {selectedImageryLoaded && <span className="after">ACQUISITION · {formatImageRange(selectedImagery.image.date, selectedImagery.image.date)}</span>}
+            {selectedImageryLoaded && <div className="watch-satellite-target" aria-hidden="true"><i /><span>Centre du signal VIIRS</span></div>}
+            {selectedImageryLoaded && imageryPredatesSignal && <span className="watch-satellite-timing">IMAGE ANTÉRIEURE AU SIGNAL</span>}
+            {selectedImageryLoaded && <span className="after">ACQUISITION · {formatDate(selectedImagery.image.acquiredAt)}</span>}
           </div>}
           <footer>Dernière vue Sentinel-2 exploitable · Échap pour fermer</footer>
         </div>
