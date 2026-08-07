@@ -10,6 +10,8 @@ export async function generateMetadata(): Promise<Metadata> {
     path: "/outil/feux",
     title: "Veille feu : observatoire satellite",
     description: "Un prototype pour repérer les feux probables, suivre leurs observations et consulter la dernière vue Sentinel-2 disponible.",
+    image: "/og-veille-feu-2026.png",
+    imageAlt: "Veille feu, observatoire satellite quasi temps réel des feux en France",
   });
 }
 

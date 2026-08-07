@@ -47,6 +47,7 @@ export const projects: Project[] = [
       en: ["Satellite", "Wildfires", "Near real time"],
     },
     visual: "map",
+    socialImage: "/og-veille-feu-2026.png",
     stat: {fr: "24 h", en: "24 h"},
     statLabel: {fr: "d’observations à rejouer", en: "of observations to replay"},
   },
