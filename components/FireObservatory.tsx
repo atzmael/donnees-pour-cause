@@ -1,6 +1,6 @@
 "use client";
 
-import {useCallback, useEffect, useMemo, useState} from "react";
+import {useCallback, useEffect, useMemo, useRef, useState} from "react";
 import {Brand} from "@/components/Brand";
 import {pointIsInBoundaryFeature, pointIsInFrance, type BoundaryCollection} from "@/lib/france-boundary";
 
@@ -168,6 +168,7 @@ function Icon({name}: {name: "layers" | "search" | "info" | "play" | "pause" | "
 }
 
 export function FireObservatory() {
+  const imageryDialogRef = useRef<HTMLDialogElement>(null);
   const [departments, setDepartments] = useState<DepartmentFeature[]>([]);
   const [response, setResponse] = useState<FireResponse | null>(null);
   const [error, setError] = useState<FireError | null>(null);
@@ -371,7 +372,7 @@ export function FireObservatory() {
           </> : <div className="watch-detail-empty">Sélectionnez une période contenant des observations pour afficher leur détail.</div>}
 
           {selected && <section className="watch-compare">
-            <div className="watch-compare-head"><div><span>AVANT / APRÈS</span><strong>Images satellites sans nuages</strong></div><span className="watch-imagery-badge">{selectedImagery ? "Sentinel-2 · 10 m" : "Recherche…"}</span></div>
+            <div className="watch-compare-head"><div><span>AVANT / APRÈS</span><strong>Images satellites sans nuages</strong></div><div className="watch-compare-actions"><span className="watch-imagery-badge">{selectedImagery ? "Sentinel-2 · 10 m" : "Recherche…"}</span>{selectedImagery && <button type="button" className="watch-expand-button" onClick={() => imageryDialogRef.current?.showModal()}>Agrandir</button>}</div></div>
             {selectedImagery ? <div className="watch-satellite" style={{backgroundImage: `url(${satelliteUrl(selectedImagery.before)})`}}>
               <div className="watch-satellite-after" style={{clipPath: `inset(0 ${100 - compare}% 0 0)`, backgroundImage: `url(${satelliteUrl(selectedImagery.after)})`}} />
               <div className="watch-satellite-divider" style={{left: `${compare}%`}}><i /></div>
@@ -385,6 +386,24 @@ export function FireObservatory() {
           <p className="watch-warning"><Icon name="info" /> Les anomalies thermiques peuvent provenir d’un feu, de fumées chaudes, d’une activité agricole ou d’une autre source de chaleur.</p>
         </aside>
       </section>
+
+      <dialog ref={imageryDialogRef} className="watch-imagery-dialog" onClick={(event) => {
+        if (event.target === event.currentTarget) imageryDialogRef.current?.close();
+      }}>
+        <div className="watch-imagery-dialog-shell">
+          <header>
+            <div><span>AVANT / APRÈS EN GRAND</span><strong>{selectedLabel?.title ?? "Observation satellite"}</strong><small>{selectedLabel?.parents}</small></div>
+            <button type="button" onClick={() => imageryDialogRef.current?.close()}>Fermer</button>
+          </header>
+          {selectedImagery && <div className="watch-satellite watch-satellite-expanded" style={{backgroundImage: `url(${satelliteUrl(selectedImagery.before)})`}}>
+            <div className="watch-satellite-after" style={{clipPath: `inset(0 ${100 - compare}% 0 0)`, backgroundImage: `url(${satelliteUrl(selectedImagery.after)})`}} />
+            <div className="watch-satellite-divider" style={{left: `${compare}%`}}><i /></div>
+            <span className="before">AVANT · {formatImageRange(selectedImagery.before.from, selectedImagery.before.to)}</span><span className="after">APRÈS · {formatImageRange(selectedImagery.after.from, selectedImagery.after.to)}</span>
+            <input aria-label="Comparer les images satellite avant et après en grand" type="range" min="8" max="92" value={compare} onChange={(event) => setCompare(Number(event.target.value))} />
+          </div>}
+          <footer>Faites glisser le curseur pour comparer les deux périodes · Échap pour fermer</footer>
+        </div>
+      </dialog>
 
       <section className="watch-method" id="methode"><span>DONNÉES & MÉTHODE</span><h2>Observer vite.<br />Rester précis.</h2><div><p>Les points visibles proviennent des produits VIIRS S‑NPP, NOAA‑20 et NOAA‑21 distribués par NASA FIRMS. Ils sont généralement publiés dans les heures suivant le passage du satellite.</p><p>L’outil regroupe pour l’instant les détections distantes de moins de 18 km et séparées de moins de 36 heures. Ce regroupement produit un événement observé, jamais un incendie officiellement confirmé.</p></div></section>
     </main>

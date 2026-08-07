@@ -34,6 +34,29 @@
   --transition-ui: 180ms ease;
 }
 
+/* Expanded Sentinel-2 comparison */
+.watch-compare-actions { display: flex; align-items: center; gap: 6px; }
+.watch-expand-button, .watch-imagery-dialog button { min-height: 44px; padding: 0 13px; border: 1px solid var(--watch-line); color: var(--watch-text); background: var(--watch-raised); font: inherit; font-size: 9px; cursor: pointer; transition: border-color 160ms ease, background-color 160ms ease, transform 160ms ease; }
+.watch-expand-button:active, .watch-imagery-dialog button:active { transform: scale(.97); }
+@media (hover: hover) and (pointer: fine) { .watch-expand-button:hover, .watch-imagery-dialog button:hover { border-color: #ff6b35; background: #2b352e; } }
+.watch-expand-button:focus-visible, .watch-imagery-dialog button:focus-visible { outline: 2px solid #ff6b35; outline-offset: 2px; }
+.watch-imagery-dialog { width: min(1400px, calc(100vw - 32px)); height: min(900px, calc(100dvh - 32px)); max-width: none; max-height: none; margin: auto; padding: 0; border: 1px solid rgba(255,255,255,.16); color: var(--watch-text); background: #111813; box-shadow: 0 24px 90px rgba(0,0,0,.55); }
+.watch-imagery-dialog::backdrop { background: rgba(4,8,5,.86); backdrop-filter: blur(6px); }
+.watch-imagery-dialog-shell { display: grid; grid-template-rows: auto minmax(0,1fr) auto; gap: 18px; height: 100%; padding: 18px; }
+.watch-imagery-dialog header { display: flex; align-items: center; justify-content: space-between; gap: 24px; }
+.watch-imagery-dialog header > div { display: flex; min-width: 0; flex-direction: column; gap: 4px; }
+.watch-imagery-dialog header span, .watch-imagery-dialog footer { color: var(--watch-muted); font-size: 8px; letter-spacing: 1.2px; }
+.watch-imagery-dialog header strong { overflow: hidden; font-size: clamp(18px,2vw,28px); line-height: 1.05; text-overflow: ellipsis; white-space: nowrap; }
+.watch-imagery-dialog header small { overflow: hidden; color: var(--watch-muted); font-size: 10px; text-overflow: ellipsis; white-space: nowrap; }
+.watch-satellite-expanded { align-self: center; justify-self: center; width: min(100%, calc((100dvh - 170px) * 1.81)); height: auto; max-height: calc(100dvh - 170px); aspect-ratio: 760 / 420; }
+.watch-satellite-expanded > span { bottom: 14px; padding: 7px 9px; font-size: 9px; }
+.watch-satellite-expanded .before { right: 14px; }
+.watch-satellite-expanded .after { left: 14px; }
+.watch-satellite-expanded .watch-satellite-divider i { width: 34px; height: 34px; }
+.watch-imagery-dialog footer { text-align: center; }
+@media (max-width: 720px) { .watch-compare-head { align-items: flex-start; gap: 10px; }.watch-compare-actions { align-items: flex-end; flex-direction: column; }.watch-imagery-dialog { width: calc(100vw - 16px); height: calc(100dvh - 16px); }.watch-imagery-dialog-shell { gap: 12px; padding: 12px; }.watch-imagery-dialog header small { display: none; }.watch-satellite-expanded { width: 100%; max-height: calc(100dvh - 145px); }.watch-imagery-dialog footer { line-height: 1.4; } }
+@media (prefers-reduced-motion: reduce) { .watch-expand-button, .watch-imagery-dialog button { transition: none; } }
+
 * { box-sizing: border-box; }
 html { scroll-behavior: smooth; }
 body { margin: 0; background: var(--color-background); color: var(--color-text); font-family: var(--font-roboto), Arial, Helvetica, sans-serif; }
