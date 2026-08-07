@@ -25,7 +25,7 @@ jobs:
   update:
     runs-on: ubuntu-latest
     env:
-      TARGET_BRANCH: ${{ github.event_name == 'workflow_dispatch' && inputs.target_branch || 'preprod' }}
+      TARGET_BRANCH: ${{ github.event_name == 'workflow_dispatch' && inputs.target_branch || 'main' }}
     steps:
       - name: Récupérer la branche cible
         uses: actions/checkout@v4
