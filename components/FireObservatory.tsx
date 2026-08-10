@@ -18,6 +18,7 @@ import {
   type ObservedEvent,
 } from "@/lib/fire-observatory";
 import {pointIsInBoundaryFeature, pointIsInFrance, type BoundaryCollection} from "@/lib/france-boundary";
+import {buildFireTimeline} from "@/lib/fire-timeline";
 
 type Position = [number, number];
 type DepartmentFeature = {
@@ -40,12 +41,17 @@ type LocationInfo = {
 };
 type ImageryChoice = {
   date: string;
+  acquiredAt: string;
   from: string;
   to: string;
   platform: "sentinel2";
   source: string;
   cloudCoverage: number;
   composite: boolean;
+  burnedAreaStatus: "available" | "missing_before" | "missing_after" | "missing_signal";
+  burnedAreaComparison: {beforeAt: string; afterAt: string} | null;
+  groundSampleDistance: number;
+  extentKm: {width: number; height: number};
 };
 type LatestImagery = {eventId: string; image: ImageryChoice};
 type Verification = {
@@ -60,6 +66,7 @@ type Verification = {
 };
 type FireFilter = "all" | "confirmed" | "strong" | "probable";
 type ReliabilityLevel = "official" | "mapped" | "strong" | "probable";
+type ImageryDialogMode = "burned-area" | "photo";
 
 const PERIODS = [
   {label: "6 h", hours: 6, days: 2},
@@ -79,6 +86,7 @@ const FIRE_FILTERS: ReadonlyArray<{value: FireFilter; label: string}> = [
 ];
 const MAX_SIDEBAR_EVENTS = 40;
 const VERIFICATION_BATCH_SIZE = 100;
+const TIMELINE_STEP_COUNT = 6;
 const MARKER_COLORS: Record<ReliabilityLevel, string> = {
   probable: "#f7b955",
   strong: "#ff6b35",
@@ -155,6 +163,13 @@ function formatDate(value: string, withDate = true) {
   }).format(new Date(value));
 }
 
+function formatTimelineTick(value: string, periodHours: number) {
+  return new Intl.DateTimeFormat("fr-FR", {
+    ...(periodHours <= 48 ? {hour: "2-digit", minute: "2-digit"} : {day: "2-digit", month: "short"}),
+    timeZone: "Europe/Paris",
+  }).format(new Date(value));
+}
+
 function elapsed(value: string, referenceTime: number) {
   const minutes = Math.max(0, Math.round((referenceTime - new Date(value).getTime()) / 60_000));
   if (minutes < 60) return `il y a ${minutes} min`;
@@ -164,13 +179,6 @@ function elapsed(value: string, referenceTime: number) {
 
 function confidenceLabel(value: string) {
   return ({h: "haute", n: "nominale", l: "faible"} as Record<string, string>)[value.toLowerCase()] ?? value;
-}
-
-function formatImageRange(from: string, to: string) {
-  const formatter = new Intl.DateTimeFormat("fr-FR", {day: "2-digit", month: "short", timeZone: "UTC"});
-  return from === to
-    ? formatter.format(new Date(`${from}T12:00:00Z`))
-    : `${formatter.format(new Date(`${from}T12:00:00Z`))} au ${formatter.format(new Date(`${to}T12:00:00Z`))}`;
 }
 
 function Icon({name}: {name: "layers" | "search" | "info" | "play" | "pause" | "refresh"}) {
@@ -188,6 +196,7 @@ export function FireObservatory() {
   const imageryDialogRef = useRef<HTMLDialogElement>(null);
   const eventButtonRefs = useRef(new Map<string, HTMLButtonElement>());
   const [imageryDialogOpen, setImageryDialogOpen] = useState(false);
+  const [imageryDialogMode, setImageryDialogMode] = useState<ImageryDialogMode>("burned-area");
   const [departments, setDepartments] = useState<DepartmentFeature[]>([]);
   const [departmentsLoading, setDepartmentsLoading] = useState(true);
   const [response, setResponse] = useState<FireResponse | null>(null);
@@ -206,6 +215,8 @@ export function FireObservatory() {
   const [imageryUnavailableId, setImageryUnavailableId] = useState<string | null>(null);
   const [loadedImageryUrl, setLoadedImageryUrl] = useState<string | null>(null);
   const [imageryRenderErrorId, setImageryRenderErrorId] = useState<string | null>(null);
+  const [loadedBurnedAreaUrl, setLoadedBurnedAreaUrl] = useState<string | null>(null);
+  const [burnedAreaRenderErrorUrl, setBurnedAreaRenderErrorUrl] = useState<string | null>(null);
 
   useEffect(() => {
     if (!imageryDialogOpen) return;
@@ -224,6 +235,7 @@ export function FireObservatory() {
   const openImageryDialog = () => {
     const dialog = imageryDialogRef.current;
     if (!dialog || dialog.open) return;
+    setImageryDialogMode("burned-area");
     dialog.showModal();
     setImageryDialogOpen(true);
   };
@@ -273,25 +285,53 @@ export function FireObservatory() {
     if (fireFilter === "confirmed") return level === "official" || level === "mapped";
     return fireFilter === "all" || level === fireFilter;
   }), [events, fireFilter, verifications]);
-  const filteredFireDetections = useMemo(() => filteredEvents.flatMap((event) => event.detections), [filteredEvents]);
-  const bounds = useMemo(() => {
-    const times = filteredFireDetections.map((item) => new Date(item.acquiredAt).getTime());
-    return {min: Math.min(...times), max: Math.max(...times)};
-  }, [filteredFireDetections]);
+  const timelineDetections = useMemo(() => events.flatMap((event) => event.detections), [events]);
   const referenceTime = response ? new Date(response.fetchedAt).getTime() : 0;
-  const timelineCutoff = Number.isFinite(bounds.min) ? bounds.min + ((bounds.max - bounds.min) * timeline / 5) : referenceTime;
+  const locationLabel = useCallback((event: ObservedEvent) => {
+    const remote = locations[event.id];
+    if (remote === undefined) return {title: "Recherche du lieu…", parents: "Analyse des coordonnées"};
+    if (remote) {
+      const parents = [remote.locality, remote.commune, remote.department, remote.region]
+        .filter((value): value is string => Boolean(value) && value !== remote.title)
+        .filter((value, index, values) => values.indexOf(value) === index);
+      return {title: remote.title, parents: parents.join(" · ") || `Zone ${event.latitude.toFixed(2)}, ${event.longitude.toFixed(2)}`};
+    }
+    const department = departments.find((feature) => pointIsInBoundaryFeature(event.longitude, event.latitude, feature));
+    const region = department?.properties.region ? REGION_NAMES[department.properties.region] : null;
+    return {
+      title: department?.properties.nom ?? region ?? "Lieu non déterminé",
+      parents: [region, `Zone ${event.latitude.toFixed(2)}, ${event.longitude.toFixed(2)}`].filter(Boolean).join(" · "),
+    };
+  }, [departments, locations]);
+  const timelineModel = useMemo(() => buildFireTimeline(
+    response?.fetchedAt ?? null,
+    PERIODS[periodIndex].hours,
+    timelineDetections.map((detection) => detection.acquiredAt),
+    TIMELINE_STEP_COUNT,
+  ), [periodIndex, response?.fetchedAt, timelineDetections]);
+  const timelineCutoff = timelineModel?.steps[timeline]?.cutoff ?? referenceTime;
+  const timelineObservationCount = timelineModel?.steps[timeline]?.observationCount ?? 0;
   const timelineEvents = useMemo(() => filteredEvents.filter((event) =>
     event.detections.some((item) => new Date(item.acquiredAt).getTime() <= timelineCutoff),
   ), [filteredEvents, timelineCutoff]);
-  const mapVisibleEvents = useMemo(() => timelineEvents.filter((event) => eventIsInMapView(event, mapView)), [mapView, timelineEvents]);
+  const mapScopedEvents = useMemo(() => timelineEvents.filter((event) => eventIsInMapView(event, mapView)), [mapView, timelineEvents]);
+  const sidebarEvents = useMemo(() => mapScopedEvents.slice(0, MAX_SIDEBAR_EVENTS), [mapScopedEvents]);
+  const searchTerm = useMemo(() => normalizeSearch(searchQuery), [searchQuery]);
+  const visibleEvents = useMemo(() => sidebarEvents.filter((event) => {
+    if (!searchTerm) return true;
+    const label = locationLabel(event);
+    return normalizeSearch(`${label.title} ${label.parents} ${event.latitude.toFixed(2)} ${event.longitude.toFixed(2)}`).includes(searchTerm);
+  }), [locationLabel, searchTerm, sidebarEvents]);
+  const mapVisibleEvents = useMemo(
+    () => searchTerm ? visibleEvents : mapScopedEvents,
+    [mapScopedEvents, searchTerm, visibleEvents],
+  );
   const mapClusters = useMemo(() => clusterEventsForMap(mapVisibleEvents, mapView), [mapView, mapVisibleEvents]);
-  const sidebarEvents = useMemo(() => mapVisibleEvents.slice(0, MAX_SIDEBAR_EVENTS), [mapVisibleEvents]);
+  const searchResolving = Boolean(searchTerm && sidebarEvents.some((event) => locations[event.id] === undefined));
   const selected = mapVisibleEvents.find((event) => event.id === selectedId) ?? mapVisibleEvents[0] ?? null;
   const selectedVisible = selected?.detections.filter((item) => new Date(item.acquiredAt).getTime() <= timelineCutoff) ?? [];
   const latestDetection = selectedVisible.at(-1) ?? selected?.detections[0] ?? null;
-  const timelineTimes = Array.from({length: 6}, (_, index) => Number.isFinite(bounds.min)
-    ? new Date(bounds.min + ((bounds.max - bounds.min) * index / 5)).toISOString()
-    : new Date().toISOString());
+  const timelineTimes = timelineModel?.steps.map((step) => new Date(step.cutoff).toISOString()) ?? [];
 
   useEffect(() => {
     const pendingEvents = sidebarEvents.filter((event) => locations[event.id] === undefined);
@@ -315,7 +355,7 @@ export function FireObservatory() {
 
   useEffect(() => {
     if (!playing) return;
-    const timer = window.setInterval(() => setTimeline((value) => value >= 5 ? 0 : value + 1), 900);
+    const timer = window.setInterval(() => setTimeline((value) => value >= TIMELINE_STEP_COUNT - 1 ? 0 : value + 1), 900);
     return () => window.clearInterval(timer);
   }, [playing]);
 
@@ -327,6 +367,7 @@ export function FireObservatory() {
         lat: selected.latitude.toFixed(5),
         lon: selected.longitude.toFixed(5),
         resolve: "1",
+        signalAt: selected.firstAt,
       });
       const result = await fetch(`/api/satellite?${query}`, {signal: controller.signal});
       if (!result.ok) throw new Error("No usable imagery");
@@ -383,35 +424,31 @@ export function FireObservatory() {
 
   const selectedImagery = selected && imagery?.eventId === selected.id ? imagery : null;
   const satelliteUrl = (choice: ImageryChoice) => selected
-    ? `/api/satellite?lat=${selected.latitude.toFixed(5)}&lon=${selected.longitude.toFixed(5)}&from=${choice.from}&to=${choice.to}`
+    ? `/api/satellite?lat=${selected.latitude.toFixed(5)}&lon=${selected.longitude.toFixed(5)}&from=${choice.from}&to=${choice.to}&view=local-v2`
     : "";
   const selectedImageryUrl = selectedImagery ? satelliteUrl(selectedImagery.image) : null;
+  const burnedAreaComparison = selectedImagery?.image.burnedAreaComparison;
+  const burnedAreaUrl = selected && burnedAreaComparison ? `/api/satellite?${new URLSearchParams({
+    lat: selected.latitude.toFixed(5),
+    lon: selected.longitude.toFixed(5),
+    from: burnedAreaComparison.beforeAt.slice(0, 10),
+    to: burnedAreaComparison.afterAt.slice(0, 10),
+    layer: "burned-area",
+    signalAt: selected.firstAt,
+    view: "burned-area-v2",
+  })}` : null;
   const selectedImageryLoaded = Boolean(selectedImageryUrl && loadedImageryUrl === selectedImageryUrl);
-  const locationLabel = (event: ObservedEvent) => {
-    const remote = locations[event.id];
-    if (remote === undefined) return {title: "Recherche du lieu…", parents: "Analyse des coordonnées"};
-    if (remote) {
-      const parents = [remote.locality, remote.commune, remote.department, remote.region]
-        .filter((value): value is string => Boolean(value) && value !== remote.title)
-        .filter((value, index, values) => values.indexOf(value) === index);
-      return {title: remote.title, parents: parents.join(" · ") || `Zone ${event.latitude.toFixed(2)}, ${event.longitude.toFixed(2)}`};
-    }
-    const department = departments.find((feature) => pointIsInBoundaryFeature(event.longitude, event.latitude, feature));
-    const region = department?.properties.region ? REGION_NAMES[department.properties.region] : null;
-    return {
-      title: department?.properties.nom ?? region ?? "Lieu non déterminé",
-      parents: [region, `Zone ${event.latitude.toFixed(2)}, ${event.longitude.toFixed(2)}`].filter(Boolean).join(" · "),
-    };
-  };
+  const burnedAreaLoaded = Boolean(burnedAreaUrl && loadedBurnedAreaUrl === burnedAreaUrl);
+  const burnedAreaUnavailable = Boolean(burnedAreaUrl && burnedAreaRenderErrorUrl === burnedAreaUrl);
+  const burnedAreaUnavailableLabel = selectedImagery?.image.burnedAreaStatus === "missing_after"
+    ? "Pas encore d’acquisition Sentinel-2 après le signal"
+    : selectedImagery?.image.burnedAreaStatus === "missing_before"
+      ? "Pas d’acquisition de référence avant le signal"
+      : "Comparaison avant / après indisponible";
+  const imageryPredatesSignal = Boolean(selectedImagery && selected && new Date(selectedImagery.image.acquiredAt).getTime() < new Date(selected.firstAt).getTime());
   const selectedLabel = selected ? locationLabel(selected) : null;
   const selectedVerification = selected ? verifications[selected.id] : undefined;
   const selectedReliability = selected ? reliability(selected, selectedVerification) : null;
-  const visibleEvents = sidebarEvents.filter((event) => {
-    const query = normalizeSearch(searchQuery);
-    if (!query) return true;
-    const label = locationLabel(event);
-    return normalizeSearch(`${label.title} ${label.parents} ${event.latitude.toFixed(2)} ${event.longitude.toFixed(2)}`).includes(query);
-  });
   const markerScale = mapView.width / FULL_MAP_VIEW.width;
   const zoomLevel = Math.round(FULL_MAP_VIEW.width / mapView.width * 10) / 10;
   const clusterLevel = (cluster: MapCluster) => cluster.events.reduce<ReliabilityLevel>((best, event) => {
@@ -441,11 +478,11 @@ export function FireObservatory() {
 
       <section className="watch-workspace" aria-label="Observatoire satellite des feux">
         <aside className="watch-sidebar">
-          <div className="watch-search"><Icon name="search" /><input aria-label="Rechercher dans les feux probables" placeholder="Village, commune, département…" value={searchQuery} onChange={(event) => setSearchQuery(event.target.value)} /></div>
+          <div className="watch-search"><Icon name="search" /><input aria-label="Rechercher dans les feux probables" placeholder="Village, commune, département…" value={searchQuery} onChange={(event) => {setSearchQuery(event.target.value); setSelectedId(null);}} /></div>
           <div className="watch-fire-filters" role="group" aria-label="Filtrer les feux par niveau de fiabilité">
-            {FIRE_FILTERS.map((filter) => <button key={filter.value} type="button" className={fireFilter === filter.value ? "is-active" : ""} aria-pressed={fireFilter === filter.value} onClick={() => {setFireFilter(filter.value); setTimeline(5); setPlaying(false);}}>{filter.label}</button>)}
+            {FIRE_FILTERS.map((filter) => <button key={filter.value} type="button" className={fireFilter === filter.value ? "is-active" : ""} aria-pressed={fireFilter === filter.value} onClick={() => {setFireFilter(filter.value); setTimeline(5); setPlaying(false); setSelectedId(null);}}>{filter.label}</button>)}
           </div>
-          <div className="watch-sidebar-head"><div><span>FOYERS DANS LA CARTE</span><strong>{searchQuery ? visibleEvents.length : mapVisibleEvents.length}</strong></div><button type="button" className="watch-refresh-button" aria-label="Actualiser la liste des feux" title="Actualiser la liste" disabled={loading} onClick={() => void loadFires(PERIODS[periodIndex].days)}><Icon name="refresh" /></button></div>
+          <div className="watch-sidebar-head"><div><span>FOYERS DANS LA CARTE</span><strong aria-live="polite">{mapVisibleEvents.length}</strong></div><button type="button" className="watch-refresh-button" aria-label="Actualiser la liste des feux" title="Actualiser la liste" disabled={loading} onClick={() => void loadFires(PERIODS[periodIndex].days)}><Icon name="refresh" /></button></div>
           <div className="watch-event-list">
             {loading && <div className="watch-list-loading"><LoadingBar label="Actualisation des feux" compact /></div>}
             {visibleEvents.map((event) => {
@@ -459,8 +496,8 @@ export function FireObservatory() {
                 <time><span className={`watch-reliability is-${evidence.level}`}>{evidence.label}</span><small>{event.detections.length} observations</small></time>
               </button>;
             })}
-            {!loading && !error && visibleEvents.length === 0 && <div className="watch-empty-list">{searchQuery ? "Aucun des foyers listés ne correspond à cette recherche." : fireFilter === "all" ? "Aucun feu probable sur cette période." : "Aucun feu dans ce niveau de fiabilité."}</div>}
-            {mapVisibleEvents.length > MAX_SIDEBAR_EVENTS && <div className="watch-list-limit">Les {MAX_SIDEBAR_EVENTS} foyers les plus récents sont listés{searchQuery ? " et parcourus par la recherche" : ""}. Zoomez sur la carte pour affiner.</div>}
+            {!loading && !error && visibleEvents.length === 0 && <div className="watch-empty-list">{searchResolving ? <LoadingBar label="Recherche des lieux correspondants" compact /> : filteredEvents.length > 0 && timelineEvents.length === 0 ? "Aucune observation à ce moment de la frise." : searchTerm ? "Aucun des foyers listés ne correspond à cette recherche." : fireFilter === "all" ? "Aucun feu probable sur cette période." : "Aucun feu dans ce niveau de fiabilité."}</div>}
+            {mapScopedEvents.length > MAX_SIDEBAR_EVENTS && <div className="watch-list-limit">Les {MAX_SIDEBAR_EVENTS} foyers les plus récents sont listés{searchTerm ? " et parcourus par la recherche" : ""}. Zoomez sur la carte pour affiner.</div>}
           </div>
           <div className="watch-source-mini"><span>COUCHE ACTIVE</span><strong>Feux probables repérés par satellite</strong><small>Au moins 2 observations convergentes · NASA FIRMS VIIRS</small></div>
         </aside>
@@ -505,16 +542,17 @@ export function FireObservatory() {
             })}</g>
           </svg>
 
-          <div className="watch-map-label"><span>ZONE VISIBLE</span><strong>{mapVisibleEvents.length} foyer{mapVisibleEvents.length > 1 ? "s" : ""} · {mapClusters.length} repère{mapClusters.length > 1 ? "s" : ""}</strong></div>
+          <div className="watch-map-label"><span>{searchTerm ? "RÉSULTATS VISIBLES" : "ZONE VISIBLE"}</span><strong>{mapVisibleEvents.length} foyer{mapVisibleEvents.length > 1 ? "s" : ""} · {mapClusters.length} repère{mapClusters.length > 1 ? "s" : ""}</strong></div>
           {(loading || departmentsLoading) && <div className="watch-map-state"><LoadingBar label={loading ? "Chargement des observations FIRMS" : "Chargement du fond géographique"} /></div>}
           {!loading && error && <div className="watch-map-state is-error"><strong>{error.message}</strong><span>{error.error === "missing_key" ? "Ajoute NASA_FIRMS_MAP_KEY dans .env.local puis redémarre le serveur." : "Vérifie la configuration ou réessaie dans quelques minutes."}</span><button type="button" onClick={() => void loadFires(PERIODS[periodIndex].days)}>Réessayer</button></div>}
           {!loading && !error && filteredEvents.length === 0 && <div className="watch-map-state"><strong>{fireFilter === "all" ? "Aucun feu probable détecté" : "Aucun feu dans ce filtre"}</strong><span>{fireFilter === "all" ? "Le filtre strict peut ignorer un feu récent ou de faible intensité avant une seconde observation." : "Choisissez un autre niveau de fiabilité ou une période plus longue."}</span></div>}
-          {!loading && !error && filteredEvents.length > 0 && mapVisibleEvents.length === 0 && <div className="watch-map-state"><strong>Aucun foyer dans cette zone</strong><span>Dézoomez ou revenez à la vue France pour retrouver les autres foyers.</span><button type="button" onClick={resetMapView}>Voir toute la France</button></div>}
+          {!loading && !error && filteredEvents.length > 0 && timelineEvents.length === 0 && <div className="watch-map-state"><strong>Aucune observation à cette date</strong><span>Avancez dans la frise pour faire apparaître les observations disponibles.</span></div>}
+          {!loading && !error && timelineEvents.length > 0 && mapVisibleEvents.length === 0 && <div className="watch-map-state">{searchResolving ? <LoadingBar label="Recherche des lieux correspondants" /> : <><strong>{searchTerm ? "Aucun foyer pour cette recherche" : "Aucun foyer dans cette zone"}</strong><span>{searchTerm ? "Modifiez votre recherche ou dézoomez pour élargir les résultats." : "Dézoomez ou revenez à la vue France pour retrouver les autres foyers."}</span>{!searchTerm && <button type="button" onClick={resetMapView}>Voir toute la France</button>}</>}</div>}
           <div className="watch-legend"><span><i className="probable" /> Probable</span><span><i className="strong" /> Forte présomption</span><span><i className="mapped" /> Zone cartographiée</span><span><i className="official" /> Confirmé</span></div>
 
           <div className="watch-timeline">
-            <button type="button" className="watch-play" disabled={!filteredFireDetections.length} aria-label={playing ? "Mettre en pause" : "Lire la chronologie"} onClick={() => setPlaying((value) => !value)}><Icon name={playing ? "pause" : "play"} /></button>
-            <div className="watch-timeline-main"><div><span>ÉVOLUTION DES OBSERVATIONS</span><strong>{filteredFireDetections.length ? formatDate(timelineTimes[timeline]) : "Aucune donnée"}</strong></div><input aria-label="Heure observée" type="range" min="0" max="5" value={timeline} disabled={!filteredFireDetections.length} onChange={(event) => setTimeline(Number(event.target.value))} /><div className="watch-ticks">{timelineTimes.map((time, index) => <span key={`${time}-${index}`} className={index <= timeline ? "is-past" : ""}>{formatDate(time, false)}</span>)}</div></div>
+            <button type="button" className="watch-play" disabled={!timelineModel?.totalObservations} aria-label={playing ? "Mettre en pause" : "Lire la chronologie"} onClick={() => setPlaying((value) => !value)}><Icon name={playing ? "pause" : "play"} /></button>
+            <div className="watch-timeline-main"><div><span>ÉVOLUTION DE TOUTES LES OBSERVATIONS</span><strong>{timelineModel?.totalObservations ? `${formatDate(timelineTimes[timeline])} · ${timelineObservationCount}/${timelineModel.totalObservations} obs.` : "Aucune donnée"}</strong></div><input aria-label="Date observée" aria-valuetext={timelineModel?.totalObservations ? `${formatDate(timelineTimes[timeline])}, ${timelineObservationCount} observations sur ${timelineModel.totalObservations}` : "Aucune observation"} type="range" min="0" max={TIMELINE_STEP_COUNT - 1} value={timeline} disabled={!timelineModel?.totalObservations} onChange={(event) => setTimeline(Number(event.target.value))} /><div className="watch-ticks">{timelineTimes.map((time, index) => <span key={`${time}-${index}`} className={index <= timeline ? "is-past" : ""} title={formatDate(time)}>{formatTimelineTick(time, PERIODS[periodIndex].hours)}</span>)}</div></div>
           </div>
         </div>
 
@@ -530,15 +568,17 @@ export function FireObservatory() {
           </> : <div className="watch-detail-empty">Sélectionnez une période contenant des observations pour afficher leur détail.</div>}
 
           {selected && <section className="watch-compare">
-            <div className="watch-compare-head"><div><span>DERNIÈRE VUE DISPONIBLE</span><strong>Image satellite sans nuages</strong></div><div className="watch-compare-actions"><span className="watch-imagery-badge">{selectedImagery ? "Sentinel-2 · 10 m" : "Recherche…"}</span>{selectedImagery && <button type="button" className="watch-expand-button" onClick={openImageryDialog}>Agrandir</button>}</div></div>
+            <div className="watch-compare-head"><div><span>DERNIÈRE VUE DISPONIBLE</span><strong>Image satellite sans nuages</strong></div><div className="watch-compare-actions"><span className="watch-imagery-badge">{selectedImagery ? `Sentinel-2 · ${selectedImagery.image.groundSampleDistance} m` : "Recherche…"}</span>{selectedImagery && <button type="button" className="watch-expand-button" onClick={openImageryDialog}>Agrandir</button>}</div></div>
             {selectedImagery && selectedImageryUrl && imageryRenderErrorId !== selected.id ? <div className="watch-satellite">
-              <Image fill unoptimized sizes="(max-width: 1100px) 50vw, 350px" src={selectedImageryUrl} alt={`Vue Sentinel-2 récente autour de ${selectedLabel?.title ?? "la zone observée"}`} className={selectedImageryLoaded ? "is-loaded" : ""} onLoad={() => setLoadedImageryUrl(selectedImageryUrl)} onError={() => setImageryRenderErrorId(selected.id)} />
+              <Image fill unoptimized loading="eager" sizes="(max-width: 1100px) 50vw, 350px" src={selectedImageryUrl} alt={`Vue Sentinel-2 récente autour de ${selectedLabel?.title ?? "la zone observée"}`} className={selectedImageryLoaded ? "is-loaded" : ""} onLoad={() => setLoadedImageryUrl(selectedImageryUrl)} onError={() => setImageryRenderErrorId(selected.id)} />
               {!selectedImageryLoaded && <div className="watch-imagery-progress"><LoadingBar label="Chargement de l’image satellite" /></div>}
-              {selectedImageryLoaded && <span className="after">ACQUISITION · {formatImageRange(selectedImagery.image.date, selectedImagery.image.date)}</span>}
+              {selectedImageryLoaded && <div className="watch-satellite-target" aria-hidden="true"><i /><span>Centre du signal VIIRS</span></div>}
+              {selectedImageryLoaded && imageryPredatesSignal && <span className="watch-satellite-timing">IMAGE ANTÉRIEURE AU SIGNAL</span>}
+              {selectedImageryLoaded && <span className="after">ACQUISITION · {formatDate(selectedImagery.image.acquiredAt)}</span>}
             </div> : imageryUnavailableId === selected.id || imageryRenderErrorId === selected.id
               ? <div className="watch-imagery-loading"><strong>Aucune image exploitable récente</strong><span>Sentinel-2 n’a pas fourni de pixels suffisamment dégagés sur cette zone.</span></div>
               : <div className="watch-imagery-loading"><LoadingBar label="Recherche de la dernière image exploitable" /></div>}
-            <small>{selectedImagery ? `Copernicus Sentinel-2 L2A · composite récent de pixels non nuageux · dernière acquisition : ${selectedImagery.image.cloudCoverage.toLocaleString("fr-FR")} % de nuages sur la tuile.` : "Recherche des acquisitions Sentinel-2 récentes."}</small>
+            <small>{selectedImagery ? `Copernicus Sentinel-2 L2A · vue locale ${selectedImagery.image.extentKm.width.toLocaleString("fr-FR")} × ${selectedImagery.image.extentKm.height.toLocaleString("fr-FR")} km · dernière acquisition : ${selectedImagery.image.cloudCoverage.toLocaleString("fr-FR")} % de nuages sur la tuile. ${imageryPredatesSignal ? "Cette acquisition précède le signal thermique et ne peut pas montrer cet événement. " : ""}Le repère orange situe le centre du pixel VIIRS de 375 m ; des flammes ne sont pas nécessairement visibles.` : "Recherche des acquisitions Sentinel-2 récentes."}</small>
           </section>}
           <p className="watch-warning"><Icon name="info" /> Feu probable signifie que plusieurs observations thermiques fiables convergent. Seuls les services de secours peuvent confirmer un incendie.</p>
         </aside>
@@ -550,14 +590,27 @@ export function FireObservatory() {
         <div className="watch-imagery-dialog-shell">
           <header>
             <div><span>DERNIÈRE VUE SATELLITE</span><strong>{selectedLabel?.title ?? "Observation satellite"}</strong><small>{selectedLabel?.parents}</small></div>
-            <button type="button" onClick={() => imageryDialogRef.current?.close()}>Fermer</button>
+            <div className="watch-imagery-dialog-actions">
+              <div className="watch-imagery-modes" role="group" aria-label="Affichage de l’image satellite">
+                <button type="button" className={imageryDialogMode === "burned-area" ? "is-active" : ""} aria-pressed={imageryDialogMode === "burned-area"} onClick={() => setImageryDialogMode("burned-area")}>Zones brûlées</button>
+                <button type="button" className={imageryDialogMode === "photo" ? "is-active" : ""} aria-pressed={imageryDialogMode === "photo"} onClick={() => setImageryDialogMode("photo")}>Photo seule</button>
+              </div>
+              <button type="button" className="watch-imagery-close" onClick={() => imageryDialogRef.current?.close()}>Fermer</button>
+            </div>
           </header>
-          {selectedImagery && selectedImageryUrl && <div className="watch-satellite watch-satellite-expanded">
-            <Image fill unoptimized sizes="100vw" src={selectedImageryUrl} alt={`Vue Sentinel-2 récente autour de ${selectedLabel?.title ?? "la zone observée"}`} className={selectedImageryLoaded ? "is-loaded" : ""} onLoad={() => setLoadedImageryUrl(selectedImageryUrl)} />
+          {imageryDialogOpen && selectedImagery && selectedImageryUrl && <div className="watch-satellite watch-satellite-expanded">
+            <Image fill unoptimized loading="eager" sizes="100vw" src={selectedImageryUrl} alt={`Vue Sentinel-2 récente autour de ${selectedLabel?.title ?? "la zone observée"}`} className={selectedImageryLoaded ? "is-loaded" : ""} onLoad={() => setLoadedImageryUrl(selectedImageryUrl)} />
             {!selectedImageryLoaded && <div className="watch-imagery-progress"><LoadingBar label="Chargement de l’image satellite" /></div>}
-            {selectedImageryLoaded && <span className="after">ACQUISITION · {formatImageRange(selectedImagery.image.date, selectedImagery.image.date)}</span>}
+            {imageryDialogMode === "burned-area" && burnedAreaUrl && <Image fill unoptimized loading="eager" sizes="100vw" src={burnedAreaUrl} alt="" aria-hidden="true" className={`watch-burned-area-layer${burnedAreaLoaded ? " is-loaded" : ""}`} onLoad={() => {setLoadedBurnedAreaUrl(burnedAreaUrl); setBurnedAreaRenderErrorUrl(null);}} onError={() => setBurnedAreaRenderErrorUrl(burnedAreaUrl)} />}
+            {selectedImageryLoaded && imageryDialogMode === "burned-area" && burnedAreaUrl && !burnedAreaLoaded && !burnedAreaUnavailable && <div className="watch-burned-area-progress"><LoadingBar label="Comparaison NBR avant / après" compact /></div>}
+            {selectedImageryLoaded && imageryDialogMode === "burned-area" && burnedAreaUnavailable && <div className="watch-burned-area-progress is-error">Analyse spectrale indisponible</div>}
+            {selectedImageryLoaded && imageryDialogMode === "burned-area" && !burnedAreaUrl && <div className="watch-burned-area-progress is-notice">{burnedAreaUnavailableLabel}</div>}
+            {selectedImageryLoaded && imageryDialogMode === "burned-area" && <div className="watch-satellite-target" aria-hidden="true"><i /><span>Centre du signal VIIRS</span></div>}
+            {selectedImageryLoaded && imageryDialogMode === "burned-area" && imageryPredatesSignal && <span className="watch-satellite-timing">IMAGE ANTÉRIEURE AU SIGNAL</span>}
+            {selectedImageryLoaded && imageryDialogMode === "burned-area" && <span className="after">ACQUISITION · {formatDate(selectedImagery.image.acquiredAt)}</span>}
+            {selectedImageryLoaded && imageryDialogMode === "burned-area" && burnedAreaLoaded && <div className="watch-burned-area-legend"><i /> Zones potentiellement brûlées <small>variation NBR avant / après</small></div>}
           </div>}
-          <footer>Dernière vue Sentinel-2 exploitable · Échap pour fermer</footer>
+          <footer>{imageryDialogMode === "burned-area" ? "Détection dNBR indicative, à distinguer d’un périmètre officiellement cartographié" : "Photo Sentinel-2 sans surcouche"} · Échap pour fermer</footer>
         </div>
       </dialog>
 

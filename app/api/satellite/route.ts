@@ -1,4 +1,12 @@
 import {NextRequest, NextResponse} from "next/server";
+import {
+  BURNED_AREA_DNBR_THRESHOLD,
+  SATELLITE_GROUND_SAMPLE_DISTANCE_METERS,
+  SATELLITE_IMAGE_HEIGHT,
+  SATELLITE_IMAGE_WIDTH,
+  satelliteImageBounds,
+  selectBurnedAreaComparison,
+} from "@/lib/satellite-imagery";
 
 export const dynamic = "force-dynamic";
 
@@ -52,7 +60,7 @@ async function catalogue(latitude: number, longitude: number, from: string, to: 
     method: "POST",
     headers: {Authorization: `Bearer ${token}`, "Content-Type": "application/json"},
     body: JSON.stringify({
-      bbox: [longitude - 0.52, latitude - 0.36, longitude + 0.52, latitude + 0.36],
+      bbox: satelliteImageBounds(latitude, longitude),
       datetime: `${from}T00:00:00Z/${to}T23:59:59Z`,
       collections: ["sentinel-2-l2a"],
       limit: 100,
@@ -89,14 +97,50 @@ function evaluatePixel(samples) {
   return [0, 0, 0, 0];
 }`;
 
-async function processImage(latitude: number, longitude: number, from: string, to: string, token: string) {
+function burnedAreaEvalscript(signalAt: string) {
+  return `//VERSION=3
+var SIGNAL_TIME = new Date(${JSON.stringify(signalAt)}).getTime();
+function setup() {
+  return {
+    input: [{bands: ["B08", "B12", "SCL", "dataMask"]}],
+    output: {bands: 4, sampleType: "AUTO"},
+    mosaicking: "ORBIT"
+  };
+}
+function clear(sample) {
+  return sample.dataMask === 1 && ![0, 1, 3, 6, 7, 8, 9, 10, 11].includes(sample.SCL);
+}
+function nbr(sample) {
+  var denominator = sample.B08 + sample.B12;
+  return denominator === 0 ? 0 : (sample.B08 - sample.B12) / denominator;
+}
+function evaluatePixel(samples, scenes) {
+  var before = null;
+  var after = null;
+  for (var index = 0; index < samples.length; index++) {
+    var sample = samples[index];
+    var acquiredAt = scenes.orbits[index] && scenes.orbits[index].dateFrom;
+    if (!acquiredAt || !clear(sample)) continue;
+    var acquiredTime = new Date(acquiredAt).getTime();
+    if (acquiredTime < SIGNAL_TIME && before === null) before = sample;
+    if (acquiredTime >= SIGNAL_TIME && after === null) after = sample;
+  }
+  if (before === null || after === null) return [0, 0, 0, 0];
+  var dNBR = nbr(before) - nbr(after);
+  if (dNBR < ${BURNED_AREA_DNBR_THRESHOLD}) return [0, 0, 0, 0];
+  var intensity = Math.min(1, Math.max(0, (dNBR - ${BURNED_AREA_DNBR_THRESHOLD}) / 0.39));
+  return [1, 0.22, 0.06, 0.5 + intensity * 0.28];
+}`;
+}
+
+async function processImage(latitude: number, longitude: number, from: string, to: string, token: string, layer: "natural" | "burned-area", signalAt: string | null) {
   const response = await fetch("https://sh.dataspace.copernicus.eu/api/v1/process", {
     method: "POST",
     headers: {Authorization: `Bearer ${token}`, "Content-Type": "application/json", Accept: "image/png"},
     body: JSON.stringify({
       input: {
         bounds: {
-          bbox: [longitude - 0.52, latitude - 0.36, longitude + 0.52, latitude + 0.36],
+          bbox: satelliteImageBounds(latitude, longitude),
           properties: {crs: "http://www.opengis.net/def/crs/OGC/1.3/CRS84"},
         },
         data: [{
@@ -108,8 +152,8 @@ async function processImage(latitude: number, longitude: number, from: string, t
           },
         }],
       },
-      output: {width: 760, height: 420, responses: [{identifier: "default", format: {type: "image/png"}}]},
-      evalscript: EVALSCRIPT,
+      output: {width: SATELLITE_IMAGE_WIDTH, height: SATELLITE_IMAGE_HEIGHT, responses: [{identifier: "default", format: {type: "image/png"}}]},
+      evalscript: layer === "burned-area" ? burnedAreaEvalscript(signalAt as string) : EVALSCRIPT,
     }),
     cache: "no-store",
     signal: AbortSignal.timeout(30_000),
@@ -124,8 +168,11 @@ export async function GET(request: NextRequest) {
   const from = request.nextUrl.searchParams.get("from");
   const to = request.nextUrl.searchParams.get("to");
   const resolve = request.nextUrl.searchParams.get("resolve") === "1";
+  const layer = request.nextUrl.searchParams.get("layer") ?? "natural";
+  const signalAt = request.nextUrl.searchParams.get("signalAt");
   const validDate = (value: string | null) => Boolean(value && /^\d{4}-\d{2}-\d{2}$/.test(value));
-  if (!validNumber(latitude, 41, 52) || !validNumber(longitude, -6, 10)) {
+  const validTimestamp = (value: string | null) => Boolean(value && Number.isFinite(new Date(value).getTime()));
+  if (!validNumber(latitude, 41, 52) || !validNumber(longitude, -6, 10) || !["natural", "burned-area"].includes(layer) || (layer === "burned-area" && !validTimestamp(signalAt))) {
     return NextResponse.json({error: "invalid_parameters"}, {status: 400});
   }
 
@@ -136,24 +183,35 @@ export async function GET(request: NextRequest) {
       const scenes = await catalogue(latitude, longitude, range.from, range.to, token);
       if (!scenes.length) return NextResponse.json({error: "no_acquisition"}, {status: 404});
       const best = [...scenes].sort((a, b) => (b.properties?.datetime ?? "").localeCompare(a.properties?.datetime ?? ""))[0].properties;
+      const burnedArea = selectBurnedAreaComparison(signalAt, scenes.flatMap((scene) => scene.properties?.datetime ?? []));
       return NextResponse.json({
         date: best?.datetime?.slice(0, 10) ?? range.to,
+        acquiredAt: best?.datetime ?? `${range.to}T23:59:59Z`,
         from: range.from,
         to: range.to,
         platform: "sentinel2",
         source: "Copernicus Sentinel-2 L2A",
         cloudCoverage: Math.round((best?.["eo:cloud_cover"] ?? 0) * 10) / 10,
         composite: scenes.length > 1,
+        burnedAreaStatus: burnedArea.status,
+        burnedAreaComparison: burnedArea.comparison,
+        groundSampleDistance: SATELLITE_GROUND_SAMPLE_DISTANCE_METERS,
+        extentKm: {
+          width: SATELLITE_IMAGE_WIDTH * SATELLITE_GROUND_SAMPLE_DISTANCE_METERS / 1_000,
+          height: SATELLITE_IMAGE_HEIGHT * SATELLITE_GROUND_SAMPLE_DISTANCE_METERS / 1_000,
+        },
       }, {headers: {"Cache-Control": "private, max-age=0, must-revalidate"}});
     }
 
     if (!validDate(from) || !validDate(to)) return NextResponse.json({error: "invalid_parameters"}, {status: 400});
-    const image = await processImage(latitude, longitude, from as string, to as string, token);
+    const image = await processImage(latitude, longitude, from as string, to as string, token, layer as "natural" | "burned-area", signalAt);
     return new NextResponse(image, {
       headers: {
         "Content-Type": "image/png",
         "Cache-Control": "private, max-age=3600, stale-while-revalidate=86400",
         "X-Imagery-Source": "Copernicus Sentinel-2 L2A",
+        "X-Imagery-GSD": `${SATELLITE_GROUND_SAMPLE_DISTANCE_METERS}m`,
+        "X-Imagery-Layer": layer,
       },
     });
   } catch (error) {
