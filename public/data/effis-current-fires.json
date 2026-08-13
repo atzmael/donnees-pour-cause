@@ -1,6 +1,6 @@
 {
-  "updatedAt": "2026-08-13T08:46:12.314Z",
-  "cutoffAt": "2026-08-13T07:41:49.587Z",
+  "updatedAt": "2026-08-13T10:23:57.569Z",
+  "cutoffAt": "2026-08-13T08:46:21.485Z",
   "retentionDays": 90,
   "sourceName": "EFFIS Rapid Damage Assessment",
   "sourceUrl": "https://forest-fire.emergency.copernicus.eu/about-effis/technical-background/rapid-damage-assessment",
@@ -23077,6 +23077,40 @@
           [
             -0.05529,
             47.45221
+          ]
+        ]
+      ]
+    },
+    {
+      "id": "623020",
+      "firedAt": "2026-08-09T12:57:00.000Z",
+      "updatedAt": "2026-08-13T08:46:21.485Z",
+      "areaHa": 1,
+      "department": "Landes",
+      "commune": "Léon",
+      "bbox": [
+        -1.25194,
+        43.8088,
+        -1.25075,
+        43.80969
+      ],
+      "rings": [
+        [
+          [
+            -1.2509,
+            43.80968
+          ],
+          [
+            -1.2512,
+            43.80883
+          ],
+          [
+            -1.25194,
+            43.8093
+          ],
+          [
+            -1.2509,
+            43.80968
           ]
         ]
       ]
