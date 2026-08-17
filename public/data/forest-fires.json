@@ -1,6 +1,6 @@
 {
-  "updatedAt": "2026-08-17T13:05:59.128Z",
-  "effisCutoffAt": "2026-08-17T12:01:51.722Z",
+  "updatedAt": "2026-08-17T13:53:06.586Z",
+  "effisCutoffAt": "2026-08-17T13:13:38.184Z",
   "earliestYear": 2006,
   "latestConsolidatedYear": 2025,
   "currentYear": 2026,
@@ -7204,10 +7204,10 @@
     "2026": {
       "source": "EFFIS",
       "status": "provisional",
-      "fireCount": 1623,
-      "burnedArea": 105384,
-      "forestBurnedArea": 51483.9,
-      "forestShare": 48.9,
+      "fireCount": 1625,
+      "burnedArea": 105564,
+      "forestBurnedArea": 51533,
+      "forestShare": 48.8,
       "departments": {
         "11": {
           "fireCount": 3,
@@ -7246,10 +7246,10 @@
           "forestShare": 26.1
         },
         "18": {
-          "fireCount": 3,
-          "burnedArea": 67,
+          "fireCount": 4,
+          "burnedArea": 72,
           "forestBurnedArea": 34.8,
-          "forestShare": 51.9
+          "forestShare": 48.3
         },
         "19": {
           "fireCount": 1,
@@ -7343,9 +7343,9 @@
         },
         "40": {
           "fireCount": 11,
-          "burnedArea": 6407,
+          "burnedArea": 6447,
           "forestBurnedArea": 2371.8,
-          "forestShare": 37
+          "forestShare": 36.8
         },
         "41": {
           "fireCount": 3,
@@ -7385,9 +7385,9 @@
         },
         "48": {
           "fireCount": 135,
-          "burnedArea": 2069,
-          "forestBurnedArea": 344.5,
-          "forestShare": 16.7
+          "burnedArea": 2144,
+          "forestBurnedArea": 389.7,
+          "forestShare": 18.2
         },
         "49": {
           "fireCount": 5,
@@ -7540,10 +7540,10 @@
           "forestShare": 20.3
         },
         "06": {
-          "fireCount": 12,
-          "burnedArea": 92,
-          "forestBurnedArea": 5.5,
-          "forestShare": 6
+          "fireCount": 13,
+          "burnedArea": 152,
+          "forestBurnedArea": 9.5,
+          "forestShare": 6.3
         },
         "05": {
           "fireCount": 2,
