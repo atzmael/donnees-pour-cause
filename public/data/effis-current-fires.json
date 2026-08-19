@@ -1,6 +1,6 @@
 {
-  "updatedAt": "2026-08-19T07:57:22.555Z",
-  "cutoffAt": "2026-08-18T09:09:30.744Z",
+  "updatedAt": "2026-08-19T08:57:12.886Z",
+  "cutoffAt": "2026-08-19T08:37:40.919Z",
   "retentionDays": 90,
   "sourceName": "EFFIS Rapid Damage Assessment",
   "sourceUrl": "https://forest-fire.emergency.copernicus.eu/about-effis/technical-background/rapid-damage-assessment",
@@ -10581,6 +10581,82 @@
           [
             8.94655,
             42.48765
+          ]
+        ]
+      ]
+    },
+    {
+      "id": "636519",
+      "firedAt": "2026-08-13T12:38:00.000Z",
+      "updatedAt": "2026-08-19T08:37:31.807Z",
+      "areaHa": 1,
+      "department": "Haute-Corse",
+      "commune": "Venaco",
+      "bbox": [
+        9.19282,
+        42.22448,
+        9.19414,
+        42.22578
+      ],
+      "rings": [
+        [
+          [
+            9.19359,
+            42.22578
+          ],
+          [
+            9.19413,
+            42.22514
+          ],
+          [
+            9.19397,
+            42.22449
+          ],
+          [
+            9.19282,
+            42.22513
+          ],
+          [
+            9.19359,
+            42.22578
+          ]
+        ]
+      ]
+    },
+    {
+      "id": "636520",
+      "firedAt": "2026-08-13T12:38:00.000Z",
+      "updatedAt": "2026-08-19T08:37:40.919Z",
+      "areaHa": 1,
+      "department": "Haute-Corse",
+      "commune": "Venaco",
+      "bbox": [
+        9.19493,
+        42.22478,
+        9.19649,
+        42.22558
+      ],
+      "rings": [
+        [
+          [
+            9.19639,
+            42.22523
+          ],
+          [
+            9.19624,
+            42.22479
+          ],
+          [
+            9.19519,
+            42.22494
+          ],
+          [
+            9.19493,
+            42.22542
+          ],
+          [
+            9.19639,
+            42.22523
           ]
         ]
       ]
