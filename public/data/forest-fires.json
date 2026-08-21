@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-08-21T01:58:08.442Z",
+  "updatedAt": "2026-08-21T03:16:43.106Z",
   "effisCutoffAt": "2026-08-20T07:51:11.781Z",
   "earliestYear": 2006,
   "latestConsolidatedYear": 2025,
@@ -7527,23 +7527,11 @@
           "forestBurnedArea": 8.6,
           "forestShare": 15.4
         },
-        "09": {
-          "fireCount": 52,
-          "burnedArea": 1062,
-          "forestBurnedArea": 196.9,
-          "forestShare": 18.5
-        },
-        "06": {
-          "fireCount": 14,
-          "burnedArea": 153,
-          "forestBurnedArea": 9.5,
-          "forestShare": 6.2
-        },
-        "2B": {
-          "fireCount": 27,
-          "burnedArea": 1804,
-          "forestBurnedArea": 714.7,
-          "forestShare": 39.6
+        "04": {
+          "fireCount": 7,
+          "burnedArea": 88,
+          "forestBurnedArea": 0.9,
+          "forestShare": 1
         },
         "07": {
           "fireCount": 69,
@@ -7551,11 +7539,29 @@
           "forestBurnedArea": 117.8,
           "forestShare": 20.3
         },
-        "04": {
-          "fireCount": 7,
-          "burnedArea": 88,
-          "forestBurnedArea": 0.9,
-          "forestShare": 1
+        "06": {
+          "fireCount": 14,
+          "burnedArea": 153,
+          "forestBurnedArea": 9.5,
+          "forestShare": 6.2
+        },
+        "05": {
+          "fireCount": 2,
+          "burnedArea": 555,
+          "forestBurnedArea": 488.6,
+          "forestShare": 88
+        },
+        "09": {
+          "fireCount": 52,
+          "burnedArea": 1062,
+          "forestBurnedArea": 196.9,
+          "forestShare": 18.5
+        },
+        "2B": {
+          "fireCount": 27,
+          "burnedArea": 1804,
+          "forestBurnedArea": 714.7,
+          "forestShare": 39.6
         },
         "2A": {
           "fireCount": 9,
@@ -7569,29 +7575,23 @@
           "forestBurnedArea": 17.3,
           "forestShare": 31.5
         },
+        "01": {
+          "fireCount": 2,
+          "burnedArea": 17,
+          "forestBurnedArea": 15.2,
+          "forestShare": 89.4
+        },
         "02": {
           "fireCount": 1,
           "burnedArea": 10,
           "forestBurnedArea": 2,
           "forestShare": 20
         },
-        "05": {
-          "fireCount": 2,
-          "burnedArea": 555,
-          "forestBurnedArea": 488.6,
-          "forestShare": 88
-        },
         "08": {
           "fireCount": 2,
           "burnedArea": 65,
           "forestBurnedArea": 65,
           "forestShare": 100
-        },
-        "01": {
-          "fireCount": 2,
-          "burnedArea": 17,
-          "forestBurnedArea": 15.2,
-          "forestShare": 89.4
         }
       }
     }
