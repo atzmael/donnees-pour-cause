@@ -1,6 +1,6 @@
 {
-  "updatedAt": "2026-09-04T04:33:05.373Z",
-  "cutoffAt": "2026-09-03T10:48:22.058Z",
+  "updatedAt": "2026-09-04T09:41:28.720Z",
+  "cutoffAt": "2026-09-04T08:27:48.840Z",
   "retentionDays": 90,
   "sourceName": "EFFIS Rapid Damage Assessment",
   "sourceUrl": "https://forest-fire.emergency.copernicus.eu/about-effis/technical-background/rapid-damage-assessment",
@@ -9169,6 +9169,56 @@
           [
             3.93207,
             44.55526
+          ]
+        ]
+      ]
+    },
+    {
+      "id": "673009",
+      "firedAt": "2026-09-03T21:13:00.000Z",
+      "updatedAt": "2026-09-04T08:27:48.840Z",
+      "areaHa": 9,
+      "department": "Ardèche",
+      "commune": "Malbosc",
+      "bbox": [
+        4.08426,
+        44.36679,
+        4.08893,
+        44.37008
+      ],
+      "rings": [
+        [
+          [
+            4.08893,
+            44.36807
+          ],
+          [
+            4.08859,
+            44.36716
+          ],
+          [
+            4.08752,
+            44.36679
+          ],
+          [
+            4.08426,
+            44.36882
+          ],
+          [
+            4.08488,
+            44.36962
+          ],
+          [
+            4.08724,
+            44.37
+          ],
+          [
+            4.0882,
+            44.36942
+          ],
+          [
+            4.08893,
+            44.36807
           ]
         ]
       ]
