@@ -1,6 +1,6 @@
 {
-  "updatedAt": "2026-09-18T04:53:13.372Z",
-  "cutoffAt": "2026-09-17T14:29:32.206Z",
+  "updatedAt": "2026-09-18T09:50:38.859Z",
+  "cutoffAt": "2026-09-18T06:59:39.650Z",
   "retentionDays": 90,
   "sourceName": "EFFIS Rapid Damage Assessment",
   "sourceUrl": "https://forest-fire.emergency.copernicus.eu/about-effis/technical-background/rapid-damage-assessment",
@@ -12379,6 +12379,86 @@
           [
             8.74853,
             42.00779
+          ]
+        ]
+      ]
+    },
+    {
+      "id": "740828",
+      "firedAt": "2026-09-16T12:00:00.000Z",
+      "updatedAt": "2026-09-18T06:59:26.102Z",
+      "areaHa": 1,
+      "department": "Haute-Corse",
+      "commune": "Erbajolo",
+      "bbox": [
+        9.2719,
+        42.27088,
+        9.27447,
+        42.27252
+      ],
+      "rings": [
+        [
+          [
+            9.27438,
+            42.27252
+          ],
+          [
+            9.27333,
+            42.27145
+          ],
+          [
+            9.2719,
+            42.27095
+          ],
+          [
+            9.27225,
+            42.27159
+          ],
+          [
+            9.27438,
+            42.27252
+          ]
+        ]
+      ]
+    },
+    {
+      "id": "740829",
+      "firedAt": "2026-09-16T12:00:00.000Z",
+      "updatedAt": "2026-09-18T06:59:39.650Z",
+      "areaHa": 1,
+      "department": "Haute-Corse",
+      "commune": "Erbajolo",
+      "bbox": [
+        9.2646,
+        42.26997,
+        9.26582,
+        42.27188
+      ],
+      "rings": [
+        [
+          [
+            9.2658,
+            42.27154
+          ],
+          [
+            9.26523,
+            42.27007
+          ],
+          [
+            9.26473,
+            42.27011
+          ],
+          [
+            9.26525,
+            42.27164
+          ],
+          [
+            9.2657,
+            42.27186
+          ],
+          [
+            9.2658,
+            42.27154
           ]
         ]
       ]

@@ -1,10 +1,10 @@
 {
-  "updatedAt": "2026-09-18T04:53:05.406Z",
+  "updatedAt": "2026-09-18T09:50:30.539Z",
   "populationReferenceYear": 2021,
   "methodology": "Estimation des habitants présents dans les surfaces brûlées EFFIS MODIS. Chaque carreau de population Insee de 1 km est échantillonné en 16 points et sa population est affectée proportionnellement à la part de points situés dans un périmètre brûlé. La borne haute additionne toute la population des carreaux au moins partiellement touchés. La méthode couvre principalement les feux d’environ 30 hectares ou plus. Les évacuations documentées restent séparées et l’exposition aux fumées n’est pas chiffrée sans seuil CAMS validé.",
   "audit": {
-    "effisRecords": 12032,
-    "frenchPerimeters": 6716,
+    "effisRecords": 12034,
+    "frenchPerimeters": 6718,
     "populationCells": 374622,
     "referencePopulation": 65384445,
     "coverageStartYear": 2016,
