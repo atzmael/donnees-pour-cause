@@ -1,6 +1,6 @@
 {
-  "updatedAt": "2026-11-06T06:46:43.472Z",
-  "effisCutoffAt": "2026-11-04T15:20:14.117Z",
+  "updatedAt": "2026-11-06T15:06:26.230Z",
+  "effisCutoffAt": "2026-11-06T08:56:38.087Z",
   "earliestYear": 2006,
   "latestConsolidatedYear": 2025,
   "currentYear": 2026,
@@ -7204,8 +7204,8 @@
     "2026": {
       "source": "EFFIS",
       "status": "provisional",
-      "fireCount": 1724,
-      "burnedArea": 108938,
+      "fireCount": 1727,
+      "burnedArea": 108984,
       "forestBurnedArea": 52099.7,
       "forestShare": 47.8,
       "departments": {
@@ -7294,10 +7294,10 @@
           "forestShare": 40.8
         },
         "31": {
-          "fireCount": 11,
-          "burnedArea": 81,
+          "fireCount": 12,
+          "burnedArea": 95,
           "forestBurnedArea": 0.8,
-          "forestShare": 1
+          "forestShare": 0.8
         },
         "33": {
           "fireCount": 21,
@@ -7594,10 +7594,10 @@
           "forestShare": 88
         },
         "09": {
-          "fireCount": 63,
-          "burnedArea": 1773,
+          "fireCount": 65,
+          "burnedArea": 1805,
           "forestBurnedArea": 231,
-          "forestShare": 13
+          "forestShare": 12.8
         },
         "2B": {
           "fireCount": 49,
